@@ -13,8 +13,6 @@ extern "C" {
 #include "text.h"
 
 extern lua_State *L;
-extern int exec_lua_string(lua_State *L, const char *buf);
-
 
 
 
@@ -35,6 +33,7 @@ Console *Console::getInstance() {
 Console::Console() { 
 
    buf_max = 1000; 
+   buf_pos = 0; 
    hist_max = 100;
    hist_pos = 0;
 
@@ -61,7 +60,13 @@ void Console::addString(const char *s) {
 
    // add string to buffer
    std::string str(s);
-   buf.push_back(s);
+
+   // find and replace tabs
+   int i;
+   while((i=str.find('\t')) != std::string::npos) {
+      str.replace(i, 1, "   ");
+   }
+   buf.push_back(str);
 
    // if reached maximum, remove
    if(buf.size() > buf_max) {
@@ -132,6 +137,15 @@ void Console::keypress(int code, bool isdown, char ascii) {
          cursor += 3;
          break;
 
+/*
+      case SDLK_PAGEUP:
+         buf_pos -= disp_lines;
+         if(buf_pos < disp_lines)
+            buf_pos = buf.size();
+         else
+            buf_pos += disp_lines;
+         break;
+*/
       case SDLK_UP:
          if(history.size() > 0) {
             if(hist_pos > 0)
@@ -175,7 +189,7 @@ void Console::keypress(int code, bool isdown, char ascii) {
          if(isprint(ascii)) {
             cmd_line.insert(cursor, 1, ascii);
             cursor++;
-            printf("cmd_line after %c [%s]\n", ascii, cmd_line.c_str());
+            //printf("cmd_line after %c [%s]\n", ascii, cmd_line.c_str());
          }
       } 
    }
@@ -188,7 +202,7 @@ void Console::keypress(int code, bool isdown, char ascii) {
 
          // add to history
          if(!cmd_line.empty()) {
-           printf("adding [%s] to history", cmd_line.c_str());
+            //printf("adding [%s] to history", cmd_line.c_str());
             history.push_back(cmd_line);
             if(history.size() > hist_max)
                history.pop_front();
@@ -199,8 +213,37 @@ void Console::keypress(int code, bool isdown, char ascii) {
          addString((prompt+cmd_line).c_str());
 
          // attempt to execute cmd_line here...
-         exec_lua_string(L, cmd_line.c_str());
+         cmd_buf.append(" ");
+         cmd_buf.append(cmd_line);
 
+         //lua_dobuffer(L, cmd_line.c_str(), cmd_line.length(), "=console");
+
+         int status = 0;
+
+         status = luaL_loadbuffer(L, cmd_buf.c_str(), cmd_buf.length(), "=console");
+
+         if(status == 0) {
+            printf("executing [%s]\n", cmd_buf.c_str());
+            status = lua_pcall(L, 0, LUA_MULTRET, 0);  /* call main */
+         }
+
+         // call error
+         if(status == LUA_ERRSYNTAX && strstr(lua_tostring(L, -1), "near `<eof>'") != 0) {
+            //ignore error
+            lua_pop(L,1);
+            prompt = ">> ";
+         }
+         else {
+            if(status != 0) {
+               lua_getglobal(L, "_ALERT");
+               lua_insert(L, -2);
+               lua_call(L, 1, 0);
+            }
+
+            prompt = "> ";
+            cmd_buf.clear();
+         }
+       
          // clear line
          cmd_line.clear();
          cursor = 0;
@@ -251,7 +294,7 @@ void Console::render() {
 
    glColor4f(1.0, 1.0, 1.0, 0.75);
 
-   int last  = buf.size();
+   int last  = buf.size() - buf_pos;
    int first = last - disp_lines + 1;
 
    if(first < 0)

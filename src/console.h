@@ -11,12 +11,14 @@ typedef std::deque<std::string> Buffer;
 class Console {
 private:
    unsigned int buf_max;
+   int buf_pos;
    Buffer buf;
 
    unsigned int hist_max;
    int hist_pos;
    Buffer history;
 
+   std::string cmd_buf;
    std::string cmd_line;
    unsigned int cursor;
    std::string prompt;

@@ -82,6 +82,16 @@ static GLuint world;
 static int delta = 0;
 
 
+static int LuaError( lua_State *L ) {
+
+  const char *errormsg = lua_tostring( L, -1 );
+
+  Console::getInstance()->addString(errormsg);
+
+  return 0;
+}
+
+
 
 /*
 ** If your system does not support `stdout', you can just remove this function.
@@ -114,46 +124,6 @@ static int luaB_print (lua_State *L) {
   return 0;
 }
 
-
-
-int exec_lua_string(lua_State *L, const char *buf) {
-
-   int s = 0;
-
-   lua_settop(L, 0);
-   lua_pushstring(L, buf);
-   s = luaL_loadbuffer(L, lua_tostring(L, 1), lua_strlen(L, 1), "=console");
-   lua_remove(L, 1);
-
-   if(s == 0) {
-       int base = lua_gettop(L) - 0;
-       lua_pushliteral(L, "_TRACEBACK");
-       lua_rawget(L, LUA_GLOBALSINDEX);
-       lua_insert(L, base);
-       s = lua_pcall(L, 0, LUA_MULTRET, base);
-       lua_remove(L, base);
-   }
-
-   if(s) {
-      const char *c = lua_tostring(L, -1);
-      if(c == 0)
-         c = "no message";
-      char b[1000];  
-      sprintf(b, "[%s]\n", c);
-      Console::getInstance()->addString(b);
-      lua_pop(L, 1);
-   }
-
-   if(s == 0 && lua_gettop(L) > 0) {
-      printf("ok\n");
-
-      lua_getglobal(L, "print");
-      lua_insert(L, 1);
-      lua_pcall(L, lua_gettop(L)-1, 0, 0);
-   }
-
-   return s;
-}
 
 
 
@@ -582,14 +552,17 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
 
 
    lua_register(L, "print", luaB_print);
+   lua_register(L, "_ALERT", LuaError );
 
    //static char buffer[1000];
    //strcpy(buffer, "a = 45 / 68");
    //strcpy(buffer, "print(45)");
    //strcpy(buffer, "for i=1,5 do print(i) end");
 
-   exec_lua_string(L, "copyright=\"Sword of Cydonia (c) 2003 Bernard Schmitz\"");
-   exec_lua_string(L, "print(copyright)");
+   //exec_lua_string(L, "copyright=\"Sword of Cydonia (c) 2003 Bernard Schmitz\"");
+   //exec_lua_string(L, "print(copyright)");
+
+   lua_dofile(L, "startup.lua");
 
    //exec_lua_string(L, "this is an error");
 

@@ -1,8 +1,6 @@
 
 wrap long lines in console
-fix tab bug in lua_print
 page up and down in console
-accept multiple lines for lua code
 
 maybe execute lua in a thread...?
 
@@ -46,4 +44,4 @@ polygon counter...
 export from blender in a format for glDrawElements.
 
 
-$Id: todo.txt,v 1.14 2003-08-06 23:20:58 bernard Exp $
+$Id: todo.txt,v 1.15 2003-08-07 01:26:19 bernard Exp $

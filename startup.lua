@@ -1,7 +1,7 @@
 
 -- This is the main startup code
 --
--- $Id: startup.lua,v 1.1 2003-08-06 23:45:22 bernard Exp $
+-- $Id: startup.lua,v 1.2 2003-08-07 01:26:19 bernard Exp $
 
 copyright = "Sword of Cydonia (c) Bernard Schmitz 2003";
 
@@ -10,7 +10,7 @@ function fac(x)
    if x == 0 then
       return 1
    else
-      return x * fax(x-1)
+      return x * fac(x-1)
    end
 end
 
