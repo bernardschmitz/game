@@ -1,5 +1,5 @@
 
-$Id: todo.txt,v 1.6 2003-08-03 01:21:29 bernard Exp $
+$Id: todo.txt,v 1.7 2003-08-03 01:27:02 bernard Exp $
 
 have weapon and bomb class
 
@@ -30,5 +30,3 @@ static int LuaError( lua_State *L ) {
 polygon counter...
 
 export from blender in a format for glDrawElements.
-
-blah
