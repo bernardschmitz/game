@@ -1,4 +1,6 @@
 
+$Id: todo.txt,v 1.5 2003-08-03 01:10:16 bernard Exp $
+
 have weapon and bomb class
 
 maybe lerp the background palette...
