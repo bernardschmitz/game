@@ -32,12 +32,12 @@ Background::Background() : Actor(ACT_BACKGROUND, vector3(0.0, 0.0, 0.0), vector3
 */
 
    static vector4 map[8] = { vector4( 0.0, 0.0, 0.5, 0.0   ), 
-                             vector4( 0.0, 0.0, 0.3, 0.1   ),
-                             vector4( 0.0, 0.3, 0.1, 0.0   ),
-                             vector4( 0.5, 0.2, 0.0, 0.1   ),
-                             vector4( 0.5, 0.3, 0.0, 0.0   ),
-                             vector4( 0.0, 0.4, 0.1, 0.1   ),
-                             vector4( 0.0, 0.0, 0.3, 0.0   ),
+                             vector4( 0.0, 0.0, 0.5, 0.1   ),
+                             vector4( 0.0, 0.5, 0.5, 0.0   ),
+                             vector4( 0.5, 0.5, 0.0, 0.1   ),
+                             vector4( 0.5, 0.5, 0.0, 0.0   ),
+                             vector4( 0.0, 0.5, 0.5, 0.1   ),
+                             vector4( 0.0, 0.0, 0.5, 0.0   ),
                              vector4( 0.0, 0.0, 0.5, 0.1  )  };
 
 
