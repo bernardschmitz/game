@@ -248,19 +248,6 @@ void ParticleSystem::render() {
                glVertex3f(p2.x, p2.y, p2.z);
                glTexCoord2f(1.0, 0.0);
                glVertex3f(p3.x, p3.y, p3.z);
-
-
-
-/*
-         glTexCoord2f(0.0, 0.0);
-         glVertex3f(p[i].pos[0]-p[i].size, p[i].pos[1]+p[i].size, p[i].pos[2]);
-         glTexCoord2f(0.0, 1.0);
-         glVertex3f(p[i].pos[0]-p[i].size, p[i].pos[1]-p[i].size, p[i].pos[2]);
-         glTexCoord2f(1.0, 1.0);
-         glVertex3f(p[i].pos[0]+p[i].size, p[i].pos[1]-p[i].size, p[i].pos[2]);
-         glTexCoord2f(1.0, 0.0);
-         glVertex3f(p[i].pos[0]+p[i].size, p[i].pos[1]+p[i].size, p[i].pos[2]);
-*/
       }
    }
    glEnd();

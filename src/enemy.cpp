@@ -1041,7 +1041,7 @@ void Enemy::render() {
    
    glScalef(0.2, 0.2, 0.2);
 
-   glRotatef(90, 0.0, 0.0, 1.0);
+   glRotatef(-90, 0.0, 0.0, 1.0);
    glRotatef(angle, axis.x, axis.y, axis.z);
 
    glCallList(dl_enemy);

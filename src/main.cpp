@@ -16,6 +16,7 @@
 #include "input.h"
 #include "settings.h"
 #include "enemy.h"
+#include "bullet.h"
 #include "particle.h"
 #include "random.h"
 #include "interpolate.h"
@@ -127,6 +128,7 @@ static void draw(void) {
    st = SDL_GetTicks();
 
    alEnemy.render();
+   alBullet.render();
 
    player->render();
 
@@ -200,6 +202,7 @@ idle(void)
 
    player->action();
    alEnemy.action();
+   alBullet.action();
    alParticles.action();
 }
 
@@ -276,6 +279,9 @@ init(int argc, char *argv[])
 */
 
    alEnemy.insert(new Enemy(vector3(10, 10, -10)));
+   alEnemy.insert(new Enemy(vector3(20, 10, -10)));
+   alEnemy.insert(new Enemy(vector3(-50, -25, -10)));
+   alEnemy.insert(new Enemy(vector3(10, -10, -10)));
 
    alParticles.insert(new ParticleSystem());
 

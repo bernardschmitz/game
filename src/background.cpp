@@ -22,7 +22,7 @@ Background::Background() {
 
    static vector4 map[8] = { vector4( 0.5, 0.0, 0.0, 0.0   ), 
                              vector4( 0.5, 0.3, 0.0, 0.1   ),
-                             vector4( 0.5, 0.5, 0.5, 0.2   ),
+                             vector4( 0.5, 0.5, 0.5, 0.0   ),
                              vector4( 0.5, 0.5, 0.0, 0.1   ),
                              vector4( 0.5, 0.0, 0.0, 0.0   ),
                              vector4( 0.0, 0.5, 0.0, 0.1   ),
@@ -108,7 +108,7 @@ int plasma(float x, float y, float z) {
    //float k = 0.25*(sin(x/60)+sin(y/30)+sin(z/23)+sin(x*y*z)/100);
 
    float k = (sin(sqrt(x*x+y*y)/16.0) + cos(sqrt(x*x+z*z)/-23.0)) / 2.0;
-//   float k = sin(sqrt(x*x+y*y)/20)*sin(z/60); //+sin(y/100)+sin(z/80);
+   //float k = sin(sqrt(x*x+y*y)/20)*sin(z/60); //+sin(y/100)+sin(z/80);
 
 
    return int(128.0+127.0*k);

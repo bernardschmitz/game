@@ -6,6 +6,7 @@
 #include "enemy.h"
 #include "particle.h"
 #include "random.h"
+#include "bullet.h"
 
 Player *player = NULL;
 
@@ -585,17 +586,21 @@ int Player::action() {
    // shoot
    if(input.fire && shooting == 0) {
       shooting = 15;
+      // recoil
       //vector3 acceleration( -cos(degToRad(z_rotation))/50.0f, -sin(degToRad(z_rotation))/50.0f, 0.0f);
       //velocity += acceleration;
 
-      vector3 pp(uniform_random_float(-1.0, 1.0), uniform_random_float(-1.0, 1.0), 0.0);
+      // spawn enemy
+      //vector3 pp(uniform_random_float(-1.0, 1.0), uniform_random_float(-1.0, 1.0), 0.0);
+      //pp.normalize();
+      //pp.scale(10.0);
+      //alEnemy.insert(new Enemy(position+pp));
 
-      pp.normalize();
-      pp.scale(10.0);
+      vector3 vv( cos(degToRad(z_rotation))*1.5f, sin(degToRad(z_rotation))*1.5f, 0.0f);
+      alBullet.insert(new Bullet(position, velocity+vv));
 
-      alEnemy.insert(new Enemy(position+pp));
-
-      alParticles.first()->init();
+      // spawn exp
+      //alParticles.first()->init();
    }
    else {
       if(shooting > 0)
@@ -709,6 +714,7 @@ int Player::render() {
 
    glEnable(GL_BLEND);
    glBlendFunc(GL_SRC_ALPHA,GL_ONE);
+   //glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
 
     glPushMatrix();
