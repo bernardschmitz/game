@@ -26,11 +26,10 @@ private:
    int find(const char *name);
    int create(Image *img, const char *name);
    TextureManager();
-   ~TextureManager();
 
    static TextureManager *instance; 
 public: 
-
+   ~TextureManager();
    static TextureManager *getInstance();
 
    //int load(Image& img);

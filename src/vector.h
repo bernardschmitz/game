@@ -1,10 +1,11 @@
 
-// $Id: vector.h,v 1.5 2003-08-08 22:41:15 bernard Exp $
+// $Id: vector.h,v 1.6 2003-08-11 16:23:31 bernard Exp $
 
 #ifndef __VECTOR_H__
 #define __VECTOR_H__
 
 #include <math.h>
+#include <iostream>
 
 // TODO
 //
@@ -224,10 +225,18 @@ public:
    // norm
    friend vector3 operator!(const vector3& v) { vector3 t(v); t.normalize(); return t; }
 
+//   friend std::ostream& operator<<(std::ostream& s, const vector3& v);
+
    friend class vector4;
    friend class quaternion;
 };
    
+
+inline std::ostream& operator<<(std::ostream& s, const vector3& v) {
+   s << "(" << v.x << "," << v.y << "," << v.z << ")";
+   return s;
+}
+
 
 
 class vector4 {

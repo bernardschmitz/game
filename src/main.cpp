@@ -30,6 +30,12 @@ extern "C"
 #include "text.h"
 #include "console.h"
 
+#include <assert.h>
+
+#include <iostream>
+#include <map>
+
+
 #ifndef M_PI
 #define M_PI 3.14159265
 #endif
@@ -60,7 +66,6 @@ GLuint blurry_spot;
 static GLuint box;
 
 
-static int follow = 1;
 
 static GLUquadric *fsphere;
 static GLUquadric *bsphere;
@@ -81,6 +86,105 @@ static GLuint world;
 
 
 static int delta = 0;
+
+#if 0
+
+struct mem_block {
+   size_t n;
+   void *p;
+   mem_block(size_t nn, void *pp) { n = nn; p = pp; }
+   mem_block(const mem_block& m) { n = m.n; p = m.p; }
+   mem_block() { n = 0; p = 0; }
+   static int max_bytes;
+   static void report();
+
+};
+
+typedef std::map<void *, mem_block> BlockMap;
+
+BlockMap block_map;
+
+int mem_block::max_bytes = 0;
+
+void mem_block::report() {
+
+   std::cout << "\nMax mem allocated " << max_bytes << " bytes\n";
+
+   if(block_map.size() == 0) {
+      std::cout << "All memory freed!\n";
+      return;
+   }
+
+   BlockMap::iterator i = block_map.begin();
+
+   while(i != block_map.end()) {
+      mem_block m = (*i).second;
+      std::cout << "block " << m.p << " size " << m.n << " not freed!\n";
+      ++i;
+   }
+
+   std::cout << "Done.\n";
+}
+
+void *operator new(size_t n) {
+
+   void *p = malloc(n);
+
+//   std::cout << "new " << n << " return " << p << endl;
+
+   mem_block b(n,p);
+   block_map[p] = b;
+
+   mem_block::max_bytes += n;
+
+   return p;
+}
+
+void *operator new[](size_t n) {
+
+   void *p = malloc(n);
+
+//   std::cout << "new [] " << n << " return " << p << endl;
+
+   mem_block b(n,p);
+   block_map[p] = b;
+
+   mem_block::max_bytes += n;
+
+   return p;
+}
+
+void operator delete(void *p) {
+
+//   std::cout << "delete " << p << endl;
+
+   BlockMap::iterator i = block_map.find(p);
+
+   if(i == block_map.end()) {
+      std::cout << "attempt to free non existant block\n";
+   }
+   else {
+      block_map.erase(i);
+      free(p);
+   }
+}
+
+void operator delete[](void *p) {
+
+//   std::cout << "delete [] " << p << endl;
+   BlockMap::iterator i = block_map.find(p);
+   if(i == block_map.end()) {
+      std::cout << "attempt to free non existant block\n";
+   }
+   else {
+      block_map.erase(i);
+      free(p);
+   }
+}
+
+#endif
+
+
 
 int  glue_addEnemy(lua_State *L) {
 
@@ -145,7 +249,6 @@ static void draw(void) {
    static int frames = 0;
    static float fps = 10.0;
    static int last = 0;
-   int i;
 
    int now = SDL_GetTicks();
 
@@ -184,21 +287,18 @@ static void draw(void) {
    //mag = -vel.length();
    mag = (mag*100 + -vel.length()*1.5)/101;
 
+   if(input->lock_cam)
+      mag = -60.0;
+
    //printf("mag = %f\n", mag);
 
-   if(follow) {
-       //  want cam to move between 0.0 and -36.0
-//      glTranslatef(-pos.x, -pos.y, 0.0);
-      glTranslatef(-pos.x, -pos.y, mag*0.75);
-   }
-   else
-      glTranslatef(-pos.x, -pos.y, -100.0);
+   glTranslatef(-pos.x, -pos.y, mag*0.75);
 
 
    actor_manager->render();
 
    //bg->setCenter(vector3(pos.x, pos.y, 0.0));
-   bg->setCenter(vector3(pos.x, pos.y, mag));
+   bg->setCenter(vector3(pos.x, pos.y, mag*0.75));
 
 
    char fs[100];
@@ -508,7 +608,7 @@ int main(int argc, char *argv[])
 
   SDL_Surface *screen;
   int done;
-  Uint8 *keys;
+//  Uint8 *keys;
 
   int fs = FS;
   int w = WIDTH;
@@ -620,6 +720,11 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
 
 
    lua_close(L);
+
+
+   delete input;
+
+
 /*
   sgVec3 A, B, C, D;
 
@@ -636,5 +741,13 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
      printf("%d : %f %f %f\n", i, p[i][0], p[i][1], p[i][2]);
 
 */
-  return 0;             /* ANSI C requires main to return int. */
+#if 0
+#ifndef NDEBUG
+   atexit(mem_block::report);
+#endif
+#endif
+
+   return 0;             /* ANSI C requires main to return int. */
 }
+
+

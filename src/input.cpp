@@ -16,14 +16,15 @@ Input *Input::getInstance() {
 
 Input::Input() { 
 
-//   con = Console::getInstance(); 
-
-   quit = rotate_left = rotate_right = thrust = fire = bomb = 0; 
+   quit = 0;
+   rotate_left = rotate_right = thrust = fire = bomb = 0; 
+   lock_cam = 0;
 }
 
 
 Input::~Input() { 
 
+   printf("input destructor\n");
    instance = 0;
 }
 
@@ -42,13 +43,23 @@ void Input::process() {
       switch(event.type) {
 
       case SDL_KEYUP:
-         if(event.key.keysym.sym == SDLK_ESCAPE)
+         
+         switch(event.key.keysym.sym) {
+
+         case SDLK_ESCAPE:
             quit = 1;
+            break;
 
-         if(event.key.keysym.sym == 96)
+         case SDLK_c:
+            lock_cam = !lock_cam;
+            break;
+         case 96: // tilde
             Console::getInstance()->show();
+            break;
 
-         break;
+         default:
+            ; // nothing
+         }
       }
    }
 
@@ -61,20 +72,6 @@ void Input::process() {
       thrust       = keys[SDLK_UP];
       fire         = keys[SDLK_LCTRL];
       bomb         = keys[SDLK_SPACE];
-
-      
-      // tilde brings up the console
-//      if(keys[96]) {
-         // wait until user releases the tilde key
-/*
-         while(keys[96]) {
-            SDL_Event event;
-            SDL_PollEvent(&event);
-            keys = SDL_GetKeyState(NULL);
-         }
-*/
-//         Console::getInstance()->show();
- //     }
    }
 }
 

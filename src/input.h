@@ -13,15 +13,14 @@ private:
    static Input *instance;
 
    Input();
-   ~Input();
 
 //   void keypress(int code, bool isdown, int unicode);
 public:
    static Input *getInstance();
+   ~Input();
 
 //   void linkConsole(Console *c) { con = c; }
 //   void unlinkConsole() { con = 0; }
- 
 
    void process();
 
@@ -32,6 +31,7 @@ public:
    int bomb;
 
    int quit;
+   int lock_cam;
 };
 
 

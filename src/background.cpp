@@ -1,4 +1,6 @@
 
+#include <assert.h>
+
 #include "background.h"
 #include "settings.h"
 #include "player.h"
@@ -45,17 +47,17 @@ Background::Background() : Actor(ACT_BACKGROUND, vector3(0.0, 0.0, 0.0), vector3
 
    palette = new unsigned char[256*4];
 
-   vector4 v;
+   vector4 vv;
 
    for(int i=0; i<8; i++) {
       for(int j=0; j<32; j++) {
 
-         v.linear_interpolate(map[i], map[(i+1)&0x07], j/32.0);
+         vv.linear_interpolate(map[i], map[(i+1)&0x07], j/32.0);
 
-         palette[i*32*4+j*4+0] = (int)(v.x*255.0)&0xff;
-         palette[i*32*4+j*4+1] = (int)(v.y*255.0)&0xff;
-         palette[i*32*4+j*4+2] = (int)(v.z*255.0)&0xff;
-         palette[i*32*4+j*4+3] = (int)(v.w*255.0)&0xff;
+         palette[i*32*4+j*4+0] = (int)(vv.x*255.0)&0xff;
+         palette[i*32*4+j*4+1] = (int)(vv.y*255.0)&0xff;
+         palette[i*32*4+j*4+2] = (int)(vv.z*255.0)&0xff;
+         palette[i*32*4+j*4+3] = (int)(vv.w*255.0)&0xff;
 
          //palette[i*32+j] = map[i]*(1.0f-j/32.0f) + map[(i+1)&0x7]*j/32.0f;
 
@@ -103,7 +105,7 @@ Background::Background() : Actor(ACT_BACKGROUND, vector3(0.0, 0.0, 0.0), vector3
    strips = new unsigned char[w*n_verts*sizeof(float)*4 + w*n_verts*sizeof(unsigned char)*4];
    //cols   = new float[n_verts*4 * w];
 
-  glInterleavedArrays(GL_C4UB_V3F, sizeof(unsigned char)*4+sizeof(float)*4, strips);
+   glInterleavedArrays(GL_C4UB_V3F, sizeof(unsigned char)*4+sizeof(float)*4, strips);
 
 /*
    glEnableClientState(GL_VERTEX_ARRAY);
@@ -111,6 +113,51 @@ Background::Background() : Actor(ACT_BACKGROUND, vector3(0.0, 0.0, 0.0), vector3
    glEnableClientState(GL_COLOR_ARRAY);
    glColorPointer(4, GL_FLOAT, sizeof(float)*4, strips);
 */
+
+   unsigned char *v = strips;
+   //float *c = cols;
+
+   float x = -sx;
+  // for(float x=-sx; x<sx; x+=s) {
+   for(int i=0; i<w; i++) {
+      //glBegin(GL_TRIANGLE_STRIP);
+      float y = -sy;
+      for(int j=0; j<=h; j++) {
+//float y=-sy; y<=sy; y+=s) {
+         //glColor4f(0.5, 0.5, 0.0, 1.0);
+         //vector4 cc = palette[plasma(cx+ux+x, cy+uy+y, uz+z)&0xff] * 0.5;
+
+         v+=sizeof(unsigned char)*4;
+
+         //glVertex3f(x, y, 0.0);
+         *((float *)v) = x;
+         v += sizeof(float);
+         *((float *)v) = y;
+         v += sizeof(float);
+         *((float *)v) = 0.0;
+         v += sizeof(float);
+         v += sizeof(float);
+
+         //glColor4f(0.0, 0.5, 0.5, 1.0);
+         //cc = palette[plasma(cx+ux+x+s, cy+uy+y, uz+z)&0xff] * 0.5;
+
+         v+=sizeof(unsigned char)*4;
+
+         //glVertex3f(x+s, y, 0.0);
+         *((float *)v) = x+s;
+         v += sizeof(float);
+         *((float *)v) = y;
+         v += sizeof(float);
+         *((float *)v) = 0.0;
+         v += sizeof(float);
+         v += sizeof(float);
+
+         y += s;
+      }
+      //glEnd();
+      x += s;
+   }
+
 }
 
 
@@ -304,6 +351,8 @@ void Background::action(float dt) {
 
    float s= 5.0;
 
+//   std::cout << center << std::endl;
+   assert(center.z >= -45.0);
 
    float cx = rint(center.x/s)*s;
    float cy = rint(center.y/s)*s;
@@ -312,7 +361,7 @@ void Background::action(float dt) {
    float z,d,sx,sy;
 
    z = -40.0;
-   d = s+fabs(cz) + fabs(z);
+   d = s+fabs(-45) + fabs(z);
 
    sx = floor((d)/s)*s;
    sy = s+floor((d*0.75)/s)*s;
@@ -323,12 +372,45 @@ void Background::action(float dt) {
 
    int n_verts = (h+1)*2;
 
+   int isx = (int)((cx-sx)/s);
+   int isy = (int)((cy-sy)/s);
+
+   int buf_o = n_verts*isx + 2*isy;
+
+   int buf_l = 2 * (int)(2*sy/s);
+
+//   printf("cx %f cy %f cz %f w %d h %d sx %f sy %f isx %d isy %d n_verts %d buf_o %d buf_l %d\n", cx, cy, cz, w, h, sx, sy, isx, isy, n_verts, buf_o, buf_l);
+
+
+
+
+
+
+   z = -40.0;
+   d = s+fabs(cz) + fabs(z);
+
+   sx = floor((d)/s)*s;
+   sy = s+floor((d*0.75)/s)*s;
+
+
+   w = (int)(sx*2.0/s);
+   h = (int)(sy*2.0/s);
+
+   n_verts = (h+1)*2;
+
+
+
+
    unsigned char *v = strips;
    //float *c = cols;
 
-   for(float x=-sx; x<sx; x+=s) {
+   float x = -sx;
+  // for(float x=-sx; x<sx; x+=s) {
+   for(int i=0; i<w; i++) {
       //glBegin(GL_TRIANGLE_STRIP);
-      for(float y=-sy; y<=sy; y+=s) {
+      float y = -sy;
+      for(int j=0; j<=h; j++) {
+//float y=-sy; y<=sy; y+=s) {
          //glColor4f(0.5, 0.5, 0.0, 1.0);
          //vector4 cc = palette[plasma(cx+ux+x, cy+uy+y, uz+z)&0xff] * 0.5;
 
@@ -365,8 +447,11 @@ void Background::action(float dt) {
          *((float *)v) = 0.0;
          v += sizeof(float);
          v += sizeof(float);
+
+         y += s;
       }
       //glEnd();
+      x += s;
    }
 
 
@@ -717,21 +802,6 @@ if(i==2){
    sx = floor((d)/s)*s;
    sy = s+floor((d*0.75)/s)*s;
 
-   ////printf("0 z %f d %f sx %f sy %f\n", z, d, sx, sy);
-
-/*
-   glBegin(GL_LINES);
-   glColor4f(0.0, 0.0, 0.5, 1.0);
-   for(float y=-sy; y<=sy; y+=s) {
-      glVertex3f(-sx, y, 0.0);         
-      glVertex3f(sx, y, 0.0);         
-   }
-   for(float x=-sx; x<=sx; x+=s) {
-      glVertex3f(x, sy, 0.0);         
-      glVertex3f(x, -sy, 0.0);         
-   }
-   glEnd();
-*/
 
    int  ct = 0;
    int n = 0;
@@ -741,25 +811,84 @@ if(i==2){
 
    int n_verts = (h+1)*2;
 
+
+//   glClear(GL_COLOR_BUFFER_BIT);
+
+
    for(int i=0; i<w; i++) {
       glDrawArrays(GL_TRIANGLE_STRIP, i*n_verts, n_verts);
-      //glDrawArrays(GL_QUAD_STRIP, i*n_verts, n_verts);
    }
-
-/*
-   glBegin(GL_LINES);
-    glColor4f(1.0, 1.0, 0.0, 1.0);
-    glVertex3f(0.0, 5.0, 0.0);
-    glVertex3f(0.0, -5.0, 0.0);
-    glVertex3f(-5.0, 0.0, 0.0);
-    glVertex3f(5.0, 0.0, 0.0);
-   glEnd();
-*/
-
 
    glPopMatrix();
 
 
+
+
+
+   glEnable(GL_BLEND);
+   glBlendFunc(GL_SRC_ALPHA,GL_ONE);
+
+
+/*:x
+
+   float zs = 10.0;
+
+   int p = 1;
+
+   int v = 0;
+
+   z = z+zs;
+
+   d = s+fabs(cz) + fabs(z);
+
+   sx = floor((d)/s)*s;
+   sy = s+floor((d*0.75)/s)*s;
+
+   glPushMatrix();
+   glTranslatef(cx, cy, z);
+
+   for(int i=0; i<p; i++) {
+
+      for(float y=-sy; y<=sy; y+=s) {
+         for(float x=-sx; x<=sx; x+=s) {
+
+            glBegin(GL_TRIANGLE_FAN);
+
+            float x0 = x+s/2.0;
+            float y0 = y+s/2.0;
+            float r0 = s*0.4;
+            int sides = 6;
+
+            for(int j=0; j<sides; j++) {
+               float angle = 2.0*M_PI/sides*j;
+               float x1 = x0+r0*cos(angle);
+               float y1 = y0+r0*sin(angle);
+
+                 //vector4 c = palette[plasma(ux+y1, uy+x1, uz+z)&0xff];
+                 //glColor4f(c.x, c.y, c.z, c.w);
+               int c = plasma(cx+ux+y1, cy+uy+x1, uz+z)&0xff;
+
+               glColor4ub(palette[c*4+0], palette[c*4+1], palette[c*4+2], palette[c*4+3]);
+               //glColor4ub(palette[c*4+0], palette[c*4+1], palette[c*4+2], 255);
+
+               glVertex3f(x1, y1, 0.0);
+               v++;
+            }
+            glEnd();
+
+         }
+      }
+
+      z += zs;
+   }
+
+printf("verts = %d\n", v);
+*/
+
+
+
+   glPopMatrix();
+ 
    glPushMatrix();
    glTranslatef(cx,cy,-10.0);
 
@@ -774,9 +903,6 @@ if(i==2){
    sy = floor((d*0.75)/s)*s;
 
    //printf("1 z %f d %f sx %f sy %f\n", z, d, sx, sy);
-
-   glEnable(GL_BLEND);
-   glBlendFunc(GL_SRC_ALPHA,GL_ONE);
 
    glBegin(GL_LINES);
    glColor4f(0.75, 0.75, 0.75, 0.1);

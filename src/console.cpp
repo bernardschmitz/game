@@ -15,7 +15,6 @@ extern "C" {
 extern lua_State *L;
 
 
-
 Console *Console::instance = 0;
 
 Console *Console::getInstance() {
@@ -41,7 +40,7 @@ Console::Console() {
 
    cursor = 0;
 
-   disp_lines = 15; 
+   disp_lines = 20; 
    visible = false;
    scroll = false; 
 

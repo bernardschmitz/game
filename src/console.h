@@ -36,11 +36,11 @@ private:
    static Console *instance;
 
    Console();
-   ~Console();
 
    void keypress(int code, bool isdown, char ascii);
 public:
 
+   ~Console();
    static Console* getInstance();
 
    void show();
