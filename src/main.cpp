@@ -3,21 +3,27 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-//#include <GL/gl.h>
-//#include <GL/glu.h>
+
 #include "SDL.h"
 #include "SDL_opengl.h"
 #include "SDL_image.h"
 
-#include "sg/sg.h"
+#include "main.h"
+#include "background.h"
+#include "player.h"
+#include "input.h"
+#include "settings.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265
 #endif
 
 #define FS 0
-#define WIDTH 640
-#define HEIGHT 480
+#define WIDTH 800
+#define HEIGHT 600
+
+static Background bg;
+static Player player;
 
 static GLint T0 = 0;
 static GLint Frames = 0;
@@ -26,6 +32,9 @@ static GLuint torus;
 static GLuint box;
 
 static GLuint blur;
+
+static int follow = 1;
+static int flags = 0;
 
 static GLuint texture[3];
 
@@ -71,131 +80,17 @@ static void draw(void) {
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
 
+   sgVec3 pos;
+   player.getPosition(pos);
 
-/*
-   // render blur texture
-   glViewport(0, 0, 128, 128);
-   glPushMatrix();
-//   glTranslatef(0.0, 0.0, -200.0);
-   glTranslatef(0.0, 0.0, -140.0);
-   glTranslatef(0.0, 0.0,  100.0);
-   glRotatef(view_rotx, 1.0, 0.0, 0.0);
-   glTranslatef(0.0, 0.0, -100.0);
-   glRotatef(view_roty, 0.0, 1.0, 0.0);
-   glEnable(GL_BLEND);
-   glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-   glDisable(GL_LIGHTING);
-   glDisable(GL_DEPTH_TEST);
-   glShadeModel(GL_SMOOTH);
-   glCallList(torus);
+   if(follow)
+      glTranslatef(-pos[0], -pos[1], 0.0);
+   else
+      glTranslatef(-pos[0], -pos[1], -60.0);
 
-   glBindTexture(GL_TEXTURE_2D, blur);
-   //glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, 0, 0, 128, 128, 0);
-   glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, 128, 128, 0);
-  
-   // setup main render 
-   glClearColor(0, 0, 0 ,0);
-   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+   bg.render(pos, flags);
 
-   glViewport(0, 0, WIDTH, HEIGHT);
-
-*/
-
-
-
-/*
-   // apply blur/flare
-   int times = 25;
-   float inc = 0.02f ;
-
-   float spost = 0.0f;
-   float alphainc = 0.9f / times;
-   float alpha = 0.2f;
-
-   glDisable(GL_TEXTURE_GEN_S);
-   glDisable(GL_TEXTURE_GEN_T);
-
-   glEnable(GL_TEXTURE_2D);
-   glDisable(GL_DEPTH_TEST);
-   glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-   glEnable(GL_BLEND);
-   glBindTexture(GL_TEXTURE_2D, blur);
-
-   glMatrixMode(GL_PROJECTION);
-   glPushMatrix();
-   glLoadIdentity();
-   glOrtho(0, WIDTH, HEIGHT, 0, -1, 1);
-   glMatrixMode(GL_MODELVIEW);
-   glPushMatrix();
-   glLoadIdentity();
-
-   alphainc = alpha / times;
-
-   glBegin(GL_QUADS);
-    for(int i=0; i<times; i++) {
-       glColor4f(1.0, 1.0, 1.0, alpha);
-       glTexCoord2f(0+spost, 1-spost);
-       glVertex2f(0,0);
-
-       glTexCoord2f(0+spost, 0+spost);
-       glVertex2f(0,HEIGHT);
-
-       glTexCoord2f(1-spost, 0+spost);
-       glVertex2f(WIDTH,HEIGHT);
-
-       glTexCoord2f(1-spost, 1-spost);
-       glVertex2f(WIDTH,0);
-
-       spost += inc;
-       alpha -= alphainc;
-    }
-   glEnd();
-
-  glMatrixMode(GL_PROJECTION);
-  glPopMatrix();
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
-
-  glEnable(GL_DEPTH_TEST);
-  glDisable(GL_TEXTURE_2D);
-  glDisable(GL_BLEND);
-  glBindTexture(GL_TEXTURE_2D, 0);
-
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-   // player
-   glPushMatrix();
-   //glTranslatef(view_roty/36.0, view_rotx/36.0, -14.5);
-   glTranslatef(0, 0, -20);
-   glRotatef(view_rotz, 0.0, 0.0, 1.0);
-   glBegin(GL_TRIANGLES);
-    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, green);
-    glNormal3f( 0.0, 0.0, -1);
-    glVertex3f(  0.0,  0.5, 0.0);     
-    glVertex3f(-0.5, -0.5, 0.0);     
-    glVertex3f( 0.5, -0.5, 0.0);     
-    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, yellow);
-    glNormal3f( 0.0, 0.0, 1);
-    glVertex3f(  0.0,  0.5, 0.0);     
-    glVertex3f( 0.5, -0.5, 0.0);     
-    glVertex3f(-0.5, -0.5, 0.0);     
-   glEnd();
-   glPopMatrix(); 
+   player.render();
 
 
    SDL_GL_SwapBuffers();
@@ -215,7 +110,11 @@ static void draw(void) {
 static void
 idle(void)
 {
-  angle += 1.0;
+   angle += 1.0;
+
+   input.process();
+
+   player.action();
 }
 
 /* new window size or exposure */
@@ -279,6 +178,9 @@ init(int argc, char *argv[])
   glEnable(GL_NORMALIZE);
 
 
+  bg = Background();
+
+  player = Player();
 
 
    box = glGenLists(1);
@@ -344,12 +246,16 @@ init(int argc, char *argv[])
 
 
 
-  if (argc > 1 && strcmp(argv[1], "-info")==0) {
+//  if (argc > 1 && strcmp(argv[1], "-info")==0) {
      printf("GL_RENDERER   = %s\n", (char *) glGetString(GL_RENDERER));
      printf("GL_VERSION    = %s\n", (char *) glGetString(GL_VERSION));
      printf("GL_VENDOR     = %s\n", (char *) glGetString(GL_VENDOR));
      printf("GL_EXTENSIONS = %s\n", (char *) glGetString(GL_EXTENSIONS));
-  }
+
+     GLint texSize;
+     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &texSize);
+     printf("GL_MAX_TEXTURE_SIZE = %d\n", texSize);
+//  }
 
 }
 
@@ -358,6 +264,9 @@ int main(int argc, char *argv[])
   SDL_Surface *screen;
   int done;
   Uint8 *keys;
+
+  settings.screen_width = WIDTH;
+  settings.screen_height = HEIGHT;
 
   SDL_Init(SDL_INIT_VIDEO);
 
@@ -400,11 +309,21 @@ int main(int argc, char *argv[])
           break;
       }
     }
-    keys = SDL_GetKeyState(NULL);
+
+  keys = SDL_GetKeyState(NULL);
 
     if ( keys[SDLK_ESCAPE] ) {
       done = 1;
     }
+
+
+    if(keys[SDLK_p]) {
+       flags = !flags;
+    }
+    if(keys[SDLK_f]) {
+       follow = !follow;
+    }
+/*
     if ( keys[SDLK_UP] ) {
       vel_x += 0.4*cos(view_rotz*M_PI/180.0)/40.0;
       vel_y += 0.1*sin(view_rotz*M_PI/180.0)/40.0;
@@ -432,7 +351,7 @@ int main(int argc, char *argv[])
 
     view_rotx += vel_x;
     view_roty += vel_y;
-
+*/
 
     draw();
 
