@@ -43,18 +43,30 @@ Background::Background() : Actor(ACT_BACKGROUND, vector3(0.0, 0.0, 0.0), vector3
 
 
 
-   palette = new vector4[256];
+   palette = new unsigned char[256*4];
+
+   vector4 v;
 
    for(int i=0; i<8; i++) {
       for(int j=0; j<32; j++) {
 
-         palette[i*32+j] = map[i]*(1.0f-j/32.0f) + map[(i+1)&0x7]*j/32.0f;
+         v.linear_interpolate(map[i], map[(i+1)&0x07], j/32.0);
 
-//         sgLerpVec4(palette[i*32+j], map[i], map[(i+1)&0x7], j/32.0);
+         palette[i*32*4+j*4+0] = (int)(v.x*255.0)&0xff;
+         palette[i*32*4+j*4+1] = (int)(v.y*255.0)&0xff;
+         palette[i*32*4+j*4+2] = (int)(v.z*255.0)&0xff;
+         palette[i*32*4+j*4+3] = (int)(v.w*255.0)&0xff;
+
+         //palette[i*32+j] = map[i]*(1.0f-j/32.0f) + map[(i+1)&0x7]*j/32.0f;
+
          //printf("%d : %f %f %f\n", i*32+j, palette[i*32+j][0], palette[i*32+j][1], palette[i*32+j][2]);
       }
    }
 
+   half_palette = new unsigned char[256*4];
+
+   for(int i=0; i<256*4; i++)
+      half_palette[i] = palette[i]>>1;
 
    u = 0.0;
 
@@ -318,11 +330,15 @@ void Background::action(float dt) {
       //glBegin(GL_TRIANGLE_STRIP);
       for(float y=-sy; y<=sy; y+=s) {
          //glColor4f(0.5, 0.5, 0.0, 1.0);
-         vector4 cc = palette[plasma(cx+ux+x, cy+uy+y, uz+z)&0xff] * 0.5;
-         *v++ = (unsigned char)(cc.x*255.0);
-         *v++ = (unsigned char)(cc.y*255.0);
-         *v++ = (unsigned char)(cc.z*255.0);
+         //vector4 cc = palette[plasma(cx+ux+x, cy+uy+y, uz+z)&0xff] * 0.5;
+
+         int cc = plasma(cx+ux+x, cy+uy+y, uz+z)&0xff;
+         unsigned char *k = half_palette + cc*4;
+         *v++ = *k++;
+         *v++ = *k++;
+         *v++ = *k++;
          *v++ = 0xff;
+
          //glVertex3f(x, y, 0.0);
          *((float *)v) = x;
          v += sizeof(float);
@@ -331,12 +347,16 @@ void Background::action(float dt) {
          *((float *)v) = 0.0;
          v += sizeof(float);
          v += sizeof(float);
+
          //glColor4f(0.0, 0.5, 0.5, 1.0);
-         cc = palette[plasma(cx+ux+x+s, cy+uy+y, uz+z)&0xff] * 0.5;
-         *v++ = (unsigned char)(cc.x*255.0);
-         *v++ = (unsigned char)(cc.y*255.0);
-         *v++ = (unsigned char)(cc.z*255.0);
+         //cc = palette[plasma(cx+ux+x+s, cy+uy+y, uz+z)&0xff] * 0.5;
+         cc = plasma(cx+ux+x+s, cy+uy+y, uz+z)&0xff;
+         k = half_palette + cc*4;
+         *v++ = *k++;
+         *v++ = *k++;
+         *v++ = *k++;
          *v++ = 0xff;
+
          //glVertex3f(x+s, y, 0.0);
          *((float *)v) = x+s;
          v += sizeof(float);
@@ -723,6 +743,7 @@ if(i==2){
 
    for(int i=0; i<w; i++) {
       glDrawArrays(GL_TRIANGLE_STRIP, i*n_verts, n_verts);
+      //glDrawArrays(GL_QUAD_STRIP, i*n_verts, n_verts);
    }
 
 /*

@@ -9,7 +9,8 @@ class Background : public Actor {
    private:
       GLuint texture_id[4];
 
-      vector4 *palette;
+      unsigned char *palette;
+      unsigned char *half_palette;
 
       vector3 center;
 

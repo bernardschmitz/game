@@ -27,7 +27,7 @@ Bullet::Bullet(vector3 p, vector3 v, vector3 f, float l) : Actor(ACT_BULLET, p, 
 
    //tex = TextureManager::getInstance()->load("bullet.png");
    tex = TextureManager::getInstance()->load("red_yellow_spot.png");
-   tex2 = TextureManager::getInstance()->load("red_yellow_spot.png");
+   tex2 = TextureManager::getInstance()->load("squid_beam.png");
 
 }
 
@@ -241,6 +241,7 @@ void Bullet::render() {
 
    if(squid) {
 
+   glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
    TextureManager::getInstance()->bind(tex2);
    glBegin(GL_QUADS);
   for(int j=0; j<3; j++) {
@@ -296,15 +297,16 @@ void Bullet::render() {
 
          p3 = p + up + dir;
      
-         glColor4f(0.75, 0.75, 0.75, 0.5);
+         //glColor4f(0.75, 0.75, 0.75, 0.5);
+         glColor4f(1.0, 1.0, 1.0, 0.8);
 
-               glTexCoord2f(0.0, 0.0);
-               glVertex3f(p0.x, p0.y, p0.z);
                glTexCoord2f(0.0, 1.0);
-               glVertex3f(p1.x, p1.y, p1.z);
+               glVertex3f(p0.x, p0.y, p0.z);
                glTexCoord2f(1.0, 1.0);
-               glVertex3f(p2.x, p2.y, p2.z);
+               glVertex3f(p1.x, p1.y, p1.z);
                glTexCoord2f(1.0, 0.0);
+               glVertex3f(p2.x, p2.y, p2.z);
+               glTexCoord2f(0.0, 0.0);
                glVertex3f(p3.x, p3.y, p3.z);
 
 

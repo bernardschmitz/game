@@ -1,5 +1,5 @@
 
-// $Id: vector.h,v 1.4 2003-08-01 06:02:23 bernard Exp $
+// $Id: vector.h,v 1.5 2003-08-08 22:41:15 bernard Exp $
 
 #ifndef __VECTOR_H__
 #define __VECTOR_H__
@@ -276,6 +276,13 @@ public:
          return true;
    }
 
+   void linear_interpolate(const vector4& a, const vector4& b, const float t) {
+      vector4 d(b - a);
+      x = a.x + d.x*t;
+      y = a.y + d.y*t;
+      z = a.z + d.z*t;
+      w = a.w + d.w*t;
+   }
  
    // scalar product
    float dot(const vector4& v) const { return x*v.x + y*v.y + z*v.z + w*v.w; }
