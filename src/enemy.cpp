@@ -2,6 +2,7 @@
 
 #include "enemy.h"
 #include "player.h"
+#include "random.h"
 
 #define MOVING      0
 #define TRACKING    1
@@ -18,8 +19,8 @@ Enemy::Enemy(vector3 p) : Actor() {
    angular_vel.set(0.0, 0.0, degToRad(90.0/50.0));
 
    w_spd = 180.0/50.0;
-   v_spd = 0.25;
-   v_acc = 0.25;
+   v_spd = 0.5;
+   v_acc = 0.5;
 
    dir.set(1.0, 0.0, 0.0);
    rot.set(0.0, 0.0, 0.0, 1.0);
@@ -881,7 +882,9 @@ vector3 ax;
       case TARGET:
          delay--;
          if(delay == 0) {
-            target_pos = player->getPosition();
+
+            float pd = degToRad(uniform_random_float(0.0, 360.0));
+            target_pos = player->getPosition()+vector3(cos(pd), sin(pd), 0.0) * 2.0;
 
             target_dir = !(target_pos - pos);
 
@@ -904,7 +907,7 @@ vector3 ax;
             else
                  angular_vel.set(0,0,0);
 
-            printf("%p ca %f angle %f  avel %f %f %f\n", (void*)this, ca, angle, angular_vel.x, angular_vel.y, angular_vel.z);
+            //printf("%p ca %f angle %f  avel %f %f %f\n", (void*)this, ca, angle, angular_vel.x, angular_vel.y, angular_vel.z);
 
 //            float angle = target_hpr[0];
             //float angle = sgAngleBetweenNormalizedVec3(dir, target);  
@@ -924,21 +927,21 @@ vector3 ax;
 
 
 
-         rot += (rot*angular_vel)*0.5;
+         rot += (angular_vel*rot)*0.5;
 
          rot.normalize();
 
-         Q = rot * vector3(0.0, 1.0, 0.0) * ~rot;
+         Q = rot * vector3(1.0, 0.0, 0.0) * ~rot;
          dir = Q.getVector();
 
 
-            vel += dir * v_acc;
+//            vel += dir * v_acc;
         //sgSlerpQuat(rot, src, dst, (15.0-delay)/15.0);
 
          ax = rot.getAxis();
 
          delay--;
-printf("%p %d dir %f %f %f qangle %f axis %f %f %f\n", (void*)this, delay, dir.x, dir.y, dir.z, rot.getAngle(), ax.x, ax.y, ax.z);
+//printf("%p %d dir %f %f %f qangle %f axis %f %f %f\n", (void*)this, delay, dir.x, dir.y, dir.z, rot.getAngle(), ax.x, ax.y, ax.z);
          if(delay == 0) {
 
            //rot = dst;
@@ -948,9 +951,10 @@ printf("%p %d dir %f %f %f qangle %f axis %f %f %f\n", (void*)this, delay, dir.x
             // acceleration
             //vel += dir * 0.025f;
 
+            vel += dir * v_acc;
    
-            delay = 50;
-            state = TARGET;
+            delay = 25;
+            state = MOVING;
          }
          break;
 
@@ -1037,6 +1041,7 @@ void Enemy::render() {
    
    glScalef(0.2, 0.2, 0.2);
 
+   glRotatef(90, 0.0, 0.0, 1.0);
    glRotatef(angle, axis.x, axis.y, axis.z);
 
    glCallList(dl_enemy);

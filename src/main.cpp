@@ -101,17 +101,26 @@ static void draw(void) {
 
    vector3 vel(player->getVelocity());
 
-   float mag = -15.0*vel.length();
+   float pa = degToRad(player->getZRot());
+   vector3 dir(cos(pa), sin(pa), 0.0);
 
-   if(follow)
-      glTranslatef(-pos.x-15*vel.x, -pos.y-15*vel.y, mag);
+   //float mag = -15.0*vel.length();
+   float mag = -30.0*vel.length();
+
+   if(follow) {
+      //glTranslatef(-pos.x-30*vel.x, -pos.y-30*vel.y, mag);
+      //glTranslatef(-pos.x-3*dir.x, -pos.y-3*dir.y, mag);
+
+      //glTranslatef(-pos.x-30*vel.x-vel.length()*dir.x, -pos.y-30*vel.y-vel.length()*dir.y, mag);
+      glTranslatef(-pos.x, -pos.y, mag);
+   }
    else
       glTranslatef(-pos.x, -pos.y, -100.0);
 
 
    GLint st = SDL_GetTicks();
 
-   bg->render(pos, flags);
+   bg->render(vector3(pos.x, pos.y, mag), flags);
 
    GLint bg_time = SDL_GetTicks() - st;
 

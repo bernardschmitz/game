@@ -700,6 +700,40 @@ int Player::render() {
    }
 
 
+
+// under the ship...
+
+    glEnable(GL_TEXTURE_2D);
+    glDisable(GL_LIGHTING);
+    glShadeModel(GL_FLAT);
+
+   glEnable(GL_BLEND);
+   glBlendFunc(GL_SRC_ALPHA,GL_ONE);
+
+
+    glPushMatrix();
+
+   glTranslatef(position.x, position.y, position.z-1.0);
+
+         glBegin(GL_QUADS);
+          glColor4f(1.0, 1.0, 1.0, 0.25);
+          glTexCoord2f(1.0, 0.0);
+          glVertex3f( 1.3,  1.3, 0.0);
+          glTexCoord2f(0.0, 0.0);
+          glVertex3f(-1.3,  1.3, 0.0);
+          glTexCoord2f(0.0, 1.0);
+          glVertex3f(-1.3, -1.3, 0.0);
+          glTexCoord2f(1.0, 1.0);
+          glVertex3f( 1.3, -1.3, 0.0);
+         glEnd();
+
+   glPopMatrix(); 
+
+   glDisable(GL_TEXTURE_2D);
+   glEnable(GL_LIGHTING);
+   glShadeModel(GL_SMOOTH);
+   glDisable(GL_BLEND);
+
 /*
 
    // target indicator

@@ -28,6 +28,8 @@ class Player {
       vector3 getPosition() { return position; }
       vector3 getVelocity() { return velocity; }
 
+      float getZRot() { return z_rotation; }
+
       int action();
       int render();
 };
