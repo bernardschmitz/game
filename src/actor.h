@@ -1,5 +1,5 @@
 
-// $Id: actor.h,v 1.23 2003-08-26 23:21:03 bernard Exp $
+// $Id: actor.h,v 1.24 2003-08-28 01:02:54 bernard Exp $
 
 #ifndef __ACTOR_H__
 #define __ACTOR_H__
@@ -110,7 +110,11 @@ class Actor {
       vector3 getRightAxis() { return right_axis; }
       vector3 getUpAxis() { return up_axis; }
 
+      float getMass() { return mass; }
+      void setMass(float m) { mass = m;  if(mass > 0.0f) inv_mass = 1.0f/mass; else inv_mass = 0.0f; }
+
       float getRadius() { return radius; }
+      void setRadius(float r) { radius = r; }
 
 //      virtual void update(float dt);  // update, calls action, move etc...
 
@@ -175,10 +179,10 @@ public:
       p2 = b;
       rest_length = rl;
       if(rest_length < 0.0f) {
-         rest_length = p1->radius + p2->radius;
+         rest_length = (p1->position - p2->position).length();
       }
    }
-   bool satisfy();
+   void satisfy();
 };
 
 class ActorManager {
@@ -228,9 +232,12 @@ class ActorManager {
       void move_actors();
 
       bool constrain_collision(Actor *p1, Actor *p2);
-      void relax(float dt);
+      void relax(int iter);
 
       void remove_dead_actors();
+
+      void add_constraint(Actor *p1, Actor *p2, float rl=-1.0) { constraint_list.push_back(new Constraint(p1, p2, rl)); }
+      void remove_constraint(Actor *p1, Actor *p2=0);
 };
 
 

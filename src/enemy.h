@@ -35,6 +35,7 @@ class Enemy : public Actor {
       void render();
       void action(float dt);   
 
+      void setPain(vector3 p) { pain = p; }
 
 float NearestApproachTime(Enemy *other);
 

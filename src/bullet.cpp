@@ -59,6 +59,9 @@ void Bullet::action(float dt) {
              << " force " << force
              << " mass " << mass << std::endl;
 */
+   if(flags & ACT_COLLISION)
+      flags |= ACT_REMOVE;
+
    if((position - from).lengthSquared() > range*range)
       flags |= ACT_REMOVE;
 

@@ -994,7 +994,7 @@ void Enemy::action(float dt) {
       force += mass*vector3(0, -5,  0) / dt;
    }
 
-   //force += mass * vector3(0, -5.0f, 0);
+//   force += mass * vector3(0, -5.0f, 0);
 
 }
 
@@ -1011,6 +1011,7 @@ void Enemy::render() {
 
    glDisable(GL_LIGHTING);
 
+   glColor4f(pain.x, pain.y, pain.z, 1.0);
 //   glEnable(GL_BLEND);
 //   glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
@@ -1044,9 +1045,9 @@ void Enemy::render() {
     glVertex3f(velocity.x, velocity.y, velocity.z);
    glEnd();
 */
-   glCallList(dl_enemy);
+   //glCallList(dl_enemy);
 
-/*
+
    glBegin(GL_TRIANGLE_FAN);
     for(int i=0; i<12; i++) {
        float x = radius*cos(i/12.0*2.0*M_PI);
@@ -1054,7 +1055,7 @@ void Enemy::render() {
        glVertex3f(x, y, 0.0);
     }
    glEnd();
-*/
+
 
   glPopMatrix();
 

@@ -1,5 +1,5 @@
 
-// $Id: actor.cpp,v 1.24 2003-08-27 18:10:46 bernard Exp $
+// $Id: actor.cpp,v 1.25 2003-08-28 01:02:54 bernard Exp $
 
 #include <iostream>
 #include <sstream>
@@ -236,7 +236,8 @@ void ActorManager::collide(int iter) {
 //   std::cout << "collide\n";
 
    for(int k=0; k<iter; k++) {
-//      collision_test(master_actor_list);
+
+      relax(1);
 
       GridMap::iterator g = grid.grid_map.begin();
       while(g != grid.grid_map.end()) {
@@ -254,7 +255,7 @@ void ActorManager::collide(int iter) {
 // this would indicate a collision has occured
 
 
-bool Constraint::satisfy() {
+void Constraint::satisfy() {
 
    vector3 delta = p2->position - p1->position;
 
@@ -267,26 +268,22 @@ bool Constraint::satisfy() {
 
    float diff = (length - rest_length) / (length * (p1->inv_mass + p2->inv_mass) + 0.0001);
 
-   if(diff < 0.0f) {
-      // TODO need info on type of constraint...
-      // currently is a one way rod to avoid spheres overlapping
+   // TODO need info on type of constraint...
+   // currently is a rod
 
-//      std::cout << p1->name << " " << p2->name << " diff " << diff << " inv_mass " << p1->inv_mass << " " << p2->inv_mass << " delta " << delta << std::endl;
+   p1->position += diff * p1->inv_mass * delta;
+   p2->position -= diff * p2->inv_mass * delta;
 
-      p1->position += diff * p1->inv_mass * delta;
-      p2->position -= diff * p2->inv_mass * delta;
-      return true;
-   }
-
-   return false;
+   // TODO maybe set flags so actor know the constrain is held?
+   // TODO constraints need a way of being broken...
 }
 
 // satisfies constraints
 // flags collisions too
 
-void ActorManager::relax(float dt) {
+void ActorManager::relax(int iter) {
 
-   for(int i=0; i<1; i++) {
+   for(int i=0; i<iter; i++) {
 
       ConstraintList::iterator k = constraint_list.begin();
 

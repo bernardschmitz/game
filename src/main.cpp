@@ -187,6 +187,24 @@ void operator delete[](void *p) {
 #endif
 
 
+void jelly_fish(const vector3& epos, const vector3& ec, int tail);
+
+int glue_add_jelly_fish(lua_State *L) {
+
+   float x = (float)luaL_checknumber(L, 1);
+   float y = (float)luaL_checknumber(L, 2);
+
+   float r = (float)luaL_checknumber(L, 3);
+   float g = (float)luaL_checknumber(L, 4);
+   float b = (float)luaL_checknumber(L, 5);
+
+   int tail = (int)luaL_checknumber(L, 6);
+   
+   jelly_fish(vector3(x, y, -10.0f), vector3(r, g, b), tail);
+
+   return 0;
+}
+
 
 int  glue_addEnemy(lua_State *L) {
 
@@ -323,6 +341,139 @@ reshape(int width, int height)
  // gluLookAt(0.0, 0.0, 110.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 }
 
+void jelly_fish(const vector3& epos, const vector3& ec, int tail) {
+
+   Enemy *e1 = new Enemy(epos+vector3(-1.45, 0, 0));
+   Enemy *e2 = new Enemy(epos+vector3(1.45, 0, 0));
+   Enemy *e3 = new Enemy(epos+vector3(0, 1.45, 0));
+   Enemy *e4 = new Enemy(epos+vector3(0, -1.45, 0));
+
+   e1->setMass(10.0f);
+   e2->setMass(10.0f);
+   e3->setMass(10.0f);
+   e4->setMass(10.0f);
+
+   e1->setPain(ec);
+   e2->setPain(ec);
+   e3->setPain(ec);
+   e4->setPain(ec);
+
+   actor_manager->insert(e1);
+   actor_manager->insert(e2);
+   actor_manager->insert(e3);
+   actor_manager->insert(e4);
+
+   actor_manager->add_constraint(e1, e3);
+   actor_manager->add_constraint(e3, e2);
+   actor_manager->add_constraint(e2, e4);
+   actor_manager->add_constraint(e4, e1);
+   actor_manager->add_constraint(e1, e2);
+   actor_manager->add_constraint(e3, e4);
+
+   float ey = 1.45+1.0;
+   Enemy *ep = e3;
+   Enemy *nep = e4;
+   float er = 0.3;
+   for(int i=0; i<tail; i++) {
+      ey += er + 0.1;
+      Enemy *a = new Enemy(epos+vector3(0, ey, 0));
+      Enemy *na = new Enemy(epos-vector3(0, ey, 0));
+      a->setMass(0.1f);
+      a->setRadius(er);
+      a->setPain(ec*0.8);
+      na->setMass(0.1f);
+      na->setRadius(er);
+      na->setPain(ec*0.8);
+       ey += er*2.0 + 0.1;
+      Enemy *b = new Enemy(epos+vector3(0, ey, 0));
+      Enemy *nb = new Enemy(epos-vector3(0, ey, 0));
+      ey += er;
+      b->setMass(0.1f);
+      b->setRadius(er);
+      b->setPain(ec*0.5);
+      nb->setMass(0.1f);
+      nb->setRadius(er);
+      nb->setPain(ec*0.5);
+ 
+      actor_manager->insert(a);
+      actor_manager->insert(b);
+      actor_manager->add_constraint(ep, a);
+      actor_manager->add_constraint(a, b);
+      ep = b;
+
+      actor_manager->insert(na);
+      actor_manager->insert(nb);
+      actor_manager->add_constraint(nep, na);
+      actor_manager->add_constraint(na, nb);
+      nep = nb;
+
+      if(i == 0) {
+         actor_manager->add_constraint(e1, a);
+         actor_manager->add_constraint(e2, a);
+         actor_manager->add_constraint(e2, na);
+         actor_manager->add_constraint(e2, na);
+      }
+
+      if(i == tail-1) {
+         b->setMass(1);
+         nb->setMass(1);
+      }
+   }
+
+
+   ey = 1.45+1.0;
+   ep = e2;
+   nep = e1;
+   er = 0.3;
+   for(int i=0; i<tail; i++) {
+      ey += er + 0.1;
+      Enemy *a = new Enemy(epos+vector3(ey, 0, 0));
+      Enemy *na = new Enemy(epos-vector3(ey, 0, 0));
+      a->setMass(0.1f);
+      a->setRadius(er);
+      a->setPain(ec*0.8);
+      na->setMass(0.1f);
+      na->setRadius(er);
+      na->setPain(ec*0.8);
+       ey += er*2.0 + 0.1;
+      Enemy *b = new Enemy(epos+vector3(ey, 0, 0));
+      Enemy *nb = new Enemy(epos-vector3(ey, 0, 0));
+      ey += er;
+      b->setMass(0.1f);
+      b->setRadius(er);
+      b->setPain(ec*0.5);
+      nb->setMass(0.1f);
+      nb->setRadius(er);
+      nb->setPain(ec*0.5);
+ 
+      actor_manager->insert(a);
+      actor_manager->insert(b);
+      actor_manager->add_constraint(ep, a);
+      actor_manager->add_constraint(a, b);
+      ep = b;
+
+      actor_manager->insert(na);
+      actor_manager->insert(nb);
+      actor_manager->add_constraint(nep, na);
+      actor_manager->add_constraint(na, nb);
+      nep = nb;
+
+      if(i == 0) {
+         actor_manager->add_constraint(e3, a);
+         actor_manager->add_constraint(e4, a);
+         actor_manager->add_constraint(e3, na);
+         actor_manager->add_constraint(e4, na);
+      }
+
+      if(i == tail-1) {
+         b->setMass(1);
+         nb->setMass(1);
+      }
+
+   }
+
+}
+
 static void
 init(int argc, char *argv[])
 {
@@ -374,6 +525,13 @@ init(int argc, char *argv[])
 
    actor_manager->insert(bg);
 
+/*
+   jelly_fish(vector3(-20,0,-10), vector3(0.8,0,0), 10);
+   jelly_fish(vector3(20,0,-10), vector3(0,0.8,0), 10);
+   jelly_fish(vector3(0,20,-10), vector3(0,0,0.8), 10);
+   jelly_fish(vector3(0,-20,-10), vector3(0.8,0.8,0), 10);
+*/
+ 
 /*
    actor_manager.insert(new Enemy(vector3(10, 10, -10)));
    actor_manager.insert(new Enemy(vector3(20, 10, -10)));
@@ -637,6 +795,7 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
    lua_register(L, "_ALERT", LuaError );
 
    lua_register(L, "Enemy", glue_addEnemy );
+   lua_register(L, "jelly_fish", glue_add_jelly_fish );
 
 
 // gl init
@@ -659,6 +818,8 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
    draw(10);
    SDL_GL_SwapBuffers();
 
+   timer = 0;
+
    while ( ! done ) {
 
       int now = SDL_GetTicks();
@@ -677,7 +838,7 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
 
       // catch up if too slow
       int i = 10;
-      while(timer > 0 && --i > 0) {
+   //   while(timer > 0 && --i > 0) {
 
          idle(delta);
 
@@ -685,7 +846,7 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
          //SDL_Delay(15);
 
          timer--;
-      }
+   //   }
 
       done = input->quit;
 
