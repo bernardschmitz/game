@@ -213,6 +213,8 @@ void Console::keypress(int code, bool isdown, char ascii) {
          addString((prompt+cmd_line).c_str());
 
          // attempt to execute cmd_line here...
+
+         // append command to current command buffer
          cmd_buf.append(" ");
          cmd_buf.append(cmd_line);
 
@@ -220,31 +222,35 @@ void Console::keypress(int code, bool isdown, char ascii) {
 
          int status = 0;
 
+         // load and parse lua
          status = luaL_loadbuffer(L, cmd_buf.c_str(), cmd_buf.length(), "=console");
 
+         // if parse ok then try to execute
          if(status == 0) {
             printf("executing [%s]\n", cmd_buf.c_str());
-            status = lua_pcall(L, 0, LUA_MULTRET, 0);  /* call main */
+            status = lua_pcall(L, 0, LUA_MULTRET, 0);
          }
 
-         // call error
+         // if syntax error and got eof in string then ignore 
+         // the error and get another line of input
          if(status == LUA_ERRSYNTAX && strstr(lua_tostring(L, -1), "near `<eof>'") != 0) {
-            //ignore error
             lua_pop(L,1);
             prompt = ">> ";
          }
          else {
+            // otherwise display error message if needed
             if(status != 0) {
                lua_getglobal(L, "_ALERT");
                lua_insert(L, -2);
                lua_call(L, 1, 0);
             }
 
+            // reset prompt and command buffer
             prompt = "> ";
             cmd_buf.clear();
          }
        
-         // clear line
+         // clear command line
          cmd_line.clear();
          cursor = 0;
       }
