@@ -11,11 +11,13 @@
 
 
 
-Bullet::Bullet(vector3 p, vector3 v, int e) : Actor(ACT_BULLET, p, v, vector3(0.0, 0.0, 1.0)) { 
+Bullet::Bullet(vector3 p, vector3 v, vector3 f, float l) : Actor(ACT_BULLET, p, v, vector3(0.0, 0.0, 1.0)) { 
 
-   energy = e; //*100;
+   delay = l;
 
    squid = false;
+
+   force = f;
 
 
    for(int i=0; i<4; i++) {
@@ -23,7 +25,8 @@ Bullet::Bullet(vector3 p, vector3 v, int e) : Actor(ACT_BULLET, p, v, vector3(0.
          dis[i] = uniform_random_float(1.5, 4.5);
    }
 
-   tex = TextureManager::getInstance()->load("bullet.png");
+   //tex = TextureManager::getInstance()->load("bullet.png");
+   tex = TextureManager::getInstance()->load("red_yellow_spot.png");
    tex2 = TextureManager::getInstance()->load("red_yellow_spot.png");
 
 }
@@ -37,9 +40,9 @@ void Bullet::action(float dt) {
 
    oldpos = position;
    //position += velocity;
+   //force = ff;
 
-   energy--;
-   if(energy < 0)
+   if(delay < 0.0)
       flags |= ACT_REMOVE;
 
 

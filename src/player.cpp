@@ -15,7 +15,7 @@ Player *player = NULL;
 
 Player::Player() : Actor(ACT_PLAYER, vector3(0.0, 0.0, -10.0), vector3(0.0, 0.0, 0.0), vector3(0.0, 0.0, 1.0) ) {
 
-   dot = TextureManager::getInstance()->load("purple_star.png");
+   dot = TextureManager::getInstance()->load("white_spot.png");
 
    position.set(0.0f, 0.0f, -10.0f);
    velocity.set(0.0f, 0.0f, 0.0f);
@@ -590,6 +590,29 @@ void Player::action(float dt) {
 
       vector3 thrust( cos(degToRad(z_rotation)), sin(degToRad(z_rotation)), 0.0f);
       force += thrust * 5000.0;
+
+
+
+      ParticleDesc pd;
+      memset((void*)&pd, 0, sizeof(pd));
+   
+      pd.n = 40;
+      pd.spawn_init = pd.n;
+      pd.spawn_rate = 5;
+      pd.texture_id = TextureManager::getInstance()->gl_id(TextureManager::getInstance()->load("white_spot.png"));
+      pd.spawn_pos.set(0.0, 0.0, 0.0);
+      pd.spawn_radius = 0.1;
+      pd.min_life = 0.1;
+      pd.max_life = 0.2;
+      pd.min_size = 0.1;
+      pd.max_size = 0.3;
+      pd.respawn_on_death = false;
+      pd.energy_in_alpha = true;
+      pd.size_from_velocity = true;
+   
+      //actor_manager.insert(new ParticleSystem(vector3(0.0,0.0,-10.0), vector3(0.0,0.0,0.0), pd));
+   
+   
    }
 /*
    else {
@@ -598,10 +621,15 @@ void Player::action(float dt) {
    }
 */
    // shoot
-/*
-   if(input->fire && shooting == 0) {
+   if(shooting > 0.0)
+      shooting -= dt;
+
+   if(shooting <= 0.0)
+      shooting = 0.0;
+
+   if(input->fire && shooting == 0.0) {
       //shooting = 15;
-      shooting = 5;
+      shooting = 0.2;
       // recoil
       //vector3 acceleration( -cos(degToRad(z_rotation))/50.0f, -sin(degToRad(z_rotation))/50.0f, 0.0f);
       //velocity += acceleration;
@@ -612,17 +640,11 @@ void Player::action(float dt) {
       //pp.scale(10.0);
       //alEnemy.insert(new Enemy(position+pp));
 
-      vector3 vv( cos(degToRad(z_rotation)), sin(degToRad(z_rotation)), 0.0f);
-      actor_manager.insert(new Bullet(position+velocity+vv/5.0, velocity+vv*1.5));
-
-
+      vector3 d( cos(degToRad(z_rotation)), sin(degToRad(z_rotation)), 0.0f);
+      actor_manager.insert(new Bullet(position+d*0.5, velocity, d*500.0));
    }
-   else {
-      if(shooting > 0)
-         shooting--;
-   }
-*/
 
+   //printf("shooting = %f\n", shooting);
 
 
 /*
@@ -723,13 +745,13 @@ void Player::render() {
    }
 
 
-
+/*
    TextManager *tm = TextManager::getInstance();
    char s[100];
    sprintf(s, "v %.3f", velocity.length());
    glColor4f(1.0,1.0,1.0,1.0);
    tm->draw(tm->screenWidth()/2, tm->screenHeight()/2, s);
-
+*/
 
 
 

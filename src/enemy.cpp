@@ -15,9 +15,14 @@ Enemy::Enemy(vector3 p) : Actor(ACT_ENEMY, p, vector3(0.0, 0.0, 0.0), vector3(0.
    //can turn once a frame
    angular_vel.set(0.0, 0.0, degToRad(90.0/50.0));
 
-   w_spd = 180.0/50.0;
+   w_spd = 180.0;
    v_spd = 0.5;
-   v_acc = 0.5;
+   v_acc = 750 + uniform_random_float(-50.0, 50.0);
+
+   mass = 10.0;
+
+   drag = 2;
+   friction = 500;
 
    direction.set(1.0, 0.0, 0.0);
    rot.set(0.0, 0.0, 0.0, 1.0);
@@ -869,37 +874,32 @@ vector3 ax;
    switch(state) {
 
       case MOVING:
-         delay--;
-         if(delay == 0) {
-            delay = 1;
+          //force.set(0.0, 0.0, 0.0);
+         if(delay < 0.0) {
+            delay = 0.1;
             state = TARGET;
          }
          break;
 
       case TARGET:
-         delay--;
-         if(delay == 0) {
+         if(delay < 0.0) {
 
             float pd = degToRad(uniform_random_float(0.0, 360.0));
             target_pos = player->getPosition()+vector3(cos(pd), sin(pd), 0.0) * 2.0;
 
             target_dir = !(target_pos - position);
 
-            //dst.setAxisToAxis(direction, target_dir);
-
+/*
             float angle = direction*target_dir;  
             angle = radToDeg(acos((angle>=one)?one:(angle<=-one)?-one:angle)) ;
             
-//  float f = sgScalarProductVec3 ( v1, v2 ) ;
-//  return (float)(acos((f>=1.0f)?1.0f:(f<=-1.0f)?-1.0f:f)*SG_RADIANS_TO_DEGREES) ;
-
             float ca = direction*vector3(1.0,0.0,0.0);
             ca = radToDeg(acos((ca>=one)?one:(ca<=-one)?-one:ca)) ;
 
 
            if(fabs(angle) > 2.0f) {
             angular_vel = !(direction % target_dir);
-            angular_vel.scale(degToRad(w_spd));
+            angular_vel.scale(degToRad(w_spd*dt));
             }
             else
                  angular_vel.set(0,0,0);
@@ -914,8 +914,9 @@ vector3 ax;
 
             //src = rot;
 
-            delay = 1+angle/w_spd;
-
+            delay = 0.1+angle/(w_spd*dt);
+*/
+            delay = 0.1;
             state = TRACKING;
          }
          break;
@@ -923,7 +924,7 @@ vector3 ax;
       case TRACKING:
 
 
-
+/*
          rot += (angular_vel*rot)*0.5;
 
          rot.normalize();
@@ -937,29 +938,32 @@ vector3 ax;
 
          ax = rot.getAxis();
 
-         delay--;
 //printf("%p %d direction %f %f %f qangle %f axis %f %f %f\n", (void*)this, delay, direction.x, direction.y, direction.z, rot.getAngle(), ax.x, ax.y, ax.z);
-         if(delay == 0) {
+         if(delay < 0.0) {
 
            //rot = dst;
 
          //direction = target_dir;
 
             // acceleration
-            //vel += direction * 0.025f;
 
-            velocity += direction * v_acc;
+            //velocity += direction * v_acc;
+*/
+            if(delay < 0.0) {
+               force = target_dir * v_acc;
    
-            delay = 25;
-            state = MOVING;
+               delay = 1.0;
+               state = MOVING;
          }
          break;
 
       default: 
-         state = TRACKING;
+         delay = 0.1;
+         state = TARGET;
          break;
    } 
 
+/*
    // friction
    float vmag = velocity.lengthSquared();
    if(vmag > 0.0f) {
@@ -976,7 +980,7 @@ vector3 ax;
       velocity= n * v_spd;
    }
          //position += velocity;
- 
+*/ 
 }
 
 

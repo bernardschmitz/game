@@ -5,12 +5,16 @@
 #include "main.h"
 
 struct Particle {
-   vector3 pos, vel;
-   vector3 oldPos;
+   vector3 position;
+   vector3 velocity;
+   vector3 acceleration;
+   vector3 force;
    vector4 color;
+   float friction, drag;
+   float mass;
    float size;
-   int energy;
-   int max_energy;
+   float life;            // life in seconds
+   float max_life;
    bool dead;
 };
 
@@ -24,7 +28,7 @@ struct ParticleDesc {
    vector3 spawn_pos;                             // particles are spawned here, relative to actor_pos
    float spawn_radius;
 
-   int min_energy, max_energy;                    // particle energy range
+   float min_life, max_life;                    // particle energy range
    float min_size, max_size;                      // particle size range
 
    // TODO should be a bitfield
@@ -62,6 +66,7 @@ class ParticleSystem : public Actor {
    private:
       int n;                             // total number of particles
       Particle *p;                       // array of particles
+      Particle *old_p;                       // array of particles
       int alive;                         // number of alive particles
 
       GLuint texture_id;                 // particles texture
@@ -81,6 +86,7 @@ class ParticleSystem : public Actor {
       // kills min(k,alive) particles
       void kill(int k);
 
+      virtual void update(float dt);
       virtual void action(float dt);
       virtual void render();
 };

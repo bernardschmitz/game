@@ -35,6 +35,7 @@
 #define HEIGHT 600
 */
 
+
 static Background *bg;
 static Enemy *enemy;
 
@@ -108,6 +109,8 @@ static void draw(void) {
       if(now - last < 1)
          last = now - 1;
 
+
+
    delta = now - last;
 
    last = now;
@@ -176,6 +179,7 @@ static void draw(void) {
    if(ww > 1)
       SDL_Delay(ww);
 */
+
 }
 
 static void
@@ -259,13 +263,12 @@ init(int argc, char *argv[])
 
    actor_manager.insert(bg);
 
-/*
    actor_manager.insert(new Enemy(vector3(10, 10, -10)));
    actor_manager.insert(new Enemy(vector3(20, 10, -10)));
    actor_manager.insert(new Enemy(vector3(-50, -25, -10)));
    actor_manager.insert(new Enemy(vector3(10, -10, -10)));
-*/
 
+   blurry_spot = TextureManager::getInstance()->load("white_spot.png");
 
    ParticleDesc pd;
    memset((void*)&pd, 0, sizeof(pd));
@@ -273,18 +276,18 @@ init(int argc, char *argv[])
    pd.n = 1000; 
    pd.spawn_init = pd.n-100;
    pd.spawn_rate = 50;
-   pd.texture_id = blurry_spot;
+   pd.texture_id = TextureManager::getInstance()->gl_id(blurry_spot);
    pd.spawn_pos.set(0.0, 0.0, 0.0);
    pd.spawn_radius = 0.1;
-   pd.min_energy = 10;
-   pd.max_energy = 50;
+   pd.min_life = 1;
+   pd.max_life = 5;
    pd.min_size = 0.1;
    pd.max_size = 0.3;
    pd.respawn_on_death = false;
    pd.energy_in_alpha = true;
    pd.size_from_velocity = true;
 
-//   actor_manager.insert(new ParticleSystem(vector3(0.0,0.0,-10.0), vector3(0.0,0.0,0.0), pd));
+   //actor_manager.insert(new ParticleSystem(vector3(0.0,0.0,-10.0), vector3(0.0,0.0,0.0), pd));
 
    player = new Player();
    actor_manager.insert(player);
@@ -417,7 +420,6 @@ init(int argc, char *argv[])
    //glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
 
 
-   blurry_spot = TextureManager::getInstance()->load("red_yellow_spot.png");
 //   blurry_spot = texture_manager.load("purple_star.png");
 
  //  printf("blurry %d %d\n", texture_manager.width(blurry_spot), texture_manager.height(blurry_spot));
@@ -527,12 +529,12 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
     }
 
 
-    if(keys[SDLK_p]) {
-       flags = !flags;
-    }
     if(keys[SDLK_f]) {
        follow = !follow;
     }
+
+
+
 /*
     if ( keys[SDLK_UP] ) {
       vel_x += 0.4*cos(view_rotz*M_PI/180.0)/40.0;

@@ -1,5 +1,5 @@
 
-// $Id: actor.h,v 1.7 2003-08-05 18:04:46 bernard Exp $
+// $Id: actor.h,v 1.8 2003-08-05 23:24:07 bernard Exp $
 
 #ifndef __ACTOR_H__
 #define __ACTOR_H__
@@ -43,7 +43,8 @@ class Actor {
       int actor_id;             // unique actor id
       int actor_type;           // type
 
-      int delay;                // delay counter
+      float delay;                // delay counter
+
       int state;                // action state
       int flags;                // various flags, collision, delete etc...
 
@@ -76,7 +77,7 @@ class Actor {
       //int Overlap(Actor *);   // returns true if this actor overlaps (collides)
                               // with the actor pointed to
 
-      void update(float dt);  // update, calls action, move etc...
+      virtual void update(float dt);  // update, calls action, move etc...
 
       virtual void action(float dt) =0;  // actors user function
 

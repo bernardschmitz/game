@@ -48,6 +48,8 @@ ParticleSystem::ParticleSystem(const vector3& vp, const vector3& vv, const Parti
       p = pd.p;
       //memcpy(p, pd.p, sizeof(Particle)*n);
 
+   old_p = new Particle[n];
+
    // make all particles dead
    alive = 0;
    for(int i=0; i<n; i++)
@@ -82,14 +84,19 @@ void ParticleSystem::spawn(int k) {
 //printf("spawn i j = %d %d\n", j, i);
       if(i >= 0) {
          float r = uniform_random_float(0.0, M_PI*2.0);
-         p[i].pos = position + desc.spawn_pos + vector3(cos(r)*desc.spawn_radius, sin(r)*desc.spawn_radius, 0.0);
-         p[i].oldPos = p[i].pos;
+         p[i].position = position + desc.spawn_pos + vector3(cos(r)*desc.spawn_radius, sin(r)*desc.spawn_radius, 0.0);
+
+         p[i].velocity = velocity;
 
          vector3 v(uniform_random_float(-1.0, 1.0), uniform_random_float(-1.0, 1.0), uniform_random_float(-1.0, 1.0)); 
          v.normalize();
          v *= 0.15*gaussian_random_float(0.0, 2.0);
-         p[i].vel = velocity + v;
-         //p[i].vel.set(0.01, 0.0, 0.0);
+
+         p[i].friction = 0.0;
+         p[i].drag = 0.0;
+
+         p[i].mass = 1.0;
+         p[i].force = v*1000.0;
    
          p[i].color.x = uniform_random_float(0.5, 1.0); 
          p[i].color.y = uniform_random_float(0.5, 1.0); 
@@ -97,8 +104,10 @@ void ParticleSystem::spawn(int k) {
          p[i].color.w = 1.0;
    
          p[i].size = uniform_random_float(desc.min_size, desc.max_size);
-         p[i].max_energy = p[i].energy = uniform_random_int(desc.min_energy, desc.max_energy);
+         p[i].max_life = p[i].life = uniform_random_float(desc.min_life, desc.max_life);
          p[i].dead = false;
+
+         old_p[i] = p[i];
       }
    }
 }
@@ -107,28 +116,89 @@ ParticleSystem::~ParticleSystem() {
 
    // TODO check this
    delete [] p;
+   delete [] old_p;
 }
+
+/*
+void Actor::update(float dt) {
+
+   //printf("update with %f\n", dt);
+
+   action(dt);
+
+   float speed2 = velocity.lengthSquared();
+
+   vector3 negv = -(!velocity);
+
+   if(drag > 0.0)
+      force += negv*(drag*speed2);
+
+   if(speed2 > 0.0 && friction > 0.0)
+      force += negv*friction;
+
+   acceleration = force / mass;
+   velocity += acceleration * dt;
+   position += velocity * dt;
+
+}
+*/
+
+void ParticleSystem::update(float dt) {
+
+   action(dt);
+
+   alive = 0;
+
+   for(int i=0; i<n; i++) {
+
+      old_p[i] = p[i];
+
+      if(!p[i].dead) {
+
+         alive++;
+
+         float s2 = p[i].velocity.lengthSquared();
+         if(s2 < tiny) {
+            s2 = 0.0;
+            p[i].velocity.set(0.0, 0.0, 0.0);
+         }
+         vector3 nv = -(!p[i].velocity);
+         vector3 tf(force);
+         if(p[i].drag > 0.0)
+            tf += nv*(p[i].drag*s2);
+         if(s2 > 0.0 && p[i].friction > 0.0)
+            tf += nv*p[i].friction;
+
+         p[i].acceleration = tf / p[i].mass;
+         p[i].velocity += p[i].acceleration * dt;
+         p[i].position += p[i].velocity * dt;
+
+         // TODO may not want this!
+         p[i].color.w = p[i].life*1.0/p[i].max_life;
+      }
+   }
+
+   if(alive == 0)
+      flags = ACT_REMOVE;
+}
+
+
+
+
 
 void ParticleSystem::action(float dt) {
 
    spawn(desc.spawn_rate);
 
-   alive = n;
-
    for(int i=0; i<n; i++) {
 //printf("action i=%d\n", i);
-      if(!p[i].dead) {
-         p[i].energy--;
-         p[i].oldPos = p[i].pos;
-
-         // TODO this needs to be calculated properly
-         p[i].pos += p[i].vel * dt;
-         p[i].color.w = p[i].energy*1.0/p[i].max_energy;
+      p[i].life -= dt;
+      if(p[i].life > 0.0) {
+         // calculate forces here...
+         //p[i].force = p[i].vel * dt;
       }
-      else {
+      else 
          p[i].dead = true;
-         alive--;
-       }
    }
 }
 
@@ -141,6 +211,7 @@ void ParticleSystem::render() {
 
    glDisable(GL_LIGHTING);
 
+   glBindTexture(GL_TEXTURE_2D, texture_id);
    glEnable(GL_TEXTURE_2D);
 
    glEnable(GL_BLEND);
@@ -162,7 +233,7 @@ void ParticleSystem::render() {
          glColor4f(p[i].color.x, p[i].color.y, p[i].color.z, p[i].color.w);
 
          vector3 dir;
-         dir = p[i].pos - p[i].oldPos;
+         dir = p[i].position - old_p[i].position;
          dir.z = 0.0;
          dir.normalize();
          dir *= p[i].size;
@@ -181,13 +252,13 @@ void ParticleSystem::render() {
 
          vector3 p0, p1, p2, p3;
 
-         p0 = p[i].oldPos + up + back;
+         p0 = old_p[i].position + up + back;
 
-         p1 = p[i].oldPos + down + back;
+         p1 = old_p[i].position + down + back;
 
-         p2 = p[i].pos + down + dir;
+         p2 = p[i].position + down + dir;
 
-         p3 = p[i].pos + up + dir;
+         p3 = p[i].position + up + dir;
 
                glTexCoord2f(0.0, 0.0);
                glVertex3f(p0.x, p0.y, p0.z);

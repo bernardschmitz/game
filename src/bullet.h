@@ -10,11 +10,12 @@ class Bullet : public Actor {
 
    private:
 
-      int energy;
+      float life;
       bool squid;
       vector3 A,B,C,D;
 
       vector3 oldpos;
+      vector3 ff;
 
       vector3 pts[12];
       float ang[4], dis[4];
@@ -23,7 +24,7 @@ class Bullet : public Actor {
       int tex2;
 
    public:
-      Bullet(vector3 p, vector3 v, int e=20);
+      Bullet(vector3 p, vector3 v, vector3 f, float l=0.5);
       ~Bullet();
 
       void render();

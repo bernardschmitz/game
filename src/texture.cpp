@@ -63,10 +63,10 @@ int TextureManager::create(Image *img, const char *name) {
 int TextureManager::find(const char *s) {
 
    for(int i=0; i<textures.size(); i++) {
-      //if(textures[i] != 0)
-         //printf("%d %s %s\n", i, textures[i]->name, s);
+      if(textures[i] != 0)
+         printf("%d %s %s\n", i, textures[i]->name, s);
       if(textures[i] != 0 && strcmp(textures[i]->name, s) == 0) {
-         //printf("found!\n");
+         printf("found!\n");
          return i;
       }
    }
@@ -79,7 +79,7 @@ int TextureManager::load(const char *fn) {
 
    // already loaded?
    int n = find(fn);
-   if(n > 0) {
+   if(n >= 0) {
       textures[n]->ref++;
       return n;
    }

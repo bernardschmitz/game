@@ -10,7 +10,7 @@ class Player : public Actor {
 
       float z_rotation;
       int thrusting;
-      int shooting;
+      float shooting;
 
       GLuint dl_cockpit;
       GLuint dl_left_wing;

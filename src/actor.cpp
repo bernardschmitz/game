@@ -1,5 +1,5 @@
 
-// $Id: actor.cpp,v 1.6 2003-08-05 18:04:46 bernard Exp $
+// $Id: actor.cpp,v 1.7 2003-08-05 23:24:07 bernard Exp $
 
 #include "actor.h"
 
@@ -38,7 +38,6 @@ inline void Actor::init(int type, vector3 p, vector3 v, vector3 d) {
    mass = 1.0;
 
    drag = 0.0;
-   max_speed = 10.0;
    friction = 0.0;
    
    direction = d;
@@ -53,19 +52,28 @@ void Actor::update(float dt) {
 
    //printf("update with %f\n", dt);
 
+   delay -= dt;
+
    action(dt);
 
    float speed2 = velocity.lengthSquared();
 
+   if(speed2 < tiny) {
+      speed2 = 0.0;
+      velocity.set(0.0, 0.0, 0.0);
+   }
+
+   vector3 sum_force = force;
+
    vector3 negv = -(!velocity);
 
    if(drag > 0.0)
-      force += negv*(drag*speed2);
+      sum_force += negv*(drag*speed2);
 
    if(speed2 > 0.0 && friction > 0.0)
-      force += negv*friction;
+      sum_force += negv*friction;
 
-   acceleration = force / mass;
+   acceleration = sum_force / mass;
    velocity += acceleration * dt;
    position += velocity * dt;
 
