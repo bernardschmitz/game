@@ -1,7 +1,7 @@
 
 -- This is the main startup code
 --
--- $Id: startup.lua,v 1.10 2003-08-26 22:17:28 bernard Exp $
+-- $Id: startup.lua,v 1.11 2003-08-27 18:10:46 bernard Exp $
 
 copyright = "Sword of Cydonia (c) Bernard Schmitz 2003";
 
@@ -50,5 +50,6 @@ print("")
 
 --Enemy(5,5)
 
-enemy_grid(0.0, -25.0, 30, 20, 2.1)         
+--enemy_grid(0.0, -25.0, 40, 20, 2.1)
+enemy_grid(0.0, -25.0, 4, 2, 2.1)
 

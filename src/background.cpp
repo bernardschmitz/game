@@ -25,15 +25,16 @@ Background::Background() : Actor(ACT_BACKGROUND, "Background") {
    // nice
    static vector4 map[8] = { vector4( 0.5, 0.0, 0.0, 0.0   ), 
                              vector4( 0.5, 0.3, 0.0, 0.1   ),
-                             vector4( 0.5, 0.5, 0.5, 0.0   ),
+                             vector4( 0.0, 0.0, 0.0, 0.0   ),
                              vector4( 0.5, 0.5, 0.0, 0.1   ),
                              vector4( 0.5, 0.0, 0.0, 0.0   ),
                              vector4( 0.0, 0.5, 0.0, 0.1   ),
                              vector4( 0.5, 0.4, 0.0, 0.0   ),
                              vector4( 0.5, 0.6, 0.0, 0.1  )  };
-
 */
 
+
+//good
    static vector4 map[8] = { vector4( 0.0, 0.0, 0.5, 0.0   ), 
                              vector4( 0.0, 0.0, 0.4, 0.1   ),
                              vector4( 0.0, 0.5, 0.4, 0.0   ),
@@ -215,13 +216,10 @@ Background::~Background() {
 
 inline int plasma(float x, float y, float z) {
 
-   // this is the best one so far
-   //float k = 0.25*(sin(x/60)+sin(y/30)+sin(z/23)+sin(x*y*z)/100);
+//   float k = (sin(sqrt(x*x+y*y)/16.0) * cos(sqrt(x*x+z*z)/-23.0)) / 1.0;
 
-   float k = (sin(sqrt(x*x+y*y)/16.0) * cos(sqrt(x*x+z*z)/-23.0)) / 1.0;
-//   float k = (sin(sqrt(x*x+y*y)/16.0) + cos(sqrt(x*x+z*z)/-23.0)) / 2.0;
-
-   //float k = sin(sqrt(x*x+y*y)/20)*sin(z/60); //+sin(y/100)+sin(z/80);
+   float k = (sin(z/9)*cos(x/17) + (sin(sqrt(x*x+y*y)/16.0) * sin(sqrt(z*z+y*y)/19.0) * cos(sqrt(x*x+z*z)/-23.0))) / 2.0;
+//   float k = sin(sqrt(x*x+y*y)/20)*sin(x*z/23); //*cos(z*y/-34)*sin(z*z/8);
 
 
    return int(128.0+127.0*k);
@@ -230,6 +228,14 @@ inline int plasma(float x, float y, float z) {
 
 
 void Background::action(float dt) {
+
+   static int second = 1;
+
+   second--;
+   if(second >= 0)
+      return;
+
+   second = 1;
 
 
    float s= 5.0;
@@ -240,21 +246,8 @@ void Background::action(float dt) {
    cz = rint(center.z/s)*s;
 
 
-   static float rate = 1.0/30.0;
-   static float now = 0.0;
-
-   bool update = true;
-
-   now -= dt;
-
-   if(now > 0.0)
-      return;
-
-   now = rate;
- 
-
    //u += M_PI/400.0*50.0*dt;
-   u += M_PI/400.0*50.0*rate;
+   u += M_PI/400.0*50.0*dt;
 
    ux = 20.0*cos(u) ;// + center.x;
    uy = 45.0*sin(u) ;//+ center.y; // + 15.0*cos(u/2.0);
@@ -307,9 +300,16 @@ void Background::action(float dt) {
    //printf("cx %f cy %f cz %f w %d h %d sx %f sy %f isx %d isy %d n_verts %d buf_o %d buf_l %d\n", cx, cy, cz, w, h, sx, sy, isx, isy, n_verts, buf_o, buf_l);
    //printf("ow %d oy %d idx %d\n", ow, oh, idx);
 
+   float len = player->getPosition().length();
+
+   int alpha = 0xff;
+   if(len > 1500.0)
+      alpha = (int)((2500.0 - len) * 255.0 / 1000.0);
+
+   if(alpha < 100)
+      alpha = 100;
 
    //float *c = cols;
-if(update) {
    for(int i=0; i<w; i++) {
       Vertex *v = &strips[idx+i*max_v];
 
@@ -320,7 +320,7 @@ if(update) {
          v->r = half_palette[cc*4+0];
          v->g = half_palette[cc*4+1];
          v->b = half_palette[cc*4+2];
-         v->a = 0xff;
+         v->a = alpha; //0xff;
 
          ++v;
 
@@ -329,14 +329,13 @@ if(update) {
          v->r = half_palette[cc*4+0];
          v->g = half_palette[cc*4+1];
          v->b = half_palette[cc*4+2];
-         v->a = 0xff;
+         v->a = alpha; //0xff;
 
          ++v;
 
 
       }
    }
-}
 
 
    z = -20.0;
@@ -358,7 +357,6 @@ if(update) {
 
    float zs = -10.0f;
 
-if(update) {
 
    for(int i=0; i<w; i++) {
          Vertex *v = &hexes[vi + i*max_hv];
@@ -383,7 +381,6 @@ if(update) {
       }
 
       z += zs;
-}
 
 }
 
@@ -401,7 +398,7 @@ void Background::render() {
 
    float z, d, sx, sy;
 
-#if 0
+//#if 0
 /*
    cx = rint(center.x/s)*s;
    cy = rint(center.y/s)*s;
@@ -429,7 +426,10 @@ void Background::render() {
 
    //printf("idx %d n_Verts %d\n", idx, n_verts);
 
-//   glClear(GL_COLOR_BUFFER_BIT);
+// should only do this if required
+   glClear(GL_COLOR_BUFFER_BIT);
+   glEnable(GL_BLEND);
+   glBlendFunc(GL_SRC_ALPHA,GL_ONE);
 
 
    glVertexPointer(3, GL_FLOAT, sizeof(Vertex), &strips[0].x);
@@ -485,15 +485,16 @@ void Background::render() {
 
    glPopMatrix();
 
-#endif
+//#endif
 
 
    // TODO remove this
    //glClearColor(0.0, 0.0, 0.6, 1.0);
+/*
    glClear(GL_COLOR_BUFFER_BIT);
    glEnable(GL_BLEND);
    glBlendFunc(GL_SRC_ALPHA,GL_ONE);
-
+*/
 
    glPushMatrix();
    glTranslatef(cx,cy,-10.0);

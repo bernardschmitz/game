@@ -1,5 +1,5 @@
 
-// $Id: actor.cpp,v 1.23 2003-08-26 23:21:03 bernard Exp $
+// $Id: actor.cpp,v 1.24 2003-08-27 18:10:46 bernard Exp $
 
 #include <iostream>
 #include <sstream>
@@ -448,7 +448,7 @@ void CollisionGrid::update_position(Actor *p) {
       insert(p->position.x-p->radius, p->position.y-p->radius, p);
 
    if(!point_in_grid(v.x+r, v.y-r, g->x, g->y, g->w, g->h))
-      insert(p->position.x-p->radius, p->position.y-p->radius, p);
+      insert(p->position.x+p->radius, p->position.y-p->radius, p);
    
 
    // only holds if radius is less than grid size
@@ -507,7 +507,10 @@ void ActorManager::update(float dt) {
       // calc speed
       (*k)->speed = (*k)->velocity.length();
 
-      if((*k)->speed > 0.0) {
+      if((*k)->speed < 0.0001f)
+         (*k)->velocity.set(0.0f, 0.0f, 0.0f);
+
+      if((*k)->speed > 0.0f) {
          (*k)->forward_axis = !(*k)->velocity;
          (*k)->right_axis = (*k)->forward_axis % (*k)->up_axis;
          (*k)->up_axis = (*k)->forward_axis % (*k)->right_axis;

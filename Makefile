@@ -1,5 +1,5 @@
 
-# $Id: Makefile,v 1.26 2003-08-26 23:21:03 bernard Exp $
+# $Id: Makefile,v 1.27 2003-08-27 18:10:46 bernard Exp $
 
 
 ifdef OPTIMIZE
@@ -9,8 +9,11 @@ ifdef OPTIMIZE
    LF = -s
 else
 	ifdef PROFILE
-      CPPF=-pg -O3 -DNDEBUG -mcpu=pentiumpro -march=pentiumpro -ffast-math
+#      CPPF=-pg -O3 -DNDEBUG -mcpu=pentiumpro -march=pentiumpro -ffast-math
       LF=-pg
+	CPPF = -pg -O9 -DNDEBUG \
+              -funroll-loops -ffast-math -malign-double \
+              -mcpu=pentiumpro -finline-functions -march=pentiumpro -fno-exceptions
    else
       CPPF=-g
       LF=-g
@@ -20,7 +23,7 @@ endif
 # -Werror
   
 CPPFLAGS = $(CPPF) -Wall -Winline -DHAVE_OPENGL -DWIN32 `sdl-config --cflags`
-LFLAGS = $(LF) -lSDL_image `sdl-config --libs` -lopengl32 -lglu32 -ljpeg -lpng -lz -lm -llua -llualib
+LFLAGS = $(LF) -lSDL_image -lSDL_mixer `sdl-config --libs` -lopengl32 -lglu32 -ljpeg -lpng -lz -lm -llua -llualib
 
 CC=g++
 LD=$(CC)
@@ -78,6 +81,16 @@ src/main.o: ../cross-tools/i386-mingw32msvc/include/stdio.h
 src/main.o: ../cross-tools/i386-mingw32msvc/include/stdarg.h
 src/main.o: ../cross-tools/lib/gcc-lib/i386-mingw32msvc/3.2.3/include/stdarg.h
 src/main.o: ../cross-tools/i386-mingw32msvc/include/string.h
+src/main.o: ../cross-tools/include/SDL/SDL_mixer.h
+src/main.o: ../cross-tools/include/SDL/SDL_types.h
+src/main.o: ../cross-tools/include/SDL/SDL_rwops.h
+src/main.o: ../cross-tools/include/SDL/begin_code.h
+src/main.o: ../cross-tools/include/SDL/close_code.h
+src/main.o: ../cross-tools/include/SDL/SDL_audio.h
+src/main.o: ../cross-tools/include/SDL/SDL_main.h
+src/main.o: ../cross-tools/include/SDL/SDL_error.h
+src/main.o: ../cross-tools/include/SDL/SDL_byteorder.h
+src/main.o: ../cross-tools/include/SDL/SDL_version.h
 src/main.o: ../cross-tools/include/c++/3.2.3/string
 src/main.o: ../cross-tools/include/c++/3.2.3/i386-mingw32msvc/bits/c++config.h
 src/main.o: ../cross-tools/include/c++/3.2.3/i386-mingw32msvc/bits/os_defines.h
@@ -126,16 +139,8 @@ src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_heap.h
 src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_tempbuf.h
 src/main.o: ../cross-tools/include/c++/3.2.3/bits/basic_string.tcc src/main.h
 src/main.o: ../cross-tools/include/SDL/SDL.h
-src/main.o: ../cross-tools/include/SDL/SDL_main.h
-src/main.o: ../cross-tools/include/SDL/SDL_types.h
-src/main.o: ../cross-tools/include/SDL/begin_code.h
-src/main.o: ../cross-tools/include/SDL/close_code.h
 src/main.o: ../cross-tools/include/SDL/SDL_getenv.h
-src/main.o: ../cross-tools/include/SDL/SDL_error.h
-src/main.o: ../cross-tools/include/SDL/SDL_rwops.h
 src/main.o: ../cross-tools/include/SDL/SDL_timer.h
-src/main.o: ../cross-tools/include/SDL/SDL_audio.h
-src/main.o: ../cross-tools/include/SDL/SDL_byteorder.h
 src/main.o: ../cross-tools/include/SDL/SDL_cdrom.h
 src/main.o: ../cross-tools/include/SDL/SDL_joystick.h
 src/main.o: ../cross-tools/include/SDL/SDL_events.h
@@ -146,7 +151,6 @@ src/main.o: ../cross-tools/include/SDL/SDL_mouse.h
 src/main.o: ../cross-tools/include/SDL/SDL_video.h
 src/main.o: ../cross-tools/include/SDL/SDL_mutex.h
 src/main.o: ../cross-tools/include/SDL/SDL_quit.h
-src/main.o: ../cross-tools/include/SDL/SDL_version.h
 src/main.o: ../cross-tools/include/SDL/SDL_opengl.h
 src/main.o: ../cross-tools/i386-mingw32msvc/include/windows.h
 src/main.o: ../cross-tools/i386-mingw32msvc/include/windef.h

@@ -12,6 +12,8 @@ extern "C"
  #include <lauxlib.h>
 }
 
+#include <SDL/SDL_mixer.h>
+
 #include <string>
 
 #include "main.h"
@@ -588,7 +590,7 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
 
 
 
-  SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER);
+  SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO);
 
   SDL_TimerID tid = SDL_AddTimer(10, timer_inc, 0);
 
@@ -611,6 +613,9 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
  
   SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 
+   Mix_OpenAudio(22050, AUDIO_S16, 2, 4096);
+
+  Mix_Chunk *clank = Mix_LoadWAV("metalclank.wav");
 
  
   input = Input::getInstance(); 
@@ -689,7 +694,7 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
       draw(delta);
 
       char fs[1000];
-      sprintf(fs, "render %6.2f logic %6.2f fps %3d", avg_render, avg_delta, (int)fps);
+      sprintf(fs, "render %6.2f update %6.2f fps %3d", avg_render, avg_delta, (int)fps);
       glColor4f(1.0, 1.0, 1.0, 1.0);
       TextManager::getInstance()->draw(800-strlen(fs)*16, 600-16, fs);
 
@@ -710,6 +715,8 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
       if(now - out >= 5000) {
          out = now;
          printf("r %f ms %f fps %f\n", avg_render, avg_delta, fps);
+
+         //Mix_PlayChannel(-1, clank, 0);
       }
 
 
@@ -726,6 +733,7 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
 
    SDL_RemoveTimer(tid);
 
+   Mix_CloseAudio();
 
   SDL_Quit();
 

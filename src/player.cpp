@@ -770,13 +770,13 @@ void Player::render() {
    }
 */
 
-/*
+
    TextManager *tm = TextManager::getInstance();
    char s[100];
-   sprintf(s, "v %.3f", velocity.length());
+   sprintf(s, "p %6.2f %6.2f v %6.2f", position.x, position.y, velocity.length());
    glColor4f(1.0,1.0,1.0,1.0);
    tm->draw(tm->screenWidth()/2, tm->screenHeight()/2, s);
-*/
+
 
 
 
