@@ -1,4 +1,6 @@
 
+maybe lerp the background palette...
+
 have a rendertarget that maintains a list of polygon.  
 draws transparent triangles correctly.
 

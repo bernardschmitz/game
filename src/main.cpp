@@ -230,7 +230,10 @@ init(int argc, char *argv[])
   glEnable(GL_NORMALIZE);
 
 
+   printf("creating background\n");
    bg = new Background();
+   printf("\tdone\n");
+
    actor_manager.insert(bg);
 
 /*
