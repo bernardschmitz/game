@@ -1,4 +1,6 @@
 
+have weapon and bomb class
+
 maybe lerp the background palette...
 
 have a rendertarget that maintains a list of polygon.  
