@@ -22,7 +22,11 @@
 #define FS 0
 #define WIDTH 800
 #define HEIGHT 600
-
+/*
+#define FS 1
+#define WIDTH 1600
+#define HEIGHT 1200
+*/
 
 static Background *bg;
 static Enemy *enemy;
@@ -104,7 +108,7 @@ static void draw(void) {
 
    st = SDL_GetTicks();
 
-   enemy->render();
+   alEnemy.render();
 
    player->render();
 
@@ -141,7 +145,7 @@ idle(void)
    input.process();
 
    player->action();
-   enemy->action();
+   alEnemy.action();
 }
 
 /* new window size or exposure */
@@ -207,9 +211,12 @@ init(int argc, char *argv[])
 
   bg = new Background();
 
-   sgVec3 p =  { -10.0, 20.0, -10.0 };
+   sgVec3 p =  { -20.0, 20.0, -10.0 };
   
-   enemy = new Enemy(p);
+   for(int i=0; i<10; i++) {
+      p[0] += 4.0;
+      alEnemy.insert(new Enemy(p));
+   }
 
    player = new Player();
 

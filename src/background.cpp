@@ -1,6 +1,7 @@
 
 #include "background.h"
 #include "settings.h"
+#include "player.h"
 
 Background::Background() {
 
@@ -214,9 +215,17 @@ void Background::render(sgVec3 center, int flags) {
    glEnd();
 
 }
+
+//   sgVec3 vel;
+//   player->getVelocity(vel);
+
    glBegin(GL_LINES);
 
-   sgVec4 white = { 0.6, 0.6, 0.6, 0.3 };
+   //sgVec4 white = { 0.6, 0.6, 0.6, 0.3 };
+   sgVec4 white = { 0.75, 0.75, 0.75, 0.1 };
+
+//-(sgScalarProductVec3(vel, vel)*0.3/(1.2*1.2)) };
+
    glColor4fv(white);
 
    s = s/2.0;

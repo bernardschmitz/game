@@ -322,8 +322,7 @@ int Player::action() {
       if(thrusting < 30)
          thrusting++;
 
-      sgVec3 acceleration = { sgCos(z_rotation)/100.0, sgSin(z_rotation)/100.0, 0.0 };
-
+      sgVec3 acceleration = { sgCos(z_rotation)/75.0, sgSin(z_rotation)/75.0, 0.0 };
       sgAddVec3(velocity, acceleration);
    }
    else {
@@ -332,17 +331,30 @@ int Player::action() {
    }
 
    // shoot
-   if(input.fire) {
-
-      if(shooting < 30)
-         shooting++;
+   if(input.fire && shooting == 0) {
+      shooting = 15;
+      sgVec3 acceleration = { -sgCos(z_rotation)/50.0, -sgSin(z_rotation)/50.0, 0.0 };
+      sgAddVec3(velocity, acceleration);
    }
    else {
       if(shooting > 0)
          shooting--;
    }
 
+   // friction
+   float vmag = sgScalarProductVec3(velocity, velocity);
+   if(vmag > 0.0) {
+      sgVec3 friction;
+      sgNormaliseVec3(friction, velocity);
+      sgAddScaledVec3(velocity, friction, -0.001-0.05*vmag/(1.2*1.2));
+   }
 
+   // clamp velocity
+   if(sgScalarProductVec3(velocity, velocity) > 1.2*1.2) {
+      sgVec3 n;
+      sgNormaliseVec3(n, velocity);
+      sgScaleVec3(velocity, n, 1.2);
+   }
 
    sgAddVec3(position, velocity);
 
@@ -370,7 +382,7 @@ int Player::render() {
 
    float thrust = 30.0*sin((float)thrusting/30.0*M_PI/2.0); 
 
-   float shoot  = -1*sin((float)shooting/30.0*M_PI/2.0); 
+   float shoot  = -1*sin((float)shooting/15.0*M_PI/2.0); 
 
    // ship
    glPushMatrix();

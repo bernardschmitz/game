@@ -26,6 +26,7 @@ class Player {
       ~Player();
 
       void getPosition(sgVec3 pos) { sgCopyVec3(pos, position); }
+      void getVelocity(sgVec3 vel) { sgCopyVec3(vel, velocity); }
 
       int action();
       int render();

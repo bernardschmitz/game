@@ -7,11 +7,13 @@
 #define TRACKING    1
 
 
+ActorList<Enemy> alEnemy;
 
-Enemy::Enemy(sgVec3 p) { 
 
-   sgCopyVec3(position, p); 
-   sgZeroVec3(velocity); 
+
+Enemy::Enemy(sgVec3 p) : Actor() { 
+
+   sgCopyVec3(pos, p); 
 
    delay = 60;
    state = TRACKING;
@@ -22,13 +24,13 @@ Enemy::~Enemy() {
 }
 
 
-int Enemy::action() {
+void Enemy::action() {
 
 
    switch(state) {
 
       case MOVING:
-         sgAddVec3(position, velocity);
+         sgAddVec3(pos, vel);
          delay--;
          if(delay == 0) {
             delay = 200;
@@ -40,12 +42,12 @@ int Enemy::action() {
          sgVec3 target;
          player->getPosition(target);
 
-         sgSubVec3(dir, target, position);
+         sgSubVec3(dir, target, pos);
          sgNormaliseVec3(dir);
 
          delay--;
          if(delay == 0) {
-            sgScaleVec3(velocity, dir, 0.1);
+            sgScaleVec3(vel, dir, 0.1);
 
             delay = 50;
             state = MOVING;
@@ -57,17 +59,16 @@ int Enemy::action() {
          break;
    } 
 
-   return 0;
 }
 
 
-int Enemy::render() {
+void Enemy::render() {
 
    sgVec4 green = { 0.5, 0.8, 0.2, 1.0 };
    sgVec4 red = { 0.9, 0.3, 0.4, 1.0 };
    // blocks
    glPushMatrix();
-   glTranslatef(position[0], position[1], position[2]);
+   glTranslatef(pos[0], pos[1], pos[2]);
 
 
    glBegin(GL_LINES);
@@ -101,6 +102,5 @@ int Enemy::render() {
  
   glPopMatrix();
 
-   return 0;
 }
 

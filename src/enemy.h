@@ -4,24 +4,19 @@
 
 #include "main.h"
 
-class Enemy {
+class Enemy : public Actor {
 
    private:
-      sgVec3 position;
-      sgVec3 velocity;
-
-      sgVec3 dir;
-
-      int delay;
-      int state;
 
    public:
       Enemy(sgVec3 p);
       ~Enemy();
 
-      int render();
-      int action();   
+      void render();
+      void action();   
 };
+
+extern ActorList<Enemy> alEnemy;
 
 #endif
 
