@@ -1,5 +1,5 @@
 
-# $Id: Makefile,v 1.15 2003-08-04 18:29:24 bernard Exp $
+# $Id: Makefile,v 1.16 2003-08-04 23:01:20 bernard Exp $
 
 
 ifdef OPTIMIZE
@@ -28,12 +28,12 @@ HEADERFILES =
 
 OBJS = src/main.o  src/background.o src/player.o src/input.o src/settings.o \
        src/enemy.o src/actor.o src/particle.o src/random.o src/interpolate.o \
-       src/bullet.o src/texture.o src/image.o src/text.o
+       src/bullet.o src/texture.o src/image.o src/text.o src/console.o
 #       src/sg/sg.o src/sg/sgIsect.o src/sg/sgPerlinNoise.o src/sg/sgd.o src/sg/sgdIsect.o
 
 SRCS = src/main.cpp  src/background.cpp src/player.cpp src/input.cpp  src/settings.cpp  \
        src/enemy.cpp src/actor.cpp src/particle.cpp src/random.cpp src/interpolate.cpp \
-       src/bullet.cpp src/texture.cpp src/image.cpp src/text.cpp
+       src/bullet.cpp src/texture.cpp src/image.cpp src/text.cpp src/console.cpp
 #       src/sg/sg.cpp src/sg/sgIsect.cpp src/sg/sgPerlinNoise.cpp src/sg/sgd.cpp src/sg/sgdIsect.cpp
 
 all : main.exe
@@ -199,6 +199,8 @@ src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_bvector.h
 src/main.o: src/background.h src/player.h src/input.h src/settings.h
 src/main.o: src/enemy.h src/bullet.h src/particle.h src/random.h
 src/main.o: src/interpolate.h src/image.h src/texture.h src/text.h
+src/main.o: src/console.h ../cross-tools/include/c++/3.2.3/deque
+src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_deque.h
 src/background.o: src/background.h src/main.h
 src/background.o: ../cross-tools/i386-mingw32msvc/include/math.h
 src/background.o: ../cross-tools/i386-mingw32msvc/include/_mingw.h
@@ -1687,3 +1689,138 @@ src/text.o: ../cross-tools/include/c++/3.2.3/vector
 src/text.o: ../cross-tools/include/c++/3.2.3/bits/stl_vector.h
 src/text.o: ../cross-tools/include/c++/3.2.3/bits/stl_bvector.h src/texture.h
 src/text.o: src/image.h
+src/console.o: src/console.h ../cross-tools/i386-mingw32msvc/include/stdio.h
+src/console.o: ../cross-tools/i386-mingw32msvc/include/_mingw.h
+src/console.o: ../cross-tools/i386-mingw32msvc/include/stddef.h
+src/console.o: ../cross-tools/lib/gcc-lib/i386-mingw32msvc/3.2.3/include/stddef.h
+src/console.o: ../cross-tools/i386-mingw32msvc/include/stdarg.h
+src/console.o: ../cross-tools/lib/gcc-lib/i386-mingw32msvc/3.2.3/include/stdarg.h
+src/console.o: ../cross-tools/include/c++/3.2.3/deque
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/functexcept.h
+src/console.o: ../cross-tools/include/c++/3.2.3/exception_defines.h
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/stl_algobase.h
+src/console.o: ../cross-tools/include/c++/3.2.3/i386-mingw32msvc/bits/c++config.h
+src/console.o: ../cross-tools/include/c++/3.2.3/i386-mingw32msvc/bits/os_defines.h
+src/console.o: ../cross-tools/include/c++/3.2.3/cstring
+src/console.o: ../cross-tools/include/c++/3.2.3/cstddef
+src/console.o: ../cross-tools/i386-mingw32msvc/include/string.h
+src/console.o: ../cross-tools/include/c++/3.2.3/climits
+src/console.o: ../cross-tools/i386-mingw32msvc/include/limits.h
+src/console.o: ../cross-tools/include/c++/3.2.3/cstdlib
+src/console.o: ../cross-tools/i386-mingw32msvc/include/stdlib.h
+src/console.o: ../cross-tools/include/c++/3.2.3/new
+src/console.o: ../cross-tools/include/c++/3.2.3/exception
+src/console.o: ../cross-tools/include/c++/3.2.3/iosfwd
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/stringfwd.h
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/fpos.h
+src/console.o: ../cross-tools/include/c++/3.2.3/i386-mingw32msvc/bits/c++io.h
+src/console.o: ../cross-tools/include/c++/3.2.3/cstdio
+src/console.o: ../cross-tools/include/c++/3.2.3/i386-mingw32msvc/bits/gthr.h
+src/console.o: ../cross-tools/include/c++/3.2.3/i386-mingw32msvc/bits/gthr-single.h
+src/console.o: ../cross-tools/include/c++/3.2.3/cwchar
+src/console.o: ../cross-tools/include/c++/3.2.3/ctime
+src/console.o: ../cross-tools/i386-mingw32msvc/include/time.h
+src/console.o: ../cross-tools/i386-mingw32msvc/include/sys/types.h
+src/console.o: ../cross-tools/i386-mingw32msvc/include/wchar.h
+src/console.o: ../cross-tools/i386-mingw32msvc/include/ctype.h
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/stl_pair.h
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/type_traits.h
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/stl_iterator_base_types.h
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/stl_iterator_base_funcs.h
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/concept_check.h
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/stl_iterator.h
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/stl_alloc.h
+src/console.o: ../cross-tools/include/c++/3.2.3/cassert
+src/console.o: ../cross-tools/i386-mingw32msvc/include/assert.h
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/stl_threads.h
+src/console.o: ../cross-tools/include/c++/3.2.3/i386-mingw32msvc/bits/atomicity.h
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/stl_construct.h
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/stl_uninitialized.h
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/stl_deque.h src/actor.h
+src/console.o: src/main.h ../cross-tools/i386-mingw32msvc/include/math.h
+src/console.o: ../cross-tools/include/SDL/SDL.h
+src/console.o: ../cross-tools/include/SDL/SDL_main.h
+src/console.o: ../cross-tools/include/SDL/SDL_types.h
+src/console.o: ../cross-tools/include/SDL/begin_code.h
+src/console.o: ../cross-tools/include/SDL/close_code.h
+src/console.o: ../cross-tools/include/SDL/SDL_getenv.h
+src/console.o: ../cross-tools/include/SDL/SDL_error.h
+src/console.o: ../cross-tools/include/SDL/SDL_rwops.h
+src/console.o: ../cross-tools/include/SDL/SDL_timer.h
+src/console.o: ../cross-tools/include/SDL/SDL_audio.h
+src/console.o: ../cross-tools/include/SDL/SDL_byteorder.h
+src/console.o: ../cross-tools/include/SDL/SDL_cdrom.h
+src/console.o: ../cross-tools/include/SDL/SDL_joystick.h
+src/console.o: ../cross-tools/include/SDL/SDL_events.h
+src/console.o: ../cross-tools/include/SDL/SDL_active.h
+src/console.o: ../cross-tools/include/SDL/SDL_keyboard.h
+src/console.o: ../cross-tools/include/SDL/SDL_keysym.h
+src/console.o: ../cross-tools/include/SDL/SDL_mouse.h
+src/console.o: ../cross-tools/include/SDL/SDL_video.h
+src/console.o: ../cross-tools/include/SDL/SDL_mutex.h
+src/console.o: ../cross-tools/include/SDL/SDL_quit.h
+src/console.o: ../cross-tools/include/SDL/SDL_version.h
+src/console.o: ../cross-tools/include/SDL/SDL_opengl.h
+src/console.o: ../cross-tools/i386-mingw32msvc/include/windows.h
+src/console.o: ../cross-tools/i386-mingw32msvc/include/windef.h
+src/console.o: ../cross-tools/i386-mingw32msvc/include/winnt.h
+src/console.o: ../cross-tools/i386-mingw32msvc/include/winerror.h
+src/console.o: ../cross-tools/i386-mingw32msvc/include/basetsd.h
+src/console.o: ../cross-tools/i386-mingw32msvc/include/pshpack4.h
+src/console.o: ../cross-tools/i386-mingw32msvc/include/poppack.h
+src/console.o: ../cross-tools/i386-mingw32msvc/include/wincon.h
+src/console.o: ../cross-tools/i386-mingw32msvc/include/winbase.h
+src/console.o: ../cross-tools/i386-mingw32msvc/include/wingdi.h
+src/console.o: ../cross-tools/i386-mingw32msvc/include/winuser.h
+src/console.o: ../cross-tools/i386-mingw32msvc/include/winnls.h
+src/console.o: ../cross-tools/i386-mingw32msvc/include/winver.h
+src/console.o: ../cross-tools/i386-mingw32msvc/include/winnetwk.h
+src/console.o: ../cross-tools/i386-mingw32msvc/include/winreg.h
+src/console.o: ../cross-tools/i386-mingw32msvc/include/winsvc.h
+src/console.o: ../cross-tools/i386-mingw32msvc/include/GL/gl.h
+src/console.o: ../cross-tools/i386-mingw32msvc/include/GL/glu.h
+src/console.o: ../cross-tools/include/SDL/SDL_image.h
+src/console.o: ../cross-tools/include/SDL/SDL.h src/vector.h src/quaternion.h
+src/console.o: ../cross-tools/include/c++/3.2.3/iostream
+src/console.o: ../cross-tools/include/c++/3.2.3/ostream
+src/console.o: ../cross-tools/include/c++/3.2.3/ios
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/char_traits.h
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/localefwd.h
+src/console.o: ../cross-tools/include/c++/3.2.3/i386-mingw32msvc/bits/c++locale.h
+src/console.o: ../cross-tools/include/c++/3.2.3/clocale
+src/console.o: ../cross-tools/i386-mingw32msvc/include/locale.h
+src/console.o: ../cross-tools/include/c++/3.2.3/cctype
+src/console.o: ../cross-tools/include/c++/3.2.3/string
+src/console.o: ../cross-tools/include/c++/3.2.3/memory
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/stl_raw_storage_iter.h
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/stl_function.h
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/basic_string.h
+src/console.o: ../cross-tools/include/c++/3.2.3/algorithm
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/stl_algo.h
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/stl_heap.h
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/stl_tempbuf.h
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/basic_string.tcc
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/ios_base.h
+src/console.o: ../cross-tools/include/c++/3.2.3/streambuf
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/streambuf.tcc
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/basic_ios.h
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/streambuf_iterator.h
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/locale_facets.h
+src/console.o: ../cross-tools/include/c++/3.2.3/cwctype
+src/console.o: ../cross-tools/i386-mingw32msvc/include/wctype.h
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/basic_ios.tcc
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/ostream.tcc
+src/console.o: ../cross-tools/include/c++/3.2.3/locale
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/locale_facets.tcc
+src/console.o: ../cross-tools/include/c++/3.2.3/cerrno
+src/console.o: ../cross-tools/i386-mingw32msvc/include/errno.h
+src/console.o: ../cross-tools/include/c++/3.2.3/cmath
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/cmath.tcc
+src/console.o: ../cross-tools/include/c++/3.2.3/limits
+src/console.o: ../cross-tools/include/c++/3.2.3/i386-mingw32msvc/bits/cpu_limits.h
+src/console.o: ../cross-tools/include/c++/3.2.3/typeinfo
+src/console.o: ../cross-tools/include/c++/3.2.3/istream
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/istream.tcc
+src/console.o: ../cross-tools/include/c++/3.2.3/vector
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/stl_vector.h
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/stl_bvector.h

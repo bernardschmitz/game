@@ -1,5 +1,5 @@
 
-// $Id: actor.cpp,v 1.3 2003-07-31 19:06:08 bernard Exp $
+// $Id: actor.cpp,v 1.4 2003-08-04 23:01:20 bernard Exp $
 
 #include "actor.h"
 
@@ -12,7 +12,19 @@ ActorManager actor_manager;
 
 // creates a blank actor
 
+Actor::Actor(int type) {
+
+   init(type, vector3(0.0, 0.0, 0.0), vector3(0.0, 0.0, 0.0), vector3(0.0, 0.0, 0.0));
+}
+
+
 Actor::Actor(int type, vector3 p, vector3 v, vector3 d) {
+
+   init(type, p, v, d);
+}
+
+
+inline void Actor::init(int type, vector3 p, vector3 v, vector3 d) {
 
    actor_id = id_seq++;
    actor_type = type;

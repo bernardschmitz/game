@@ -1,5 +1,5 @@
 
-// $Id: actor.h,v 1.5 2003-07-31 19:06:08 bernard Exp $
+// $Id: actor.h,v 1.6 2003-08-04 23:01:20 bernard Exp $
 
 #ifndef __ACTOR_H__
 #define __ACTOR_H__
@@ -9,11 +9,12 @@
 #include <iostream>
 #include <vector>
 
-#define ACT_BACKGROUND   1
-#define ACT_PLAYER       2
-#define ACT_ENEMY        3
-#define ACT_PARTICLE     4
-#define ACT_BULLET       5
+#define ACT_CONSOLE      1
+#define ACT_BACKGROUND   2
+#define ACT_PLAYER       3
+#define ACT_ENEMY        4
+#define ACT_PARTICLE     5
+#define ACT_BULLET       6
 
 
 // actor class, much like a sprite
@@ -44,7 +45,10 @@ class Actor {
 //      Actor *pactNext;           // next actor
 //      Actor *pactPrev;           // prev actor
 
+      void init(int type, vector3 p, vector3 v, vector3 d);
+
    public:
+      Actor(int type);
       Actor(int type, vector3 p, vector3 v, vector3 d);
       virtual ~Actor() { }
 

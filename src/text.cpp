@@ -6,11 +6,19 @@ TextManager *TextManager::instance = 0;
 
 TextManager::TextManager() {
 
+   w = 800;
+   h = 600;
+
+   cw = 16;
+   ch = 16;   
+
    tex = TextureManager::getInstance()->load("font.png");
 
    base = glGenLists(256);
 
    TextureManager::getInstance()->bind(tex);
+
+   // TODO the 16's below should come from the cw,ch above
 
    for(int i=0; i<256; i++) {
       float cx = (i%16)/16.0f;
@@ -29,6 +37,7 @@ TextManager::TextManager() {
        glTranslated(10,0,0);
       glEndList();
    }
+
 }
 
 TextManager *TextManager::getInstance() {
@@ -57,16 +66,16 @@ void TextManager::draw(int x, int y, const char *s) {
    glLoadIdentity();
    //glOrtho(0, 1280, 0, 960, -1, 1);
    //glOrtho(0, 640, 0, 480, -1, 1);
-   glOrtho(0, 800, 0, 600, -1, 1);
+   glOrtho(0, w, 0, h, -1, 1);
    glMatrixMode(GL_MODELVIEW);
    glPushMatrix();
    glLoadIdentity();
 
+   glPushMatrix();
    glTranslated(x, y, 0);
-
    glListBase(base-32+(128*0));  // 128*1 for 2nd font
-
    glCallLists(strlen(s), GL_UNSIGNED_BYTE, s);
+   glPopMatrix();
 
    glMatrixMode(GL_PROJECTION); 
    glPopMatrix();

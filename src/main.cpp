@@ -19,6 +19,7 @@
 #include "image.h"
 #include "texture.h"
 #include "text.h"
+#include "console.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265
@@ -36,6 +37,8 @@
 
 static Background *bg;
 static Enemy *enemy;
+
+static Console *console;
 
 GLuint blurry_spot;
 
@@ -132,9 +135,12 @@ static void draw(void) {
    glColor4f(1.0, 1.0, 1.0, 1.0);
 
    char fs[80];
-   sprintf(fs, "fps: %4d", (int)fps);
-   TextManager::getInstance()->draw(16, 16, fs);
+   sprintf(fs, "fps %4d", (int)fps);
+   TextManager::getInstance()->draw(800-strlen(fs)*16, 600-16, fs);
 
+   console->addString(fs);
+
+   console->render();
 
    GLint player_time = SDL_GetTicks() - st;
 
@@ -172,6 +178,8 @@ idle(void)
    input.process();
 
    actor_manager.update(1.0/50.0);
+
+   console->action();
 }
 
 /* new window size or exposure */
@@ -239,6 +247,8 @@ init(int argc, char *argv[])
    bg = new Background();
    printf("\tdone\n");
 
+   console = new Console();
+
    actor_manager.insert(bg);
 
 /*
@@ -255,6 +265,7 @@ init(int argc, char *argv[])
    actor_manager.insert(new Enemy(vector3(20, 10, -10)));
    actor_manager.insert(new Enemy(vector3(-50, -25, -10)));
    actor_manager.insert(new Enemy(vector3(10, -10, -10)));
+
 
 
    ParticleDesc pd;
@@ -493,6 +504,11 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
       switch(event.type) {
         case SDL_QUIT:
           done = 1;
+          break;
+        case SDL_KEYUP:
+          printf("key %d\n", event.key.keysym.sym);
+          if(event.key.keysym.sym = 96)
+             console->show(); 
           break;
       }
     }
