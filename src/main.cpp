@@ -279,12 +279,14 @@ static void draw(void) {
 
    vector3 vel(player->getVelocity());
 
+/*
    static float max_spd = 0.0;
 
    if(vel.length() > max_spd) {
       max_spd = vel.length(); 
       printf("max speed %f\n", max_spd);
    }
+*/
 
    float pa = degToRad(player->getZRot());
    vector3 dir(cos(pa), sin(pa), 0.0);
@@ -702,21 +704,17 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
     idle();
 
     done = input->quit;
-
+/*
     while ( SDL_PollEvent(&event) ) {
       switch(event.type) {
         case SDL_QUIT:
           done = 1;
           break;
-/*
-        case SDL_KEYUP:
-          printf("key %d\n", event.key.keysym.sym);
-          if(event.key.keysym.sym = 96)
-             console->show(); 
-          break;
-*/
+
       }
     }
+
+*/
 
 /*
   keys = SDL_GetKeyState(NULL);

@@ -4,6 +4,13 @@
 
 #include "main.h"
 
+struct Vertex {
+   unsigned char r, g, b, a;
+   float x, y, z;
+};
+
+
+
 class Background : public Actor {
 
    private:
@@ -20,12 +27,11 @@ class Background : public Actor {
 
       int hex_tex;
 
-      struct vert {
-         unsigned char r,g,b,a;
-         float x, y, z;
-      } *strips;
+      Vertex *strips;
+      Vertex *hexes;
 
       int max_w, max_h, max_v, idx;
+      int max_hw, max_hh, max_hv;
 
    public:
       Background();

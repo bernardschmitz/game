@@ -642,7 +642,7 @@ void Player::action(float dt) {
       //alEnemy.insert(new Enemy(position+pp));
 
       vector3 d( cos(degToRad(z_rotation)), sin(degToRad(z_rotation)), 0.0f);
-      ActorManager::getInstance()->insert(new Bullet(position+d*0.5, velocity, d*500.0));
+      ActorManager::getInstance()->insert(new Bullet(position+d*0.5, velocity, d*1500.0));
    }
 
    //printf("shooting = %f\n", shooting);

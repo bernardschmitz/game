@@ -92,69 +92,34 @@ Background::Background() : Actor(ACT_BACKGROUND, vector3(0.0, 0.0, 0.0), vector3
 
    int n_verts = (h+1)*2;
 
-/*
-   strips = new float[n_verts*4 * w];
-   cols   = new float[n_verts*4 * w];
-
-   glEnableClientState(GL_VERTEX_ARRAY);
-   glVertexPointer(4, GL_FLOAT, 0, strips);
-   glEnableClientState(GL_COLOR_ARRAY);
-   glColorPointer(4, GL_FLOAT, 0, cols);
-*/
-
-   //strips = new unsigned char[w*n_verts*sizeof(float)*4 + w*n_verts*sizeof(unsigned char)*4];
-   strips = new vert[n_verts*w];
-
+   strips = new Vertex[n_verts*w];
 
    //glInterleavedArrays(GL_C4UB_V3F, 0, strips);
 
-
    glEnableClientState(GL_VERTEX_ARRAY);
-   //glVertexPointer(3, GL_FLOAT, sizeof(vert), (unsigned char *)strips+sizeof(unsigned char)*4);
-   glVertexPointer(3, GL_FLOAT, sizeof(vert), &strips[0].x);
+//   glVertexPointer(3, GL_FLOAT, sizeof(vert), &strips[0].x);
    glEnableClientState(GL_COLOR_ARRAY);
-   glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(vert), strips);
+//   glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(vert), strips);
 
+   Vertex *v = strips;
 
-   vert *v = strips;
-   //float *c = cols;
-
-   int k = 0;
-
+   // create grid of w strips of 2*h vertices
    float x = -sx;
-  // for(float x=-sx; x<sx; x+=s) {
    for(int i=0; i<w; i++) {
-      //glBegin(GL_TRIANGLE_STRIP);
       float y = -sy;
       for(int j=0; j<=h; j++) {
-//float y=-sy; y<=sy; y+=s) {
-         //glColor4f(0.5, 0.5, 0.0, 1.0);
-         //vector4 cc = palette[plasma(cx+ux+x, cy+uy+y, uz+z)&0xff] * 0.5;
-
-         //glVertex3f(x, y, 0.0);
-
          v->x = x;
          v->y = y;
          v->z = 0.0;
-
          ++v;
 
-         //glColor4f(0.0, 0.5, 0.5, 1.0);
-         //cc = palette[plasma(cx+ux+x+s, cy+uy+y, uz+z)&0xff] * 0.5;
-
-         //glVertex3f(x+s, y, 0.0);
          v->x = x+s;
          v->y = y;
          v->z = 0.0;
-
          ++v;
 
          y += s;
-
-         k+=2;
       }
-      //printf("i, k = %d, %d\n", i, k);
-      //glEnd();
       x += s;
    }
 
@@ -163,6 +128,76 @@ Background::Background() : Actor(ACT_BACKGROUND, vector3(0.0, 0.0, 0.0), vector3
    max_v = n_verts;
 
    printf("max w %d h %d v %d\n", max_w, max_h, max_v);
+
+
+
+
+
+
+   int p = 1;
+   float z = -20.0f;
+
+   d = s+fabs(-45) + fabs(z);
+
+   sx = floor((d)/s)*s;
+   sy = s+floor((d*0.75)/s)*s;
+
+   w = (int)(sx*2.0/s);
+   h = (int)(sy*2.0/s);
+
+   max_hv = h*6;
+
+   hexes = new Vertex[max_hv*w];
+
+   Vertex *hv = hexes;
+
+   float zs = -10.0f;
+//   for(int i=0; i<p; i++) {
+      for(float x=-sx; x<sx; x+=s) {
+         for(float y=-sy; y<sy; y+=s) {
+
+//            glBegin(GL_TRIANGLE_FAN);
+
+            float x0 = x+s/2.0;
+            float y0 = y+s/2.0;
+            float r0 = s*0.4;
+            int sides = 6;
+
+            for(int j=0; j<sides; j++) {
+               float angle = 2.0*M_PI/sides*j;
+               float x1 = x0+r0*cos(angle);
+               float y1 = y0+r0*sin(angle);
+
+               //int c = plasma(cx+ux+y1, cy+uy+x1, uz+z)&0xff;
+
+               //glColor4ub(palette[c*4+0], palette[c*4+1], palette[c*4+2], palette[c*4+3]);
+
+               hv->r = 0xff;
+               hv->g = 0xff*j/sides;
+               hv->b = 0x00;
+               hv->a = 0xff;
+               
+               //glVertex3f(x1, y1, 0.0);
+               hv->x = x1;
+               hv->y = y1;
+               hv->z = 0.0f;
+
+               ++hv;
+            }
+//            glEnd();
+
+         }
+      }
+
+      z += zs;
+//   }
+
+
+   max_hw = w;
+   max_hh = h;
+
+   printf("max hex w %d h %d v %d\n", max_hw, max_hh, max_hv);
+
 }
 
 
@@ -176,6 +211,7 @@ Background::~Background() {
    delete [] strips;
 //   delete [] cols;
 }
+
 
 inline int plasma(float x, float y, float z) {
 
@@ -191,160 +227,7 @@ inline int plasma(float x, float y, float z) {
    return int(128.0+127.0*k);
 }
 
-#if 0
-void Background::render(vector3 center, int flags) {
 
-
-   glDisable(GL_LIGHTING);
-   glDisable(GL_DEPTH_TEST);
-
-
-   float s = settings.background_step;
-   float n = settings.background_near;
-   float f = settings.background_far;
-   float gap = settings.background_gap;
-   int p = settings.background_planes;
-   float zs;
-
-   if(p == 0)
-      zs = 0.0;
-   else
-      zs = (n - f) / (p-1);
-
-   float cx = floor(center.x/s)*s;
-   float cy = floor(center.y/s)*s;
-
-
-   static float u = 0.0;
-
-   u += M_PI/400.0;
-
-   float ux = 20.0*cos(u);
-   float uy = 45.0*sin(u); // + 15.0*cos(u/2.0);
-   float uz = 35.0*cos(u); // + 25.0*cos(u/4.0);
-
-   // use quad strip
-   glBegin(GL_QUADS);
-   float z = f;
-//   for(int i=0; i<p; i++) {
-      //z += zs;
-      float dd = fabs(z);
-      for(float y=cy-dd; y<cy+dd+s; y+=s) {
-         for(float x=cx-dd; x<cx+dd+s; x+=s) {
-             vector4 c;
-             c = palette[plasma(ux+x, uy+y, uz+z)&0xff] * 0.5;
-             glColor4f(c.x, c.y, c.z, 1.0);
-             glVertex3f(x, y, z);
-
-             c = palette[plasma(ux+x+s, uy+y, uz+z)&0xff] * 0.5;
-             glColor4f(c.x, c.y, c.z, 1.0);
-             glVertex3f(x+s, y, z);
-
-             c = palette[plasma(ux+x+s, uy+y+s, uz+z)&0xff] * 0.5;
-             glColor4f(c.x, c.y, c.z, 1.0);
-             glVertex3f(x+s, y+s, z);
-
-             c = palette[plasma(ux+x, uy+y+s, uz+z)&0xff] * 0.5;
-             glColor4f(c.x, c.y, c.z, 1.0);
-             glVertex3f(x, y+s, z);
-
-         }
-      }
-//   }
-   glEnd();
-
-   float g = s/gap;
-
-   glEnable(GL_BLEND);
-   glBlendFunc(GL_SRC_ALPHA,GL_ONE);
-
-   flags = 0;
-
-   if(!flags) {
-
-
-//   glBegin(GL_QUADS);
-   z = f+zs;
-   for(int i=0; i<p; i++) {
-      dd = fabs(z);
-      float offset = 0.0;
-      for(float y=cy-dd; y<cy+dd+s; y+=s) {
-         for(float x=cx-dd; x<cx+dd+s; x+=s) {
-
-            glBegin(GL_POLYGON);
-
-            float x0 = x+s/2.0;
-            float y0 = y+s/2.0;
-            float r0 = s*0.4;
-            int sides = 6;
-            for(int i=0; i<sides; i++) {
-               float angle = 2.0*M_PI/sides*i;
-               float x1 = x0+r0*cos(angle);
-               float y1 = y0+r0*sin(angle);
-
-               vector4 c = palette[plasma(ux+y1, uy+x1, uz+z)&0xff];
-               glColor4f(c.x, c.y, c.z, c.w);
-               glVertex3f(x1, y1, z);
-            }
-            glEnd();
-/*
-             glColor4fv(palette[plasma(ux+x+s, uy+y+s, uz+z)&0xff]);
-             glVertex3f(x+g, y+g, z);
-
-             glColor4fv(palette[plasma(ux+x, uy+y+s, uz+z)&0xff]);
-             glVertex3f(x+s-g, y+g, z);
-
-             glColor4fv(palette[plasma(ux+x, uy+y, uz+z)&0xff]);
-             glVertex3f(x+s-g, y+s-g, z);
-
-             glColor4fv(palette[plasma(ux+x+s, uy+y, uz+z)&0xff]);
-             glVertex3f(x+g, y+s-g, z);
-*/
-         }
-      }
-      z += zs;
-   }
-   glEnd();
-
-}
-
-//   sgVec3 vel;
-//   player->getVelocity(vel);
-
-   glBegin(GL_LINES);
-
-   //sgVec4 white = { 0.6, 0.6, 0.6, 0.3 };
-   float white[] = { 0.75, 0.75, 0.75, 0.1 };
-
-//-(sgScalarProductVec3(vel, vel)*0.3/(1.2*1.2)) };
-
-   glColor4fv(white);
-
-   s = s/2.0;
-   float d = -10.0;
-   //for(float d=f; d<n+s; d+=zs) {
-      dd = fabs(d)+s;
-      for(float y=cy-dd; y<cy+dd+s; y+=s) {
-         glVertex3f(cx-dd, y, d);
-         glVertex3f(cx+dd, y, d);
-      }
-      for(float x=cx-dd; x<cx+dd+s; x+=s) {
-         glVertex3f(x, cy-dd, d);
-         glVertex3f(x, cy+dd, d);
-      }
-   //}
-
-   glEnd();
-
-
-
-
-   glEnable(GL_LIGHTING);
-   glEnable(GL_DEPTH_TEST);
-   glDisable(GL_BLEND);
-
-}
-#endif
 
 void Background::action(float dt) {
 
@@ -413,16 +296,10 @@ void Background::action(float dt) {
 
    //float *c = cols;
 
-   float x = -sx;
    for(int i=0; i<w; i++) {
-      //glBegin(GL_TRIANGLE_STRIP);
-      float y = -sy;
-      //printf("color start %d\n", idx+i*max_v);
-      vert *v = &strips[idx+i*max_v];
+      Vertex *v = &strips[idx+i*max_v];
 
       for(int j=0; j<=h; j++) {
-         //glColor4f(0.5, 0.5, 0.0, 1.0);
-         //vector4 cc = palette[plasma(cx+ux+x, cy+uy+y, uz+z)&0xff] * 0.5;
 
          int cc = plasma(cx+ux+v->x, cy+uy+v->y, uz+z)&0xff;
 
@@ -431,16 +308,8 @@ void Background::action(float dt) {
          v->b = half_palette[cc*4+2];
          v->a = 0xff;
 
-         //glVertex3f(x, y, 0.0);
-/*
-         v->x = x;
-         v->y = y;
-         v->z = 0.0;
-*/
          ++v;
 
-         //glColor4f(0.0, 0.5, 0.5, 1.0);
-         //cc = palette[plasma(cx+ux+x+s, cy+uy+y, uz+z)&0xff] * 0.5;
          cc = plasma(cx+ux+v->x, cy+uy+v->y, uz+z)&0xff;
 
          v->r = half_palette[cc*4+0];
@@ -448,340 +317,60 @@ void Background::action(float dt) {
          v->b = half_palette[cc*4+2];
          v->a = 0xff;
 
-         //glVertex3f(x, y, 0.0);
-/*
-         v->x = x+s;
-         v->y = y;
-         v->z = 0.0;
-*/
          ++v;
 
-         //glVertex3f(x+s, y, 0.0);
 
-         y += s;
       }
-      //glEnd();
-      x += s;
    }
 
 
+
+   z = -20.0;
+   d = s+fabs(cz) + fabs(z);
+
+   sx = floor((d)/s)*s;
+   sy = s+floor((d*0.75)/s)*s;
+
+
+   w = (int)(sx*2.0/s);
+   h = (int)(sy*2.0/s);
+
+   int p = 1;
+
+   ow = (max_hw - w) / 2;
+   oh = (max_hh - h) / 2;
+
+   int vi = ow*max_hv+6*oh;
+
+   float zs = -10.0f;
+   for(int i=0; i<w; i++) {
+         Vertex *v = &hexes[vi + i*max_hv];
+
+      for(int j=0; j<h*6; j++) {
+
+//            glBegin(GL_TRIANGLE_FAN);
+
+               int c = plasma(cx+ux+v->x, cy+uy+v->y, uz+z)&0xff;
+
+               //glColor4ub(palette[c*4+0], palette[c*4+1], palette[c*4+2], palette[c*4+3]);
+
+               v->r = palette[c*4+0];
+               v->g = palette[c*4+1];
+               v->b = palette[c*4+2];
+               v->a = palette[c*4+3];
+
+               ++v;
+//            glEnd();
+
+         }
+      }
+
+      z += zs;
 }
 
 void Background::render() {
 
-//center.z *= 0.5;
-#if 0
-   float s = settings.background_step;
-   float n = settings.background_near;
-   float f = settings.background_far;
-   float gap = settings.background_gap;
-   int p = settings.background_planes;
-   float zs;
 
-   if(p == 0)
-      zs = 0.0;
-   else
-      zs = (n - f) / (p-1);
-
-
-
-   float dd;
-
-   float z = f;
-//#if 0
-
-   int t = SDL_GetTicks();
-
-   glClear(GL_COLOR_BUFFER_BIT);
-
-   // use quad strip
-   glBegin(GL_QUADS);
-//   for(int i=0; i<p; i++) {
-      //z += zs;
-      dd = fabs(z)-cz;
-
-      int w = (int)((dd*2.0+1)/s);
-      int h = (int)((dd*2.0*0.75+1)/s);
-
-      float y = cy-(h*s/2.0);
-      for(int i=0; i<h; i++) {
-         for(float x=cx-dd; x<=cx+dd; x+=s) {
-             vector4 c;
-             c = palette[plasma(ux+x, uy+y, uz+z)&0xff] * 0.5;
-             glColor4f(c.x, c.y, c.z, 1.0);
-             glColor4f(1.0, 0.0, 0.0, 1.0);
-             glVertex3f(x, y, z);
-
-             c = palette[plasma(ux+x+s, uy+y, uz+z)&0xff] * 0.5;
-             glColor4f(c.x, c.y, c.z, 1.0);
-             glColor4f(0.0, 1.0, 0.0, 1.0);
-             glVertex3f(x+s, y, z);
-
-             c = palette[plasma(ux+x+s, uy+y+s, uz+z)&0xff] * 0.5;
-             glColor4f(c.x, c.y, c.z, 1.0);
-             glColor4f(0.0, 0.0, 1.0, 1.0);
-             glVertex3f(x+s, y+s, z);
-
-             c = palette[plasma(ux+x, uy+y+s, uz+z)&0xff] * 0.5;
-             glColor4f(c.x, c.y, c.z, 1.0);
-             glColor4f(1.0, 1.0, 0.0, 1.0);
-             glVertex3f(x, y+s, z);
-
-         }
-         y += s;
-      }
-//   }
-   glEnd();
-
-   int plasma_time = SDL_GetTicks();
-
-   float g = s/gap;
-
-   glEnable(GL_BLEND);
-   glBlendFunc(GL_SRC_ALPHA,GL_ONE);
-
-/*
-  glBegin(GL_QUADS);
-   z = f+zs;
-   for(int i=0; i<p; i++) {
-      dd = (fabs(z)-cz)*1.0;
-
-      //printf("dd = %f\n", dd);
-
-      dd = fabs(z)-cz;
-      for(float y=cy-dd; y<cy+dd+s; y+=s) {
-         for(float x=cx-dd; x<cx+dd+s; x+=s) {
-             vector4 c;
-             c = palette[plasma(ux+x, uy+y, uz+z)&0xff];
-             glColor4f(c.x, c.y, c.z, c.w);
-             glVertex3f(x+g, y+g, z);
-
-             c = palette[plasma(ux+x+s, uy+y, uz+z)&0xff];
-             glColor4f(c.x, c.y, c.z, c.w);
-             glVertex3f(x+s-g, y+g, z);
-
-             c = palette[plasma(ux+x+s, uy+y+s, uz+z)&0xff];
-             glColor4f(c.x, c.y, c.z, c.w);
-             glVertex3f(x+s-g, y+s-g, z);
-
-             c = palette[plasma(ux+x, uy+y+s, uz+z)&0xff];
-             glColor4f(c.x, c.y, c.z, c.w);
-             glVertex3f(x+g, y+s-g, z);
-
-         }
-      }
-      z += zs;
-   }
-   glEnd();
-*/
-
-/*
-      int tf = 0;
-
-   s = s*2.0;
-   cx = floor(center.x/s)*s;
-   cy = floor(center.y/s)*s;
-   cz = floor(center.z/s)*s;
-
-   z = f+zs;
-   for(int i=0; i<p; i++) {
-      dd = (fabs(z)-cz)*1.0;
-
-      //printf("dd = %f\n", dd);
-
-if(i==2){
-   s = s/2.0;
-   cx = floor(center.x/s)*s;
-   cy = floor(center.y/s)*s;
-   cz = floor(center.z/s)*s;
-}
-
-      float offset = 0.0;
-      for(float y=cy-dd; y<cy+dd+s; y+=s) {
-         for(float x=cx-dd; x<cx+dd+s; x+=s) {
-
-            glBegin(GL_TRIANGLE_FAN);
-
-            float x0 = x+s/2.0;
-            float y0 = y+s/2.0;
-            float r0 = s*0.4;
-            int sides = 6;
-
-               //vector4 c = palette[plasma(ux+y0, uy+x0, uz+z)&0xff];
-               //glColor4f(c.x, c.y, c.z, c.w);
-               //glVertex3f(x0, y0, z);
-
-            if(i < 2) {
-                 vector4 c = palette[plasma(ux+y0, uy+x0+r0, uz+z)&0xff];
-                 glColor4f(c.x, c.y, c.z, c.w);
-            }
-
-            for(int j=0; j<sides; j++) {
-               float angle = 2.0*M_PI/sides*j;
-               float x1 = x0+r0*cos(angle);
-               float y1 = y0+r0*sin(angle);
-
-               if(i == 2 ) {
-                 vector4 c = palette[plasma(ux+y1, uy+x1, uz+z)&0xff];
-                 glColor4f(c.x, c.y, c.z, c.w);
-               }
-               glVertex3f(x1, y1, z);
-            }
-            glEnd();
-            tf++;
-
-         }
-      }
-      z += zs;
-   }
-
-//printf("%d triangles fans\n", tf);
-
-
-*/
-
-
-  int tf = 0;
-
-   glEnable(GL_TEXTURE_2D);
-   TextureManager::getInstance()->bind(hex_tex);
-
-   z = z+zs;
-   for(int i=0; i<p-1; i++) {
-      dd = (fabs(z)-cz)*1.0;
-
-      //printf("dd = %f\n", dd);
-
-      float offset = 0.0;
-      for(float y=cy-dd; y<cy+dd+s; y+=s) {
-         for(float x=cx-dd; x<cx+dd+s; x+=s) {
-
-            glBegin(GL_QUADS);
-
-            float x0 = x+s/2.0;
-            float y0 = y+s/2.0;
-            float r0 = s*0.4;
-            int sides = 4;
-
-
-               float angle = 2.0*M_PI/sides*0;
-               float x1 = x0+r0*cos(angle);
-               float y1 = y0+r0*sin(angle);
-               vector4 c = palette[plasma(ux+y1, uy+x1, uz+z)&0xff];
-               glColor4f(c.x, c.y, c.z, c.w);
-               glTexCoord2f(0.0, 0.0);
-               glVertex3f(x1, y1, z);
-
-
-               angle = 2.0*M_PI/sides*1;
-               x1 = x0+r0*cos(angle);
-               y1 = y0+r0*sin(angle);
-               c = palette[plasma(ux+y1, uy+x1, uz+z)&0xff];
-               glColor4f(c.x, c.y, c.z, c.w);
-               glTexCoord2f(0.0, 1.0);
-               glVertex3f(x1, y1, z);
-
-               angle = 2.0*M_PI/sides*2;
-               x1 = x0+r0*cos(angle);
-               y1 = y0+r0*sin(angle);
-               c = palette[plasma(ux+y1, uy+x1, uz+z)&0xff];
-               glColor4f(c.x, c.y, c.z, c.w);
-               glTexCoord2f(1.0, 1.0);
-               glVertex3f(x1, y1, z);
-
-
-               angle = 2.0*M_PI/sides*3;
-               x1 = x0+r0*cos(angle);
-               y1 = y0+r0*sin(angle);
-               c = palette[plasma(ux+y1, uy+x1, uz+z)&0xff];
-               glColor4f(c.x, c.y, c.z, c.w);
-               glTexCoord2f(1.0, 0.0);
-               glVertex3f(x1, y1, z);
-
-            glEnd();
-         }
-      }
-      z += zs;
-   }
-
-   glDisable(GL_TEXTURE_2D);
-
-      dd = (fabs(z)-cz)*1.0;
-
-      //printf("dd = %f\n", dd);
-
-      float offset = 0.0;
-      for(float y=cy-dd; y<cy+dd+s; y+=s) {
-         for(float x=cx-dd; x<cx+dd+s; x+=s) {
-
-            glBegin(GL_TRIANGLE_FAN);
-
-            float x0 = x+s/2.0;
-            float y0 = y+s/2.0;
-            float r0 = s*0.4;
-            int sides = 6;
-
-               //vector4 c = palette[plasma(ux+y0, uy+x0, uz+z)&0xff];
-               //glColor4f(c.x, c.y, c.z, c.w);
-               //glVertex3f(x0, y0, z);
-
-            for(int j=0; j<sides; j++) {
-               float angle = 2.0*M_PI/sides*j;
-               float x1 = x0+r0*cos(angle);
-               float y1 = y0+r0*sin(angle);
-
-                 vector4 c = palette[plasma(ux+y1, uy+x1, uz+z)&0xff];
-                 glColor4f(c.x, c.y, c.z, c.w);
-               glVertex3f(x1, y1, z);
-            }
-            glEnd();
-            tf++;
-
-         }
-      }
- 
-//printf("%d triangles fans\n", tf);
-
-
-
-
-   int hex_time = SDL_GetTicks();
-//#endif
-
-//   sgVec3 vel;
-//   player->getVelocity(vel);
-
-   glBegin(GL_LINES);
-
-   //sgVec4 white = { 0.6, 0.6, 0.6, 0.3 };
-   float white[] = { 0.75, 0.75, 0.75, 0.1 };
-
-//-(sgScalarProductVec3(vel, vel)*0.3/(1.2*1.2)) };
-
-   glColor4fv(white);
-
-   s = s/2.0;
-   float d = -10.0;
-   //for(float d=f; d<n+s; d+=zs) {
-      dd = fabs(d)+s-cz;
-      for(float y=cy-dd; y<cy+dd+s; y+=s) {
-         glVertex3f(cx-dd, y, d);
-         glVertex3f(cx+dd, y, d);
-      }
-      for(float x=cx-dd; x<cx+dd+s; x+=s) {
-         glVertex3f(x, cy-dd, d);
-         glVertex3f(x, cy+dd, d);
-      }
-   //}
-
-   glEnd();
-
-
-
-   int grid_time = SDL_GetTicks();
-#endif
-
- 
 //   glClear(GL_COLOR_BUFFER_BIT);
 
    glDisable(GL_LIGHTING);
@@ -823,97 +412,57 @@ if(i==2){
 
    //printf("idx %d n_Verts %d\n", idx, n_verts);
 
-   glClear(GL_COLOR_BUFFER_BIT);
+//   glClear(GL_COLOR_BUFFER_BIT);
+
+
+   glVertexPointer(3, GL_FLOAT, sizeof(Vertex), &strips[0].x);
+   glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), strips);
 
    for(int i=0; i<w; i++) {
-      //glDrawArrays(GL_TRIANGLE_STRIP, i*n_verts, n_verts);
       int l = idx+i*max_v;
-//      printf("x %f y %f\n", strips[l].x, strips[l].y);
-      glDrawArrays(GL_TRIANGLE_STRIP, l, n_verts); //n_verts);
+      glDrawArrays(GL_TRIANGLE_STRIP, l, n_verts);
    }
 
-/*
-      int l = 15*max_v+2*10;
-      printf("l %d x %f y %f r %d\n", l, strips[l].x, strips[l].y, strips[l].r);
-      glDrawArrays(GL_TRIANGLE_STRIP, l, 8); //n_verts);
-
-      l = 16*max_v+2*10;
-      printf("l %d x %f y %f r %d\n", l, strips[l].x, strips[l].y, strips[l].r);
-      glDrawArrays(GL_TRIANGLE_STRIP, l, 8); //n_verts);
-
-      l = 17*max_v+2*11;
-      printf("l %d x %f y %f r %d\n", l, strips[l].x, strips[l].y, strips[l].r);
-      glDrawArrays(GL_TRIANGLE_STRIP, l, 8); //n_verts);
-*/
-
-
-
-
    glPopMatrix();
-
-
-
 
 
    glEnable(GL_BLEND);
    glBlendFunc(GL_SRC_ALPHA,GL_ONE);
 
+   glPushMatrix();
+   z = -20.0;
 
-/*:x
+   glTranslatef(cx,cy,z);
 
-   float zs = 10.0;
+   glVertexPointer(3, GL_FLOAT, sizeof(Vertex), &hexes[0].x);
+   glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), hexes);
 
-   int p = 1;
-
-   int v = 0;
-
-   z = z+zs;
 
    d = s+fabs(cz) + fabs(z);
 
    sx = floor((d)/s)*s;
    sy = s+floor((d*0.75)/s)*s;
 
-   glPushMatrix();
-   glTranslatef(cx, cy, z);
+   w = (int)(sx*2.0/s);
+   h = (int)(sy*2.0/s);
 
-   for(int i=0; i<p; i++) {
+   int ow = (max_hw - w) / 2;
+   int oh = (max_hh - h) / 2;
 
-      for(float y=-sy; y<=sy; y+=s) {
-         for(float x=-sx; x<=sx; x+=s) {
+   int k = ow*max_hv+oh*6;
+   assert(k >= 0);
 
-            glBegin(GL_TRIANGLE_FAN);
-
-            float x0 = x+s/2.0;
-            float y0 = y+s/2.0;
-            float r0 = s*0.4;
-            int sides = 6;
-
-            for(int j=0; j<sides; j++) {
-               float angle = 2.0*M_PI/sides*j;
-               float x1 = x0+r0*cos(angle);
-               float y1 = y0+r0*sin(angle);
-
-                 //vector4 c = palette[plasma(ux+y1, uy+x1, uz+z)&0xff];
-                 //glColor4f(c.x, c.y, c.z, c.w);
-               int c = plasma(cx+ux+y1, cy+uy+x1, uz+z)&0xff;
-
-               glColor4ub(palette[c*4+0], palette[c*4+1], palette[c*4+2], palette[c*4+3]);
-               //glColor4ub(palette[c*4+0], palette[c*4+1], palette[c*4+2], 255);
-
-               glVertex3f(x1, y1, 0.0);
-               v++;
-            }
-            glEnd();
-
-         }
+   for(int i=0; i<w; i++) {
+      for(int j=0; j<h; j++) {
+         glDrawArrays(GL_TRIANGLE_FAN, k+j*6, 6);
       }
-
-      z += zs;
+      k += max_hv;
    }
+   
+   glPopMatrix();
 
-printf("verts = %d\n", v);
-*/
+
+
 
 
 
@@ -946,15 +495,6 @@ printf("verts = %d\n", v);
    }
    glEnd();
 
-/*
-   glBegin(GL_LINES);
-    glColor4f(1.0, 0.0, 0.0, 1.0);
-    glVertex3f(0.0, 5.0, 0.0);
-    glVertex3f(0.0, -5.0, 0.0);
-    glVertex3f(-5.0, 0.0, 0.0);
-    glVertex3f(5.0, 0.0, 0.0);
-   glEnd();
-*/
 
    glPopMatrix();
 
