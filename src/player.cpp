@@ -584,8 +584,8 @@ int Player::action() {
    // shoot
    if(input.fire && shooting == 0) {
       shooting = 15;
-      vector3 acceleration( -cos(degToRad(z_rotation))/50.0f, -sin(degToRad(z_rotation))/50.0f, 0.0f);
-      velocity += acceleration;
+      //vector3 acceleration( -cos(degToRad(z_rotation))/50.0f, -sin(degToRad(z_rotation))/50.0f, 0.0f);
+      //velocity += acceleration;
 
       alEnemy.insert(new Enemy(position));
 
@@ -597,7 +597,7 @@ int Player::action() {
    }
 
    // friction
-   float vmag = velocity.magnitudeSquared();
+   float vmag = velocity.lengthSquared();
    if(vmag > 0.0f) {
       vector3 friction(velocity);
       friction.normalize();
@@ -605,11 +605,11 @@ int Player::action() {
    }
 
    // clamp velocity
-   if(velocity.magnitudeSquared() > 1.2f*1.2f) {
+   if(velocity.lengthSquared() > 1.2f*1.2f) {
       vector3 n(velocity);
       n.normalize();
 
-      velocity += n * -1.2f;
+      velocity = n * 1.2f;
    }
 
    position += velocity;
@@ -694,22 +694,16 @@ int Player::render() {
    }
 
 
+/*
 
    // target indicator
    vector3 target(0.0f, 0.0f, -10.0f);
 
    target -= position;
 
-   float dist = target.magnitude();
+   float dist = target.length();
 
    target.normalize();
-
-/*
-   sgVec3 hpr;
-   sgHPRfromVec3(hpr, target);
-
-   float angle = hpr[0];
-*/
 
    float angle = radToDeg(acos(target * vector3(0.0f, 1.0f, 0.0f)));
 
@@ -764,6 +758,10 @@ int Player::render() {
    glEnable(GL_DEPTH_TEST);
 
    }
+*/
+
+
+
 /*
    glDisable(GL_DEPTH_TEST);
    glDisable(GL_LIGHTING);

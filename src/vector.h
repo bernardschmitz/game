@@ -1,5 +1,5 @@
 
-// $Id: vector.h,v 1.1 2003-07-29 08:12:39 bernard Exp $
+// $Id: vector.h,v 1.2 2003-07-29 22:44:11 bernard Exp $
 
 #ifndef __VECTOR_H__
 #define __VECTOR_H__
@@ -31,8 +31,8 @@ public:
 
    void set(const float fx, const float fy) { x = fx; y = fy; }
 
-   float magnitudeSquared() const { return x*x+y*y; }
-   float magnitude() const { return sqrt(magnitude()); }
+   float lengthSquared() const { return x*x+y*y; }
+   float length() const { return sqrt(length()); }
 
    void negate() { x = -x; y = -y; }
 
@@ -43,7 +43,7 @@ public:
 
    void normalize() {
 
-      float f = magnitude();
+      float f = length();
 
       if(f > zero)
          scale(one/f);
@@ -114,7 +114,7 @@ inline vector2 operator/(const vector2& v, const float f) {
 
 // norm
 
-inline vector2 operator~(const vector2& v) {
+inline vector2 operator!(const vector2& v) {
 
    vector2 tmp(v);
    tmp.normalize();
@@ -137,8 +137,8 @@ public:
 
    void set(const float fx, const float fy, const float fz) { x = fx; y = fy; z = fz; }
 
-   float magnitudeSquared() const { return x*x+y*y+z*z; }
-   float magnitude() const { return sqrt(magnitudeSquared()); }
+   float lengthSquared() const { return x*x+y*y+z*z; }
+   float length() const { return sqrt(lengthSquared()); }
 
    void negate() { x = -x; y = -y; z = -z; }
 
@@ -149,7 +149,7 @@ public:
 
    void normalize() {
 
-      float f = magnitude();
+      float f = length();
 
       if(f > zero)
          scale(one/f);
@@ -225,12 +225,11 @@ inline vector3 operator*(const float f, const vector3& v) {
 
 inline vector3 operator/(const vector3& v, const float f) { 
 
-   float ff = one/f; 
-   return v * ff;
+   return v * (one/f);
 }
 
 // norm
-inline vector3 operator~(const vector3& v) {
+inline vector3 operator!(const vector3& v) {
 
    vector3 tmp(v);
  
@@ -254,8 +253,8 @@ public:
 
    void set(const float fx, const float fy, const float fz, const float fw) { x = fx; y = fy; z = fz; w = fw; }
 
-   float magnitudeSquared() const { return x*x+y*y+z*z; }
-   float magnitude() const { return sqrt(magnitudeSquared()); }
+   float lengthSquared() const { return x*x+y*y+z*z; }
+   float length() const { return sqrt(lengthSquared()); }
 
    void negate() { x = -x; y = -y; z = -z; w = -w; }
 
@@ -266,7 +265,7 @@ public:
 
    void normalize() {
 
-      float f = magnitude();
+      float f = length();
 
       if(f > zero)
          scale(one/f);
@@ -342,7 +341,7 @@ inline vector4 operator/(const vector4& v, const float f) {
 }
 
 // norm
-inline vector4 operator~(const vector4& v) {
+inline vector4 operator!(const vector4& v) {
 
    vector4 tmp(v);
  

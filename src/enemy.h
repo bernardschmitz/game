@@ -12,6 +12,9 @@ class Enemy : public Actor {
 
       quaternion src, dst;
 
+      vector3 angular_vel;
+      float w_spd;
+
       GLuint dl_enemy;
 
    public:

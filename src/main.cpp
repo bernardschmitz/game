@@ -101,7 +101,7 @@ static void draw(void) {
 
    vector3 vel(player->getVelocity());
 
-   float mag = -15.0*vel.magnitude();
+   float mag = -15.0*vel.length();
 
    if(follow)
       glTranslatef(-pos.x-15*vel.x, -pos.y-15*vel.y, mag);

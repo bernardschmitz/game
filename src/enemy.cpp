@@ -14,6 +14,11 @@ ActorList<Enemy> alEnemy;
 
 Enemy::Enemy(vector3 p) : Actor() { 
 
+   //can turn once a frame
+   angular_vel.set(0.0, 0.0, degToRad(90.0/50.0));
+
+   w_spd = 180.0/50.0;
+
    pos = p;
 
    //sgMakeIdentQuat(rot);
@@ -855,6 +860,7 @@ Enemy::~Enemy() {
 
 void Enemy::action() {
 
+quaternion Q;
 
    switch(state) {
 
@@ -872,22 +878,32 @@ void Enemy::action() {
          if(delay == 0) {
             target_pos = player->getPosition();
 
-            target_dir = ~(target_pos - pos);
+            target_dir = !(target_pos - pos);
 
-            //sgHPRfromVec3(target_hpr, target_dir);
+            //dst.setAxisToAxis(dir, target_dir);
 
-            float angle = radToDeg(acos(vector3(1.0f, 0.0f, 0.0f)*target_dir));  
+            float angle = dir*target_dir;  
+
+            angle = radToDeg(acos((angle>=one)?one:(angle<=-one)?-one:angle)) ;
+            
+//  float f = sgScalarProductVec3 ( v1, v2 ) ;
+//  return (float)(acos((f>=1.0f)?1.0f:(f<=-1.0f)?-1.0f:f)*SG_RADIANS_TO_DEGREES) ;
+
+//            printf("%p angle %f\n", (void*)this, angle);
+
+            angular_vel = !(dir % target_dir);
+            angular_vel.scale(degToRad(w_spd));
 
 //            float angle = target_hpr[0];
             //float angle = sgAngleBetweenNormalizedVec3(dir, target);  
 
-            dst.setAxisAngle(vector3(0.0, 0.0, -1.0), angle); 
+            //dst.setAxisAngle(vector3(0.0, 0.0, -1.0), angle); 
             //sgAngleAxisToQuat(dst, angle, 0.0, 0.0, -1.0);
 
-            //sgCopyQuat(src, rot);
-            src = rot;
+            //src = rot;
 
-            delay = 15;
+            delay = 1+angle/w_spd;
+
             state = TRACKING;
          }
          break;
@@ -895,47 +911,50 @@ void Enemy::action() {
       case TRACKING:
 
 
-         pos += vel;
 
+         rot += (rot*angular_vel)*0.5;
+
+         rot.normalize();
+
+         Q = rot * vector3(0.0, 1.0, 0.0) * ~rot;
+         dir = Q.getVector();
+
+
+            vel += dir * 0.05f;
+{
+   // friction
+   float vmag = vel.lengthSquared();
+   if(vmag > 0.0f) {
+      vector3 friction(vel);
+      friction.normalize();
+      vel += friction * (-0.001f-0.05f*vmag/(0.25*0.25));
+   }
+
+   // clamp velocity
+   if(vel.lengthSquared() > 0.25*0.25) {
+      vector3 n(vel);
+      n.normalize();
+
+      vel= n * 0.25f;
+   }
+}
+         pos += vel;
          //sgSlerpQuat(rot, src, dst, (15.0-delay)/15.0);
 
-/*   		sgVec3 axis;
-		   float angle;
-		   sgQuatToAngleAxis(&angle, axis, rot);
-
-         // get dir vector from quaternion
-         sgSetVec3(dir, -sgSin(angle), sgCos(angle), 0.0);
-*/
-         dir = target_dir;
-
          delay--;
-//printf("%d %p ta %f angle %f dir %f %f %f\n", delay, (void*)this, target_hpr[0], angle, dir[0], dir[1], dir[2]);
+//printf("%p %d dir %f %f %f qangle %f rot %f %f %f %f\n", (void*)this, delay, dir.x, dir.y, dir.z, rot.getAngle(), rot.v.x, rot.v.y, rot.v.z, rot.a);
          if(delay == 0) {
 
-rot = dst;
+           //rot = dst;
+
+         //dir = target_dir;
 
             // acceleration
-            vel += dir * 0.025f;
+            //vel += dir * 0.025f;
 
-    //friction
-/* TODO
-    float vmag = vel.magnitudeSquared();
-          if(vmag > 0.0) {
-                vector3 friction;
-                sgNormaliseVec3(friction, vel);
-                sgAddScaledVec3(vel, friction, -0.001-0.05*vmag/(1.2*1.2));
-           }
    
-                                // clamp velocity
-                                   if(sgScalarProductVec3(vel, vel) > 0.5*0.5) {
-                                           sgVec3 n;
-                                            sgNormaliseVec3(n, vel);
-                                           sgScaleVec3(vel, n, 0.5);
-                                   }
-   
-*/
-            delay = 5;
-            state = MOVING;
+            delay = 1;
+            state = TARGET;
          }
          break;
 
@@ -956,13 +975,16 @@ void Enemy::render() {
    glPushMatrix();
    glTranslatef(pos.x, pos.y, pos.z);
 
-/*
+   glDisable(GL_LIGHTING);
    glBegin(GL_LINES);
-    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, white);
+    glColor4f(1.0, 1.0, 1.0, 1.0);
     glVertex3f(0.0, 0.0, 0.0);
-    glVertex3f(dir[0], dir[1], dir[2]);
-   glEnd();
-*/
+    glVertex3f(dir.x, dir.y, dir.z);
+    glColor4f(1.0, 1.0, 0.0, 1.0);
+    glVertex3f(0.0, 0.0, 0.0);
+    glVertex3f(vel.x*5, vel.y*5, vel.z*5);
+    glEnd();
+   glEnable(GL_LIGHTING);
 
 /*
    glBegin(GL_QUADS);

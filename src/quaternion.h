@@ -25,14 +25,46 @@ public:
    quaternion() : v(zero, zero, zero), a(one) { }
    quaternion(const float x, const float y, const float z, const float w) : v(x, y, z), a(w) { }
    quaternion(const quaternion& q) : v(q.v), a(q.a) { }
-   quaternion(const vector3& vv, const float aa=zero) : v(vv), a(aa) { }
-   quaternion(const vector4& v) : v(v.x, v.y, v.z), a(v.w) { }
+   quaternion(const vector3& vv, const float aa=zero) : v(vv.x, vv.y, vv.z), a(aa) { }
+   quaternion(const vector4& vv) : v(vv.x, vv.y, vv.z), a(vv.w) { }
    ~quaternion() { }
+   
+   // construct from axis and angle
+   //quaternion(const vector3& axis, const float angle) {
+   void setAxisAngle(const vector3& axis, const float angle) {
+
+      float r = degToRad(angle)*0.5f;
+
+      v = axis * sin(r);
+      a = cos(r);
+
+      normalize();
+   }   
+
+   // construct from two dir vectors.
+   void setAxisToAxis(const vector3& from, const vector3& to) {
+
+      float cosa = from * to;
+
+      if(cosa < -one+tiny) {
+         v.set(zero, from.x, -from.y);
+         if((from.z*from.z) > (from.y*from.y))
+            v.set(-from.z, zero, from.x);
+         v.normalize();
+         a = zero;
+      }
+      else {
+         vector3 bisect = !(from+to);
+         v = from % bisect;
+         a = from * bisect;
+      } 
+   }
+
 
    void set(const float qx, const float qy, const float qz, const float qw) { v.x = qx; v.y = qy; v.z = qz; a = qw; }
 
-   float magnitudeSquared() const { return v*v+a*a; }
-   float magnitude() const { return sqrt(magnitudeSquared()); }
+   float lengthSquared() const { return v*v+a*a; }
+   float length() const { return sqrt(lengthSquared()); }
 
    // negate
    void negate() { v.negate(); a = -a; }
@@ -44,14 +76,14 @@ public:
 
    void conjugate() { v.negate(); }
 
-
    void normalize() {
 
-      float f = magnitude();
+      float f = length();
 
       if(f > zero) {
-         a /= f;
-         v.scale(one/f);
+         f = one/f;
+         a *= f;
+         v *= f;
       }
       else {
          a = one;
@@ -80,21 +112,10 @@ public:
    float getScalar() { return a; }
 
    // get angle
-   float getAngle() { return (2.0f*acos(a))*180.0f/M_PI; }
+   float getAngle() { return radToDeg(acos(a)*2.0f); }
 
    // get axis
    vector3 getAxis() { vector3 tmp(v); tmp.normalize(); return tmp; }
-
-   void setAxisAngle(const vector3& axis, const float angle) {
-
-      float r = angle*M_PI/180.0f*0.5f;
-
-      v = axis;
-      v.scale(sin(r));
-      a = cos(r);
-
-      normalize();
-   }   
 
 //friend inline quaternion operator*(const quaternion& a, const quaternion& b);
 //friend inline quaternion operator*(const quaternion& q, const vector3& v);
@@ -109,7 +130,7 @@ public:
       quaternion t = *this * quaternion(v) * c;
 
       t.normalize();
-      t *= v.magnitude();
+      t *= v.length();
 
       return t.getVector();
    }
@@ -120,7 +141,7 @@ public:
 
 inline quaternion operator*(const quaternion& q, const float f) { 
 
-   return quaternion(q.v.x*f, q.v.y*f, q.v.z*f, q.a*f); 
+   return quaternion(q.v*f, q.a*f);
 }
 
 inline quaternion operator*(const float f, const quaternion& q) { 
@@ -128,9 +149,9 @@ inline quaternion operator*(const float f, const quaternion& q) {
    return q * f;
 }
 
-inline quaternion operator/(const quaternion& v, const float f) {
+inline quaternion operator/(const quaternion& q, const float f) {
 
-   return v * (one/f);
+   return quaternion(q.v/f, q.a/f);
 }
 
 // vector product
@@ -154,15 +175,15 @@ inline quaternion operator*(const vector3& v, const quaternion& q) {
 // quaternion product
 inline quaternion operator*(const quaternion& a, const quaternion& b) { 
 
-   return quaternion(  (a.v%b.v)+(a.v*b.a)+(b.v*a.a) , a.a*b.a-a.v*b.v );
-/*
-   return quaternion( a.w*b.w - a.x*b.x - a.y*b.y - a.z*b.z, 
-                      a.w*b.x + a.x*b.w + a.y*b.z - a.z*b.y,
-                      a.w*b.y + a.y*b.w + a.z*b.x - a.x*b.z,
-                      a.w*b.z + a.z*b.w + a.x*b.y - a.y*b.x );
-*/
+//   return quaternion(  (a.v%b.v)+(a.v*b.a)+(b.v*a.a) , (a.a*b.a)-(a.v*b.v) );
+
+   return quaternion( a.a*b.v.x + a.v.x*b.a + a.v.y*b.v.z - a.v.z*b.v.y,
+                      a.a*b.v.y + a.v.y*b.a + a.v.z*b.v.x - a.v.x*b.v.z,
+                      a.a*b.v.z + a.v.z*b.a + a.v.x*b.v.y - a.v.y*b.v.x, 
+                      a.a*b.a - a.v.x*b.v.x - a.v.y*b.v.y - a.v.z*b.v.z );
+
 }
-      
+
 
 // quaternion addition
 inline quaternion operator+(const quaternion& vA, const quaternion& vB) { 
@@ -176,13 +197,19 @@ inline quaternion operator-(const quaternion& vA, const quaternion& vB) {
 }
 
 
-inline quaternion operator~(const quaternion& v) {
+inline quaternion operator!(const quaternion& q) {
 
-   quaternion tmp(v);
+   quaternion tmp(q);
    tmp.normalize();
    return tmp;
 }
 
+inline quaternion operator~(const quaternion& q) {
+
+   quaternion tmp(q);
+   tmp.conjugate();
+   return tmp;
+}
 
 #endif
 

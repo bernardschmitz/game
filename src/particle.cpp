@@ -213,13 +213,18 @@ void ParticleSystem::render() {
          glColor4f(p[i].color.x, p[i].color.y, p[i].color.z, p[i].color.w);
 
          vector3 dir;
-         dir = ~(p[i].pos - p[i].oldPos) * p[i].size;
+         dir = p[i].pos - p[i].oldPos;
+         dir.z = 0.0;
+         dir.normalize();
+         dir *= p[i].size;
+        
+         //dir = ~(p[i].pos - p[i].oldPos) * p[i].size;
 
          vector3 up, down, back;
 
          up.x = -dir.y;
          up.y = dir.x;
-         up.z = 0.0f;
+         up.z = dir.z;
 
          down = -up;
 
