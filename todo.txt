@@ -1,4 +1,6 @@
 
+put all lua stuff in script.cpp file...
+
 stop bullet accelerating every update!
 
 change collision grid...  have an array of grids say 400x400 and have a number of overflow grids for the boundaries.
@@ -97,4 +99,4 @@ polygon counter...
 export from blender in a format for glDrawElements.
 
 
-$Id: todo.txt,v 1.23 2003-08-29 00:00:06 bernard Exp $
+$Id: todo.txt,v 1.24 2003-09-04 02:35:28 bernard Exp $

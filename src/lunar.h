@@ -22,8 +22,9 @@ public:
     set(L, LUA_GLOBALSINDEX, T::className);
 
     // hide metatable from Lua getmetatable()
-    lua_pushvalue(L, methods);
-    set(L, metatable, "__metatable");
+// TODO not sure why we hide the metatable from the getmetatable() function
+//    lua_pushvalue(L, methods);
+//    set(L, metatable, "__metatable");
 
     lua_pushvalue(L, methods);
     set(L, metatable, "__index");
@@ -163,7 +164,7 @@ private:
     return 1;
   }
 
-  static int set(lua_State *L, int table_index, const char *key) {
+  static void set(lua_State *L, int table_index, const char *key) {
     lua_pushstring(L, key);
     lua_insert(L, -2);  // swap value and key
     lua_settable(L, table_index);

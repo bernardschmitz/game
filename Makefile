@@ -1,9 +1,9 @@
 
-# $Id: Makefile,v 1.27 2003-08-27 18:10:46 bernard Exp $
+# $Id: Makefile,v 1.28 2003-09-04 02:35:28 bernard Exp $
 
 
 ifdef OPTIMIZE
-	CPPF = -O9 -DNDEBUG \
+	CPPF = -O9 -DNDEBUG -DTOLUA_RELEASE \
               -funroll-loops -ffast-math -fomit-frame-pointer -malign-double \
               -mcpu=pentiumpro -finline-functions -march=pentiumpro -fno-exceptions
    LF = -s
@@ -11,7 +11,7 @@ else
 	ifdef PROFILE
 #      CPPF=-pg -O3 -DNDEBUG -mcpu=pentiumpro -march=pentiumpro -ffast-math
       LF=-pg
-	CPPF = -pg -O9 -DNDEBUG \
+	CPPF = -pg -O9 -DNDEBUG -DTOLUA_RELEASE \
               -funroll-loops -ffast-math -malign-double \
               -mcpu=pentiumpro -finline-functions -march=pentiumpro -fno-exceptions
    else
@@ -23,7 +23,7 @@ endif
 # -Werror
   
 CPPFLAGS = $(CPPF) -Wall -Winline -DHAVE_OPENGL -DWIN32 `sdl-config --cflags`
-LFLAGS = $(LF) -lSDL_image -lSDL_mixer `sdl-config --libs` -lopengl32 -lglu32 -ljpeg -lpng -lz -lm -llua -llualib
+LFLAGS = $(LF) -lSDL_image -lSDL_mixer `sdl-config --libs` -lopengl32 -lglu32 -ljpeg -lpng -lz -lm -ltolua -llua -llualib
 
 CC=g++
 LD=$(CC)
@@ -43,13 +43,23 @@ SRCS = src/main.cpp  src/background.cpp src/player.cpp src/input.cpp  src/settin
        src/vector.cpp
 #       src/sg/sg.cpp src/sg/sgIsect.cpp src/sg/sgPerlinNoise.cpp src/sg/sgd.cpp src/sg/sgdIsect.cpp
 
+LUA_GLUE_OBJS = src/l-vector3.o
+LUA_GLUE_SRC  = src/l-vector3.cpp
+
+PKGS = src/l-vector3.pkg
+
 all : main.exe
 
 clean :
-	rm -rf main.exe ${OBJS}
+	rm -rf main.exe ${OBJS} ${LUA_GLUE_OBJS} ${LUA_GLUE_SRC}
 
-main.exe : ${OBJS} 
-	$(LD) -o $@ ${OBJS} ${LFLAGS}
+main.exe : ${OBJS} ${LUA_GLUE_OBJS} ${LUA_GLUE_SRC}
+	$(LD) -o $@ ${OBJS} ${LUA_GLUE_OBJS} ${LFLAGS}
+
+
+src/l-vector3.cpp: src/l-vector3.pkg
+	tolua -n vector3 -o src/l-vector3.cpp src/l-vector3.pkg
+
 
 depend :
 	makedepend -Y -I../cross-tools/i386-mingw32msvc/include \
@@ -81,6 +91,8 @@ src/main.o: ../cross-tools/i386-mingw32msvc/include/stdio.h
 src/main.o: ../cross-tools/i386-mingw32msvc/include/stdarg.h
 src/main.o: ../cross-tools/lib/gcc-lib/i386-mingw32msvc/3.2.3/include/stdarg.h
 src/main.o: ../cross-tools/i386-mingw32msvc/include/string.h
+src/main.o: ../cross-tools/include/tolua.h ../cross-tools/include/lua.h
+src/main.o: ../cross-tools/include/lauxlib.h
 src/main.o: ../cross-tools/include/SDL/SDL_mixer.h
 src/main.o: ../cross-tools/include/SDL/SDL_types.h
 src/main.o: ../cross-tools/include/SDL/SDL_rwops.h
@@ -1716,6 +1728,11 @@ src/console.o: ../cross-tools/include/c++/3.2.3/ext/stl_hash_fun.h
 src/console.o: ../cross-tools/include/c++/3.2.3/ext/hash_set
 src/vector.o: ../cross-tools/i386-mingw32msvc/include/math.h
 src/vector.o: ../cross-tools/i386-mingw32msvc/include/_mingw.h src/vector.h
+src/vector.o: ../cross-tools/i386-mingw32msvc/include/stdio.h
+src/vector.o: ../cross-tools/i386-mingw32msvc/include/stddef.h
+src/vector.o: ../cross-tools/lib/gcc-lib/i386-mingw32msvc/3.2.3/include/stddef.h
+src/vector.o: ../cross-tools/i386-mingw32msvc/include/stdarg.h
+src/vector.o: ../cross-tools/lib/gcc-lib/i386-mingw32msvc/3.2.3/include/stdarg.h
 src/vector.o: ../cross-tools/include/c++/3.2.3/iostream
 src/vector.o: ../cross-tools/include/c++/3.2.3/i386-mingw32msvc/bits/c++config.h
 src/vector.o: ../cross-tools/include/c++/3.2.3/i386-mingw32msvc/bits/os_defines.h
@@ -1727,11 +1744,6 @@ src/vector.o: ../cross-tools/include/c++/3.2.3/bits/fpos.h
 src/vector.o: ../cross-tools/include/c++/3.2.3/i386-mingw32msvc/bits/c++io.h
 src/vector.o: ../cross-tools/include/c++/3.2.3/cstdio
 src/vector.o: ../cross-tools/include/c++/3.2.3/cstddef
-src/vector.o: ../cross-tools/i386-mingw32msvc/include/stddef.h
-src/vector.o: ../cross-tools/lib/gcc-lib/i386-mingw32msvc/3.2.3/include/stddef.h
-src/vector.o: ../cross-tools/i386-mingw32msvc/include/stdio.h
-src/vector.o: ../cross-tools/i386-mingw32msvc/include/stdarg.h
-src/vector.o: ../cross-tools/lib/gcc-lib/i386-mingw32msvc/3.2.3/include/stdarg.h
 src/vector.o: ../cross-tools/include/c++/3.2.3/i386-mingw32msvc/bits/gthr.h
 src/vector.o: ../cross-tools/include/c++/3.2.3/i386-mingw32msvc/bits/gthr-single.h
 src/vector.o: ../cross-tools/include/c++/3.2.3/cwchar

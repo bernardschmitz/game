@@ -981,17 +981,17 @@ void Enemy::action(float dt) {
    force = vector3(0,0,0);
 
    if(position.x-radius < -size) {
-      force += mass*vector3(5, 0, 0) / dt;
+      force += vector3(5, 0, 0)*mass / dt;
    }
    if(position.x+radius > size) {
-      force += mass*vector3(-5, 0, 0) / dt;
+      force += vector3(-5, 0, 0)*mass / dt;
    }
 
    if(position.y-radius < -size) {
-      force += mass*vector3(0, 5,  0) / dt;
+      force += vector3(0, 5,  0)*mass / dt;
    }
    if(position.y+radius > size) {
-      force += mass*vector3(0, -5,  0) / dt;
+      force += vector3(0, -5,  0)*mass / dt;
    }
 
 //   force += mass * vector3(0, -5.0f, 0);

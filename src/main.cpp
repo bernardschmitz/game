@@ -12,6 +12,8 @@ extern "C"
  #include <lauxlib.h>
 }
 
+#include <tolua.h>
+
 #include <SDL/SDL_mixer.h>
 
 #include <string>
@@ -52,6 +54,8 @@ extern "C"
 #define HEIGHT 600
 */
 
+
+TOLUA_API int tolua_vector3_open (lua_State* tolua_S);
 
 lua_State *L = 0;
 
@@ -807,6 +811,7 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
   luaopen_debug(L);
   luaopen_loadlib(L);
 
+  tolua_vector3_open(L);
 
    lua_register(L, "print", luaB_print);
    lua_register(L, "_ALERT", LuaError );

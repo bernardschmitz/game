@@ -1,0 +1,61 @@
+
+// $Id: l-vector3.pkg,v 1.1 2003-09-04 02:35:28 bernard Exp $
+
+$#include "vector.h"
+
+
+class vector3 {
+
+   float x;
+   float y;
+   float z;
+
+   vector3();
+   vector3(const float fx, const float fy, const float fz);
+   vector3(const vector3& v);
+   ~vector3();
+
+   void set(const float fx, const float fy, const float fz);
+
+   float lengthSquared();
+   float length();
+
+   void negate();
+
+   void scale(const float f);
+   void add(const vector3& v);
+   void sub(const vector3& v);
+   void normalize();
+
+   bool isEqual(const vector3& v, const float tol);
+
+   float dot(const vector3& v);
+
+   vector3 operator+(const vector3& v);
+   vector3 operator-(const vector3& v);
+
+   float operator*(const vector3& v);
+
+   vector3 operator*(float f);
+   vector3 operator/(float f);
+
+
+   void linear_interpolate(const vector3& a, const vector3& b, const float t);
+   void cosine_interpolate(const vector3& a, const vector3& b, const float t);
+   void quadratic_interpolate(const vector3& p0, const vector3& p1, const vector3& p2, const float t);
+   void cubic_interpolate(const vector3& p0, const vector3& p1, const vector3& p2, const vector3& p3, const float t);
+
+};
+   
+vector3 cross(const vector3& a, const vector3& b);
+
+$[
+
+-- displays the vector3 in the console
+
+vector3.print = function (self)
+                   print(self.x, self.y, self.z)
+                end
+
+$]
+

@@ -1,5 +1,5 @@
 
-// $Id: actor.cpp,v 1.25 2003-08-28 01:02:54 bernard Exp $
+// $Id: actor.cpp,v 1.26 2003-09-04 02:35:28 bernard Exp $
 
 #include <iostream>
 #include <sstream>
@@ -84,7 +84,7 @@ void ActorManager::move_actors() {
 
       vector3 acceleration = (*k)->force * (*k)->inv_mass;
 
-      vector3 new_pos = 2.0f * (*k)->position - (*k)->prev_position + acceleration * time_step * time_step;
+      vector3 new_pos = (*k)->position * 2.0f - (*k)->prev_position + acceleration * time_step * time_step;
       (*k)->prev_position = (*k)->position;
       (*k)->position = new_pos;
 
@@ -181,8 +181,8 @@ bool Actor::collide(Actor *p) {
    if(diff > 0.0f)
       return false;
 
-   position += diff * inv_mass * delta;
-   p->position -= diff * p->inv_mass * delta;
+   position += delta * diff * inv_mass;
+   p->position -= delta * diff * p->inv_mass;
 
    flags |= ACT_COLLISION;
    hit_actor = p;
@@ -271,8 +271,8 @@ void Constraint::satisfy() {
    // TODO need info on type of constraint...
    // currently is a rod
 
-   p1->position += diff * p1->inv_mass * delta;
-   p2->position -= diff * p2->inv_mass * delta;
+   p1->position += delta * diff * p1->inv_mass;
+   p2->position -= delta * diff * p2->inv_mass;
 
    // TODO maybe set flags so actor know the constrain is held?
    // TODO constraints need a way of being broken...
