@@ -1,5 +1,5 @@
 
-# $Id: makefile.win,v 1.3 2003-08-02 20:02:32 bernard Exp $
+# $Id: makefile.win,v 1.4 2003-08-02 20:41:46 bernard Exp $
 
 
 ifdef OPTIMIZE
@@ -51,4 +51,3 @@ view_obj.exe: src/view_obj.o src/view_obj.cpp src/object.c
 	$(LD) -o $@ src/view_obj.o ${LFLAGS}
 
 
-# DO NOT DELETE
