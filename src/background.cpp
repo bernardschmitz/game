@@ -240,7 +240,7 @@ void Background::action(float dt) {
    float s= 5.0;
 
 //   std::cout << center << std::endl;
-   assert(center.z >= -45.0);
+   assert(center.z > -45.0);
 
    float cx = rint(center.x/s)*s;
    float cy = rint(center.y/s)*s;

@@ -20,19 +20,25 @@ Enemy::Enemy(vector3 p) : Actor(ACT_ENEMY, p) {
    v_spd = 0.5;
    v_acc = 750 + uniform_random_float(-50.0, 50.0);
 
-   mass = 10.0 + uniform_random_float(-4.0, 10.0);;
+   mass = 10.0 + uniform_random_float(-4.0, 10.0);
+
+   //radius = 0.5 + uniform_random_float(-0.25, .75);
+   radius = 1.0;
+//   mass = 1.0;
 
    max_speed = 25.0 + uniform_random_float(-15.0, 10.0);
    max_force = 150.0+ uniform_random_float(50, 200.0);
 
+   max_speed = 30;
+   max_force = 5000;
 
    velocity.x = uniform_random_float(-1.0f, 1.0f);
    velocity.y = uniform_random_float(-1.0f, 1.0f);
    velocity.z = 0.0f;
 
-   velocity = (!velocity) * max_speed/100;
+//   velocity = (!velocity) * max_speed/100;
 
-//   velocity = vector3(0,0,0);
+   velocity = vector3(0,0,0);
 
    rot.set(0.0, 0.0, 0.0, 1.0);
 
@@ -48,6 +54,7 @@ Enemy::Enemy(vector3 p) : Actor(ACT_ENEMY, p) {
    state = TARGET;
 
    pain = !(target_pos + vector3(40, 40, 10+uniform_random_float(0.0, 40.0)));
+
 
    dl_enemy = glGenLists(1);
 
@@ -939,27 +946,33 @@ void Enemy::action(float dt) {
       std::cout << position << " " << hit_position << " " << hit_normal << " " << hit_time << " " << std::endl;
    }
 */
-   float size = 25.0;
+   float size = 135.0;
 
-   if(position.x < -size) {
-      position.x = -size;
-      velocity.x = -velocity.x;
-   }
-   if(position.x > size) {
-      position.x = size;
-      velocity.x = -velocity.x;
-   }
+   force = vector3(0,0,0);
 
-   if(position.y < -size) {
-      position.y = -size;
-      velocity.y = -velocity.y;
+   if(position.x-radius < -size) {
+      //position.x = -size+radius;
+      //velocity.x = -velocity.x;
+      force += mass*vector3(2, 0, 0) / dt;
    }
-   if(position.y > size) {
-      position.y = size;
-      velocity.y = -velocity.y;
+   if(position.x+radius > size) {
+      //position.x = size-radius;
+      //velocity.x = -velocity.x;
+      force += mass*vector3(-2, 0, 0) / dt;
    }
 
+   if(position.y-radius < -size) {
+      //position.y = -size+radius;
+      //velocity.y = -velocity.y;
+      force += mass*vector3(0, 2,  0) / dt;
+   }
+   if(position.y+radius > size) {
+      //position.y = size-radius;
+      //velocity.y = -velocity.y;
+      force += mass*vector3(0, -2,  0) / dt;
+   }
 
+   //force += mass * vector3(0, -1.7f, 0);
 
 }
 
@@ -998,8 +1011,15 @@ void Enemy::render() {
 
    glPushMatrix();
    glTranslatef(position.x, position.y, position.z);
-   glColor4f(pain.x, pain.y, pain.z, 1.0);
+/*
+   glBegin(GL_LINES);
+    glColor4f(1.0, 1.0, 1.0, 1.0);
+    glVertex3f(0.0, 0.0, 0.0);
+    glVertex3f(velocity.x, velocity.y, velocity.z);
+   glEnd();
+*/
    glBegin(GL_TRIANGLE_FAN);
+   glColor4f(pain.x, pain.y, pain.z, 1.0);
     for(int i=0; i<12; i++) {
        float x = radius*cos(i/12.0*2.0*M_PI);
        float y = radius*sin(i/12.0*2.0*M_PI);
@@ -1289,19 +1309,19 @@ void Enemy::render() {
    glBegin(GL_LINES);
     glColor4f(0.0, 1.0, 1.0, 1.0);
     glVertex3f(0.0, 0.0, 0.0);
-    vector3 ss = velocity * look_ahead;
-    glVertex3f(ss.x, ss.y, ss.z);
+    glVertex3f(velocity.x, velocity.y, velocity.z);
 //    glColor4f(1.0, 1.0, 0.0, 1.0);
 //    glVertex3f(0.0, 0.0, 0.0);
 //    glVertex3f(velocity.x, velocity.y, velocity.z);
-    glColor4f(0.0, 1.0, 0.0, 1.0);
-    glVertex3f(0.0, 0.0, 0.0);
-    glVertex3f(steering.x, steering.y, steering.z);
+//    glColor4f(0.0, 1.0, 0.0, 1.0);
+//    glVertex3f(0.0, 0.0, 0.0);
+//    glVertex3f(steering.x, steering.y, steering.z);
 
     glEnd();
 
    glColor4f(pain.x, pain.y, pain.z, 1.0);
-   glBegin(GL_TRIANGLE_FAN);
+   //glBegin(GL_TRIANGLE_FAN);
+   glBegin(GL_LINE_LOOP);
     for(int i=0; i<12; i++) {
        float x = cos(i/12.0*2.0*M_PI);
        float y = sin(i/12.0*2.0*M_PI);

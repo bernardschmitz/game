@@ -315,6 +315,7 @@ static void draw(void) {
    actor_manager->render();
 
    //bg->setCenter(vector3(pos.x, pos.y, 0.0));
+   //std::cout << vector3(pos.x, pos.y, mag) << vel << std::endl;
    bg->setCenter(vector3(pos.x, pos.y, mag));
 
 

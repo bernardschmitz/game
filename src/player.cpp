@@ -698,8 +698,13 @@ void Player::render() {
    glPushMatrix();
 
    glTranslatef(position.x, position.y, position.z);
-
+/*
+   glDisable(GL_LIGHTING);
    glColor4f(1.0, 1.0, 1.0, 1.0);
+   glBegin(GL_LINES);
+    glVertex3f(0,0,0);
+    glVertex3f(velocity.x, velocity.y, velocity.z);
+   glEnd();
    glBegin(GL_LINE_LOOP);
     for(int i=0; i<12; i++) {
        float x = radius*cos(i/12.0*2.0*M_PI);
@@ -708,7 +713,8 @@ void Player::render() {
     }
    glEnd();
 
-
+   glEnable(GL_LIGHTING);
+*/
 
    glRotatef(-90.0, 0.0, 0.0, 1.0);
    glRotatef(z_rotation, 0.0, 0.0, 1.0);

@@ -1,5 +1,5 @@
 
-// $Id: actor.cpp,v 1.11 2003-08-20 18:57:19 bernard Exp $
+// $Id: actor.cpp,v 1.12 2003-08-21 17:35:04 bernard Exp $
 
 #include <iostream>
 
@@ -107,16 +107,31 @@ bool sphere_collision(const vector3& Ap, vector3& Av, const float Ar, const vect
    //move = N*distance;
 
 
-   float t = fabs(distance) / (mag+0.000001);
+   float t = 0.0f;
+
+//   if(mag < 0.001f)
+//      mag = 0.001f;
+
+   if(mag > 0.0f)
+      t = distance / mag;
+      //t = fabs(distance) / mag;
+
+//   if(t < -1.0)
+//      t = -1.0;
+//
+//   if(t > 1.0)
+//      t = 1.0;
+
+//   if(fabs(t) < 0.01f)
+//      t = 0.0f;
 
    Av *= t;
    Bv *= t;
 
-   //std::cout << "\tt " << t << std::endl;
+//   std::cout << "\tt " << t << std::endl;
 
    return true;
 }
-
 
 void Actor::update(float dt) {
 
@@ -126,14 +141,6 @@ void Actor::update(float dt) {
 
    action(dt);
 
-/*
-   if(flags & ACT_COLLISION) {
-      flags &= ~ACT_COLLISION;
-      position = hit_position;
-      velocity = vector3(0,0,0);
-   }
-*/
-
    if(force.lengthSquared() > max_force*max_force)
       force = (!force) * max_force;
 
@@ -141,13 +148,6 @@ void Actor::update(float dt) {
    acceleration = force / mass;
 
    velocity += acceleration * dt;
-
-   if(velocity.lengthSquared() > max_speed*max_speed)
-      velocity = (!velocity) * max_speed;
-
-   if(velocity.lengthSquared() < tiny)
-      velocity.set(0.0, 0.0, 0.0);
-
 
    prev_position = position;
 
@@ -159,6 +159,7 @@ void Actor::update(float dt) {
 
 //   force.set(0,0,0);
 
+/*
    speed = velocity.length();
 
    if(speed > tiny) {
@@ -166,6 +167,8 @@ void Actor::update(float dt) {
       right_axis = forward_axis % up_axis;
       up_axis = forward_axis % right_axis;
    }
+*/
+
 }
 
 void ActorManager::insert(Actor *p) { 
@@ -208,46 +211,57 @@ void ActorManager::insert_new_actors() {
 
 
 
-// checks for collisions against all actors
-
 void ActorManager::collide(float dt) {
 
-   for(int i=0; i<master_actor_list.size()-1; i++) {
+   std::cout << "collide\n";
+
+   for(int i=0; i<master_actor_list.size()-1; ++i) {
+
+      if(master_actor_list[i]->actor_type == ACT_BACKGROUND)
+         continue;
+
+
+      vector3& Adp = master_actor_list[i]->delta_position;
+
+      //if(Adp.lengthSquared() < 0.001)
+      //   continue;
 
       vector3 Ap = master_actor_list[i]->position;
-      vector3& Am = master_actor_list[i]->delta_position;
       float Ar = master_actor_list[i]->radius;
 
-      for(int j=i+1; j<master_actor_list.size(); j++) {
+      for(int j=i+1; j<master_actor_list.size(); ++j) {
+      
+         if(master_actor_list[j]->actor_type == ACT_BACKGROUND)
+            continue;
 
+         vector3& Bdp = master_actor_list[j]->delta_position;
          vector3 Bp = master_actor_list[j]->position;
-         vector3& Bm = master_actor_list[j]->delta_position;
          float Br = master_actor_list[j]->radius;
 
          //std::cout << " check " << i << " against " << j;
-         if(sphere_collision(Ap, Am, Ar, Bp, Bm, Br)) {
+
+         if(sphere_collision(Ap, Adp, Ar, Bp, Bdp, Br)) {
             // calc collision response
 
-            vector3& Av = master_actor_list[i]->velocity;
-            vector3& Bv = master_actor_list[j]->velocity;
+            master_actor_list[i]->flags = ACT_COLLISION;
+            master_actor_list[i]->hit_actor = master_actor_list[j];
+            master_actor_list[i]->hit_position = Adp;
 
-            float sum_inv_mass = 1.0f/master_actor_list[i]->mass + 1.0f/master_actor_list[j]->mass;
+            master_actor_list[j]->flags = ACT_COLLISION;
+            master_actor_list[j]->hit_actor = master_actor_list[i];
+            master_actor_list[j]->hit_position = Bdp;
 
-            vector3 rv = Av - Bv;
-            vector3 cn = !((Ap+Am) - (Bp+Bm));
-            
-            float k = ( -(1.0f+0.5f) * (rv * cn) )  /  ( (cn*cn) * sum_inv_mass );
- 
-            Av += ((k * cn) / master_actor_list[i]->mass) ;// / dt;
-            Bv -= ((k * cn) / master_actor_list[j]->mass) ;// / dt;
-
-            //std::cout << " HIT! " ;
+//            if(master_actor_list[i]->actor_type == ACT_PLAYER) {
+/*
+               std::cout << "check " << i << " against " << j << " HIT! " << std::endl;
+               std::cout << "\tAp " << Ap << " Adp " << Adp << std::endl;
+               std::cout << "\tBp " << Bp << " Bdp " << Bdp << std::endl;
+*/
+//            }
          }
-         //std::cout << std::endl;
       }
    }
 }
-
 
 
 // updates the actor.
@@ -277,7 +291,55 @@ void ActorManager::update(float dt) {
    // set new position after checking for collisions
    k = master_actor_list.begin();
    while(k != master_actor_list.end()) {
+
+      // move actor
       (*k)->position += (*k)->delta_position;
+   
+      ++k;
+   }
+
+
+   k = master_actor_list.begin();
+   while(k != master_actor_list.end()) {
+
+      if((*k)->flags & ACT_COLLISION) {
+
+//         std::cout << "\tflags " << (*k)->flags << " actor_type " << (*k)->actor_type << " actor_id " << (*k)->actor_id << std::endl;
+
+         Actor *p = (*k)->hit_actor;
+
+         assert(p != 0);
+
+         vector3& Av = (*k)->velocity;
+         vector3& Bv = p->velocity;
+
+         float sum_inv_mass = 1.0f/(*k)->mass + 1.0f/p->mass;
+
+         vector3 rv = Av - Bv;
+         vector3 cn = !((*k)->position - p->position);
+            
+         float kk = ( -(1.0f+0.5f) * (rv * cn) )  /  ( (cn*cn) * sum_inv_mass );
+
+//         std::cout << "\tAv " << Av << " Bv " << Bv << std::endl;
+ 
+         Av += ((kk * cn) / (*k)->mass) ;// / dt;
+         Bv -= ((kk * cn) / p->mass) ;// / dt;
+
+ //        std::cout << "\t\tAv " << Av << " Bv " << Bv << std::endl;
+
+         (*k)->flags = 0;
+         p->flags = 0;
+      }
+
+      // constraint velocity
+      if((*k)->velocity.lengthSquared() > (*k)->max_speed*(*k)->max_speed)
+         (*k)->velocity = (!(*k)->velocity) * (*k)->max_speed;
+
+      if((*k)->velocity.lengthSquared() < tiny)
+         (*k)->velocity.set(0.0, 0.0, 0.0);
+
+      (*k)->speed = (*k)->velocity.length();
+
       // TODO adjust velocities for collision here too
       ++k;
    }
