@@ -1,4 +1,5 @@
 
+stop bullet accelerating every update!
 
 change collision grid...  have an array of grids say 400x400 and have a number of overflow grids for the boundaries.
 find the grid for the top left of the actor and then scan over the actor finding each grid it covers.  should allow of actors
@@ -96,4 +97,4 @@ polygon counter...
 export from blender in a format for glDrawElements.
 
 
-$Id: todo.txt,v 1.22 2003-08-28 01:02:54 bernard Exp $
+$Id: todo.txt,v 1.23 2003-08-29 00:00:06 bernard Exp $

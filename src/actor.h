@@ -1,5 +1,5 @@
 
-// $Id: actor.h,v 1.24 2003-08-28 01:02:54 bernard Exp $
+// $Id: actor.h,v 1.25 2003-08-29 00:00:06 bernard Exp $
 
 #ifndef __ACTOR_H__
 #define __ACTOR_H__
@@ -89,6 +89,7 @@ class Actor {
       Actor *hit_actor;
 
       GridList grid_list;
+      ConstraintList constraint_list;
 
    public:
       Actor(int t, std::string s="Actor", const vector3& pos=vector3(0.0f, 0.0f, 0.0f), const vector3& vel=vector3(0.0f, 0.0f, 0.0f),  
@@ -181,6 +182,8 @@ public:
       if(rest_length < 0.0f) {
          rest_length = (p1->position - p2->position).length();
       }
+      p1->constraint_list.push_back(this);
+      p2->constraint_list.push_back(this);
    }
    void satisfy();
 };

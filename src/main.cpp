@@ -525,6 +525,23 @@ init(int argc, char *argv[])
 
    actor_manager->insert(bg);
 
+   Enemy *e1 = new Enemy(vector3(0.00,10,-10));
+   Enemy *e2 = new Enemy(vector3(2.05,10,-10));
+   Enemy *e3 = new Enemy(vector3(4.05,10,-10));
+
+   e1->setMass(10.0);
+   e2->setMass(100.0);
+   e3->setMass(10.0);
+
+   actor_manager->insert(e1);
+   actor_manager->insert(e2);
+   actor_manager->insert(e3);
+
+   actor_manager->add_constraint(e1, e2);
+   actor_manager->add_constraint(e2, e3);
+   actor_manager->add_constraint(e1, e3);
+
+
 /*
    jelly_fish(vector3(-20,0,-10), vector3(0.8,0,0), 10);
    jelly_fish(vector3(20,0,-10), vector3(0,0.8,0), 10);
