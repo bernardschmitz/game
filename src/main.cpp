@@ -19,14 +19,14 @@
 #define M_PI 3.14159265
 #endif
 
+/*
 #define FS 0
 #define WIDTH 800
 #define HEIGHT 600
-/*
+*/
 #define FS 1
 #define WIDTH 1600
 #define HEIGHT 1200
-*/
 
 static Background *bg;
 static Enemy *enemy;

@@ -2,7 +2,7 @@
 #include "player.h"
 #include "input.h"
 #include "settings.h"
-
+#include "enemy.h"
 
 Player *player;
 
@@ -336,6 +336,9 @@ int Player::action() {
       shooting = 15;
       sgVec3 acceleration = { -sgCos(z_rotation)/50.0, -sgSin(z_rotation)/50.0, 0.0 };
       sgAddVec3(velocity, acceleration);
+
+      sgVec3 shot_pos;
+      alEnemy.insert(new Enemy(position));
    }
    else {
       if(shooting > 0)
@@ -535,6 +538,76 @@ int Player::render() {
    glPopMatrix();
 }
 }
+
+
+
+   glDisable(GL_DEPTH_TEST);
+   glDisable(GL_LIGHTING);
+
+   glEnable(GL_BLEND);
+   glBlendFunc(GL_SRC_ALPHA,GL_ONE);
+
+   float scale = 50.0;
+
+   glPushMatrix();
+   glTranslatef(position[0], position[1], position[2]);
+   glTranslatef(-7.0, 4.5, 0.0); 
+   glBegin(GL_QUADS);
+    glColor4f(0.8, 0.8, 1.0, 0.1);
+    glVertex3f( 2.5,  2.5, 0.0);
+    glVertex3f(-2.5,  2.5, 0.0);
+    glVertex3f(-2.5, -2.5, 0.0);
+    glVertex3f( 2.5, -2.5, 0.0);
+
+    glVertex3f( 10.0*2.5/scale,  7.5*2.5/scale, 0.0);
+    glVertex3f(-10.0*2.5/scale,  7.5*2.5/scale, 0.0);
+    glVertex3f(-10.0*2.5/scale, -7.5*2.5/scale, 0.0);
+    glVertex3f( 10.0*2.5/scale, -7.5*2.5/scale, 0.0);
+    glEnd();
+   
+   glEnable(GL_POINT_SMOOTH);
+   glPointSize(3);
+   glBegin(GL_POINTS);
+     glVertex3f(0.0, 0.0, 0.0);
+
+   Actor *pact = alEnemy.first();
+
+   while(pact != alEnemy.head()) {
+                sgVec3 p;
+                pact->position(p);
+ 
+                sgSubVec3(p, position);
+
+                p[0] *= 2.5/scale;
+                p[1] *= 2.5/scale;
+                p[2] *= 0.0;
+
+     if(p[0] > -2.5 && p[0] < 2.5 && p[1] > -2.5 && p[1] < 2.5)
+        glVertex3f(p[0], p[1], p[2]);
+
+                pact = alEnemy.next();
+      }
+      
+     
+   glEnd();
+
+   glPopMatrix();
+
+   glEnable(GL_DEPTH_TEST);
+   glEnable(GL_LIGHTING);
+
+   glDisable(GL_BLEND);
+
+
+
+
+
+
+
+
+
+
+
 
    return 0;
 }

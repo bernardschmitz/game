@@ -1,5 +1,5 @@
 
-// $Id: actor.h,v 1.1 2003-07-18 02:44:18 bernard Exp $
+// $Id: actor.h,v 1.2 2003-07-18 03:33:57 bernard Exp $
 
 #ifndef __ACTOR_H__
 #define __ACTOR_H__
@@ -33,6 +33,8 @@ class Actor {
       //int YPos(void) { return(nYPos); }
       //int Width(void) { return(nWidth); }
       //int Height(void) { return(nHeight); }
+
+      void position(sgVec3 p) { sgCopyVec3(p, pos); }
 
       //int Overlap(Actor *);   // returns true if this actor overlaps (collides)
                               // with the actor pointed to
