@@ -13,7 +13,7 @@
 
 Bullet::Bullet(vector3 p, vector3 v, vector3 f, float r) : Actor(ACT_BULLET, "Bullet", p, v, 10.0, 60.0) { 
 
-   range = r;
+   range = 80.0;
 
    from = position;
 

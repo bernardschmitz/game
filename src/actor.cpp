@@ -1,8 +1,9 @@
 
-// $Id: actor.cpp,v 1.16 2003-08-24 04:45:59 bernard Exp $
+// $Id: actor.cpp,v 1.17 2003-08-24 23:59:13 bernard Exp $
 
 #include <iostream>
 #include <sstream>
+#include <iomanip>
 
 #include "vector.h"
 #include "actor.h"
@@ -160,32 +161,41 @@ void ActorManager::insert_new_actors() {
    assert(new_actor_list.empty());
 }
 
+void ActorManager::collision_test(ActorList& al) {
 
+   for(int i=0; i<al.size()-1; ++i) {
+
+      if(al[i]->collision_flags == 0) 
+         continue;
+   
+      for(int j=i+1; j<al.size(); ++j) {
+         
+         if(al[i]->collision_flags & al[j]->type) {
+            // TODO maybe inline this
+            al[i]->collide(al[j]);
+         }
+      }
+   }
+}
+
+ 
 void ActorManager::collide(int iter) {
 
 //   std::cout << "collide\n";
 
    for(int k=0; k<iter; k++) {
-   
-      for(int i=0; i<master_actor_list.size()-1; ++i) {
+//      collision_test(master_actor_list);
 
-         if(master_actor_list[i]->collision_flags == 0) 
-            continue;
-   
-         for(int j=i+1; j<master_actor_list.size(); ++j) {
-         
-            if(master_actor_list[i]->collision_flags & master_actor_list[j]->type) {
-   
-               //std::cout << " check " << i << " against " << j;
-
-               // TODO maybe inline this
-               master_actor_list[i]->collide(master_actor_list[j]);
-   
-            }
-         }
+      GridMap::iterator g = grid.grid_map.begin();
+      while(g != grid.grid_map.end()) {
+         ActorList& al = ((*g).second)->get_actors();
+         if(!al.empty())
+            collision_test(al);
+         ++g;
       }
    }
 }
+
 
 // satisfy constraint
 // return true if position modified
@@ -237,6 +247,86 @@ void ActorManager::relax(float dt) {
    }
 }
 
+
+bool Grid::add_actor(Actor *p) {
+
+   ActorList::iterator k = actor_list.begin();
+   while(k != actor_list.end()) {
+      if((*k) == p) {
+         return false;
+      }
+      ++k;
+   }
+
+   actor_list.push_back(p);
+   return true;
+}
+
+bool Grid::remove_actor(Actor *p) {
+
+   ActorList::iterator k = actor_list.begin();
+   while(k != actor_list.end()) {
+      if((*k) == p) {
+         actor_list.erase(k);
+         return true;
+      }
+      ++k;
+   }
+   return false;
+}
+
+void CollisionGrid::insert(float x, float y, Actor *p) {
+
+   int grid_x = (int)(x / w);
+   int grid_y = (int)(y / h);
+
+   int key = ((grid_x&0xfff) << 16) | (grid_y & 0xfff);
+
+//   std::cout << "position " << p->position << " " << grid_x << " " << grid_y << std::endl;
+
+   GridMap::iterator gm = grid_map.find(key);
+
+   if(gm == grid_map.end()) {
+      // create new grid for this actor
+      Grid *g = new Grid(grid_x, grid_y);
+      // add grid to map of grids
+      grid_map[key] = g;
+//      std::cout << "created new grid\n";
+      if(g->add_actor(p))
+         p->grids.push_back(g);
+   }
+   else {
+      // insert actor into this grid
+      if((*gm).second->add_actor(p))
+         p->grids.push_back((*gm).second);
+//      std::cout << "found grid\n";
+   }
+}
+
+void CollisionGrid::update_position(Actor *p) {
+
+   assert(p != 0);
+
+   // remove actor from the grids it is already in
+   if(!p->grids.empty()) {
+      for(GridList::iterator k = p->grids.begin(); k!=p->grids.end(); ++k) {
+         assert((*k) != 0);
+         (*k)->remove_actor(p);
+      }
+      p->grids.clear();
+      assert(p->grids.empty());
+   }
+
+   insert(p->position.x+p->radius, p->position.y+p->radius, p);
+   insert(p->position.x-p->radius, p->position.y+p->radius, p);
+   insert(p->position.x+p->radius, p->position.y-p->radius, p);
+   insert(p->position.x-p->radius, p->position.y-p->radius, p);
+
+   // only holds if radius is less than grid size
+   assert(p->grids.size() <= 4);
+
+}
+
 // updates the actor.
 // checks current and future collisions, setting flags.
 // calls user function
@@ -265,8 +355,23 @@ void ActorManager::update(float dt) {
       (*k)->hit_actor = 0;
       // update position
       (*k)->update(dt);
+      // update actors position in the collision grid
+      if((*k)->collision_flags != 0) 
+         grid.update_position(*k);
       ++k;
    }
+
+
+/*
+   GridMap::iterator g = grid.grid_map.begin();
+   int i=0;
+   while(g != grid.grid_map.end()) {
+      std::cout << "grid " << std::dec << i << " " << (*g).second->size() << " key " << std::hex << (*g).first << std::endl;
+      i++;
+      ++g;
+   }
+   std::cout << std::dec << std::endl;
+*/
 
    // hit actors
    collide(1);
@@ -301,6 +406,17 @@ void ActorManager::remove_dead_actors() {
       if((*k)->flags & ACT_REMOVE) {
          // first remove all constraints references this actor
 //         remove_all_constraints(*k);
+         // remove this actor from the grids he is in
+         if(!(*k)->grids.empty()) {
+            for(GridList::iterator p = (*k)->grids.begin(); p!=(*k)->grids.end(); ++p) {
+               assert((*p) != 0);
+               (*p)->remove_actor(*k);
+            }
+            (*k)->grids.clear();
+            assert((*k)->grids.empty());
+         }
+
+//         std::cout << "removing dead " << (*k)->name << std::endl;
          // TODO fix leak here, need to delete the actor itself...  or perhaps flag it for reuse?
          k = master_actor_list.erase(k);
       }

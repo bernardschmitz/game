@@ -1,5 +1,5 @@
 
-// $Id: actor.h,v 1.16 2003-08-24 04:45:59 bernard Exp $
+// $Id: actor.h,v 1.17 2003-08-24 23:59:13 bernard Exp $
 
 #ifndef __ACTOR_H__
 #define __ACTOR_H__
@@ -8,6 +8,8 @@
 #include <list>
 #include <vector>
 #include <string>
+#include <ext/hash_map>
+#include <map>
 
 #include "vector.h"
 
@@ -26,7 +28,20 @@
 #define ACT_REMOVE         0x02
 
 
-  
+class Constraint;
+class Actor;
+class Grid;
+
+// TODO change to list
+typedef std::vector<Constraint*> ConstraintList;
+
+// TODO change to list
+typedef std::vector<Actor*> ActorList;
+
+typedef std::vector<Grid*> GridList;
+
+typedef __gnu_cxx::hash_map<int, Grid*> GridMap;
+
 
 
 class Actor {
@@ -71,6 +86,8 @@ class Actor {
       vector3 hit_normal;
       Actor *hit_actor;
 
+      GridList grids;
+
    public:
       Actor(int t, std::string s="Actor", const vector3& pos=vector3(0.0f, 0.0f, 0.0f), const vector3& vel=vector3(0.0f, 0.0f, 0.0f),  
             float m=1.0f, float ms=10.0f, float r=1.0f, 
@@ -103,7 +120,7 @@ class Actor {
 
       // checks for collision between this actor and p.
       // sets the ACT_COLLISON flag and the various hit_* variables.
-      bool collide(Actor *p) {
+      inline bool collide(Actor *p) {
 
          const vector3 delta = p->position - position;
          const float rest_length = p->radius + radius;
@@ -137,30 +154,42 @@ class Actor {
 
       friend class ActorManager;
       friend class Constraint;
+      friend class CollisionGrid;
 };
 
-/*
 class Grid {
 private:
-   float x, y, w, h;
+   int x, y;
    ActorList actor_list;
 public:
-   Grid(float xx, float yy, float ww, float hh) { x = xx; y = yy; w = ww; h = hh; }
-   ~Grid() { }
+   Grid(int xx, int yy) { x = xx; yy = y; }
 
-   void add_actor(Actor *p) { actor_list.push_back(p); }
-   void remove_actor(Actor *p) { 
-      ActorList::iterator k = actor_list.begin();
-      while(k != actor_list.end()) {
-         if(*k == p) {
-            actor_list.erase(k);
-            return;
-         }
-         ++k;
-      }
-   }
+   bool add_actor(Actor *p);
+   bool remove_actor(Actor *p);
+
+   bool empty() { return actor_list.empty(); }
+   int size() { return actor_list.size(); }
+
+   ActorList& get_actors() { return actor_list; }
+
+   friend class CollisionGrid;
 };
-*/
+
+
+class CollisionGrid {
+private:
+   int w, h;
+   GridMap grid_map;
+public:
+   CollisionGrid() { w = 5; h = 5; }
+   ~CollisionGrid() { }
+
+   void update_position(Actor *p);
+   void insert(float x, float y, Actor *p);
+
+   friend class ActorManager;
+};
+  
 
  
 class Constraint {
@@ -179,12 +208,6 @@ public:
    bool satisfy();
 };
 
-// TODO change to list
-typedef std::vector<Constraint *> ConstraintList;
-
-// TODO change to list
-typedef std::vector<Actor *> ActorList;
-
 class ActorManager {
 
    private:
@@ -195,11 +218,15 @@ class ActorManager {
 
       ActorList new_actor_list;
 
+      CollisionGrid grid;
+
       void insert_new_actors();
 
       static ActorManager *instance;
 
       void collide(int iter);
+
+      void collision_test(ActorList& al);
 
       ActorManager() { }
       // TODO
@@ -231,56 +258,6 @@ class ActorManager {
       void remove_dead_actors();
 };
 
-
-/*
-// list of actors
-
-class ActorListBase {
-   private:
-      Actor actHead;     // head of list
-      Actor *pactIter;   // used for list iteration
-      int cActors;       // number of actors in list
-   public:
-      ActorListBase() { cActors = 0; actHead.pactNext = &actHead; actHead.pactPrev = &actHead; }
-      virtual ~ActorListBase();
-
-      void insert(Actor *);
-      void remove(Actor *);
-
-      void clear();
-
-      int count() { return(cActors); }
-
-      void action(); // calls the action() function for each actor in list
-      void render();    // draw
-
-      // returns the head of the list
-      Actor *head() { return(&actHead); }
-
-      // returns the first actor in the list
-      Actor *first() { pactIter = actHead.pactNext; return(pactIter); }
-
-      // return the next actor in the list
-      Actor *next() { pactIter = pactIter->pactNext; return(pactIter); }
-
-      // checks every actor in this list against every actor in passed list
-      // calling overlap() to detect collision
-      // calling collision() if collision occured
-      //void Collision(ActorListBase &);
-};
-
-// actor list template to avoid having to manually cast list elements
-
-
-template<class T> class ActorList : public ActorListBase {
-   public:
-      void insert(T *pact) { ActorListBase::insert(pact); }
-      void remove(T *pact) { ActorListBase::remove(pact); }
-      T *head() { return((T *)ActorListBase::head()); }
-      T *first() { return((T *)ActorListBase::first()); }
-      T *next() { return((T *)ActorListBase::next()); }
-};
-*/
 
 #endif
 
