@@ -5,10 +5,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "SDL.h"
-#include "SDL_opengl.h"
-#include "SDL_image.h"
-
 #include "main.h"
 
 #include "background.h"
