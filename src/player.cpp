@@ -11,6 +11,7 @@
 
 Player *player = NULL;
 
+
 Player::Player() : Actor(ACT_PLAYER, vector3(0.0, 0.0, -10.0), vector3(0.0, 0.0, 0.0), vector3(0.0, 0.0, 1.0) ) {
 
    dot = TextureManager::getInstance()->load("purple_star.png");
@@ -558,11 +559,13 @@ Player::~Player() {
 void Player::action() {
 
    // rotate player
-   if(input.rotate_left) {
+   Input *input = Input::getInstance();
+
+   if(input->rotate_left) {
       z_rotation += 360.0/60.0;
    }
 
-   if(input.rotate_right) {
+   if(input->rotate_right) {
       z_rotation -= 360.0/60.0;
    }
 
@@ -573,7 +576,7 @@ void Player::action() {
       z_rotation += 360.0;
 
    // thrust
-   if(input.thrust) {
+   if(input->thrust) {
 
       if(thrusting < 30)
          thrusting++;
@@ -587,7 +590,7 @@ void Player::action() {
    }
 
    // shoot
-   if(input.fire && shooting == 0) {
+   if(input->fire && shooting == 0) {
       //shooting = 15;
       shooting = 5;
       // recoil
@@ -602,29 +605,6 @@ void Player::action() {
 
       vector3 vv( cos(degToRad(z_rotation)), sin(degToRad(z_rotation)), 0.0f);
       actor_manager.insert(new Bullet(position+velocity+vv/5.0, velocity+vv*1.5));
-
-
-/*
-   ParticleDesc pd;
-   memset((void*)&pd, 0, sizeof(pd));
-
-   pd.n = 20;
-   pd.spawn_init = 10;
-   pd.spawn_rate = 5;
-   pd.texture_id = blurry_spot;
-   pd.spawn_pos.set(0.0, 0.0, 0.0);
-   pd.spawn_radius = 0.05;
-   pd.min_energy = 5;
-   pd.max_energy = 20;
-   pd.min_size = 0.02;
-   pd.max_size = 0.1;
-   pd.respawn_on_death = true;
-   pd.energy_in_alpha = true;
-   pd.size_from_velocity = true;
-
-   actor_manager.insert(new ParticleSystem(position+velocity+vv/5.0, velocity+vv*1.4, pd));
-*/
-
 
 
    }

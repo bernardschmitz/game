@@ -1,21 +1,32 @@
 
+#include <SDL/SDL.h>
+
 #include "input.h"
 
 
-Input input = Input();
+Input *Input::instance = 0;
+
+Input *Input::getInstance() {
+
+   if(instance == 0)
+      instance = new Input();
+
+   return instance;
+}
+
 
 
 void Input::process() {
 
-/*
    Uint8 *keys = SDL_GetKeyState(NULL);
 
-   rotate_left  = keys[SDLK_LEFT];
-   rotate_right = keys[SDLK_RIGHT];
-   thrust       = keys[SDLK_UP];
-   fire         = keys[SDLK_LCTRL];
-   bomb         = keys[SDLK_SPACE];
-*/
+   if(keys != 0) {
+      rotate_left  = keys[SDLK_LEFT];
+      rotate_right = keys[SDLK_RIGHT];
+      thrust       = keys[SDLK_UP];
+      fire         = keys[SDLK_LCTRL];
+      bomb         = keys[SDLK_SPACE];
+   }
 
    SDL_Event event;
 
@@ -23,55 +34,38 @@ void Input::process() {
       switch(event.type) {
 
       case SDL_KEYDOWN:
-         // TODO have a list of functions for each key
-         switch(event.key.keysym.sym) {
-         case SDLK_LEFT:
-            rotate_left = 1;
-            break;
-         case SDLK_RIGHT:
-            rotate_right = 1;
-            break;
-         case SDLK_LCTRL:
-            fire = 1;
-            break;
-         case SDLK_UP:
-            thrust = 1;
-            break;
-         case SDLK_SPACE:
-            bomb = 1;
-            break;
-         case SDLK_ESC:
-            quit = 1;
-            break;
-         case 96:   // backtick
-            console = 1;
-            break;
-         }
-         break;
-
       case SDL_KEYUP:
-         // TODO have a list of functions for each key
-         switch(event.key.keysym.sym) {
-         case SDLK_LEFT:
-            rotate_left = 0;
-            break;
-         case SDLK_RIGHT:
-            rotate_right = 0;
-            break;
-         case SDLK_LCTRL:
-            fire = 0;
-            break;
-         case SDLK_UP:
-            thrust = 0;
-            break;
-         case SDLK_SPACE:
-            bomb = 0;
-            break;
-         }
+         keypress(event.key.keysym.sym, event.key.state==SDL_PRESSED, event.key.keysym.unicode);
          break;
-
-       }
+      }
    }
 
+}
+
+
+void Input::keypress(int code, bool isdown, int unicode) {
+
+   if(isdown && (unicode & 0xff80) == 0) 
+      printf(" char %d is [%c]\n", code, unicode & 0x7F);
+
+/*
+   if(isdown && code > SDLK_FIRST && code < SDLK_LAST) {
+      if(key[code] != 0)
+         (key[code])();
+   }
+*/
+
+   // game keys
+
+   if(code == SDLK_LEFT)
+      rotate_left = isdown?1:0;
+   if(code == SDLK_RIGHT)
+      rotate_right = isdown?1:0;
+   if(code == SDLK_UP)
+      thrust = isdown?1:0;
+   if(code == SDLK_LCTRL)
+      fire = isdown?1:0;
+   if(code == SDLK_SPACE)
+      bomb = isdown?1:0;
 }
 

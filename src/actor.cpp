@@ -1,5 +1,5 @@
 
-// $Id: actor.cpp,v 1.4 2003-08-04 23:01:20 bernard Exp $
+// $Id: actor.cpp,v 1.5 2003-08-05 01:45:34 bernard Exp $
 
 #include "actor.h"
 
@@ -44,6 +44,7 @@ void Actor::update(float dt) {
 
    action();
 
+//   pos += vel*dt;
 }
 
 ActorList ActorManager::get_actor_type_list(int type) {

@@ -40,6 +40,8 @@ static Enemy *enemy;
 
 static Console *console;
 
+static Input *input;
+
 GLuint blurry_spot;
 
 static GLint T0 = 0;
@@ -89,14 +91,24 @@ static GLuint world;
 
 static void draw(void) {
 
-   static GLfloat fps = 0;
+   static int frames = 0;
+   static float fps = 10.0;
+   static int last = 0;
    int i;
 
-   GLint st0 = SDL_GetTicks();
+   int now = SDL_GetTicks();
+
+   if(now - last > 200)
+      last = now - 200;
+   else
+      if(now - last < 1)
+         last = now - 1;
+
+   int delta = now - last;
+
+   last = now;
 
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-   GLint clear_time = SDL_GetTicks() - st0;
 
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
@@ -122,17 +134,14 @@ static void draw(void) {
       glTranslatef(-pos.x, -pos.y, -100.0);
 
 
-   //GLint st = SDL_GetTicks();
-   //bg->render(vector3(pos.x, pos.y, mag), flags);
-   //GLint bg_time = SDL_GetTicks() - st;
-
-   GLint st = SDL_GetTicks();
-
    bg->setCenter(vector3(pos.x, pos.y, mag));
 
    actor_manager.render();
 
    glColor4f(1.0, 1.0, 1.0, 1.0);
+
+
+
 
    char fs[80];
    sprintf(fs, "fps %4d", (int)fps);
@@ -142,32 +151,24 @@ static void draw(void) {
 
    console->render();
 
-   GLint player_time = SDL_GetTicks() - st;
-
-   st = SDL_GetTicks();
    SDL_GL_SwapBuffers();
-   GLint bg_time = SDL_GetTicks() - st;
-   Frames++;
 
-   GLint t = SDL_GetTicks();
-   if(t - T0 >= 5000) {
-      GLfloat seconds = (t - T0) / 1000.0;
-      fps = Frames / seconds;
-      printf("%d frames in %g seconds = %g FPS\n", Frames, seconds, fps);
-      T0 = t;
-      Frames = 0;
+   frames++;
 
-      printf("\tclear time %d  render time %d swap time %d\n", clear_time, player_time, bg_time);
+   fps = (1000.0/delta + fps*50)/51;
+
+   static int out = 0;
+
+   if(now - out >= 5000) {
+      printf("delta %d fps %f\n", delta, fps);
+      out = now;
    }
 
-
    // pause a little...
-   int ww = 1000/60 - (SDL_GetTicks() - st0);
 
+   int ww = 1000/60 - (SDL_GetTicks() - now);
    if(ww > 1)
       SDL_Delay(ww);
-
-//   SDL_Delay(100);
 }
 
 static void
@@ -175,7 +176,7 @@ idle(void)
 {
    angle += 1.0;
 
-   input.process();
+   input->process();
 
    actor_manager.update(1.0/50.0);
 
@@ -476,7 +477,7 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
 
 
 
-  SDL_Init(SDL_INIT_VIDEO);
+  SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER);
 
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 //  SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 1);
@@ -493,6 +494,12 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
   }
   SDL_WM_SetCaption("Sword of Cydonia", "Sword of Cydonia");
 
+  SDL_EnableUNICODE(1);
+ 
+  SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+ 
+  input = Input::getInstance(); 
+
   init(argc, argv);
   reshape(screen->w, screen->h);
   done = 0;
@@ -505,11 +512,13 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
         case SDL_QUIT:
           done = 1;
           break;
+/*
         case SDL_KEYUP:
           printf("key %d\n", event.key.keysym.sym);
           if(event.key.keysym.sym = 96)
              console->show(); 
           break;
+*/
       }
     }
 

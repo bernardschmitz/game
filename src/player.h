@@ -18,6 +18,8 @@ class Player : public Actor {
       GLuint dl_left_engine;
       GLuint dl_right_engine;
       int dot;
+
+      bool left, right, thrust, shoot;
    public:
 
       Player();
@@ -27,6 +29,7 @@ class Player : public Actor {
 
       void action();
       void render();
+
 };
 
 
