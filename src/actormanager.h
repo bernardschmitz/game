@@ -1,5 +1,5 @@
 
-// $Id: actor.h,v 1.26 2003-09-02 01:28:51 bernard Exp $
+// $Id: actormanager.h,v 1.1 2003-09-02 01:28:51 bernard Exp $
 
 #ifndef __ACTOR_H__
 #define __ACTOR_H__
@@ -44,59 +44,6 @@ typedef std::vector<Grid*> GridList;
 
 typedef __gnu_cxx::hash_map<int, Grid*> GridMap;
 
-/*
-class PointMass {
-public:
-   vector3 prev_position, position;
-   float mass, inv_mass;
-   float radius;
-
-   PointMass() { position = vector3(0.0f, 0.0f, 0.0f); mass = 1.0f; inv_mass = 1.0f / mass; radius = 1.0f; }
-   PointMass(const vector3& p, float m, float r) { 
-      position = p; 
-      mass = m;
-      if(mass > 0.0f)
-         inv_mass = 1.0f / mass;
-      else
-         inv_mass = 0.0f;
-      radius = r;
-   }
-};
-
-
-class Constraint {
-public:
-   PointMass *p1, *p2;
-   float rest_length;
-
-   Constraint() { p1 = 0; p2 = 0; rest_length = 0.0f; }
-   Constraint(PointMass *a, PointMass *b, float rl=-1.0f) { 
-      assert(a!=0);
-      assert(b!=0);
-
-      p1 = a;
-      p2 = b;
-      if(rl < 0.0f)
-         rest_length = (p1->position - p2->position).length();
-      else
-         rest_length = rl;
-   }
-
-   void satisfy() {
-      vector3 delta = p2->position - p1->position;
-      //float length = delta.length();
-      // approx sqrt above
-      float delta_squared = delta*delta;
-      float length = 0.5f * (rest_length + delta_squared/rest_length);
-
-      float diff = (length - rest_length) / (length * (p1->inv_mass + p2->inv_mass) + 0.0001);
-
-      p1->position += diff * p1->inv_mass * delta;
-      p2->position -= diff * p2->inv_mass * delta;
-   }
-};
-
-*/
 
 
 class Actor {

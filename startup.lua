@@ -1,7 +1,7 @@
 
 -- This is the main startup code
 --
--- $Id: startup.lua,v 1.13 2003-08-29 00:00:06 bernard Exp $
+-- $Id: startup.lua,v 1.14 2003-09-02 01:28:51 bernard Exp $
 
 copyright = "Sword of Cydonia (c) Bernard Schmitz 2003";
 
@@ -59,10 +59,10 @@ end
 --enemy_grid(0.0, -25.0, 20, 5, 2.1)
 
 
---jelly_fish(-20,0, 0.8,0,0, 10)
---jelly_fish(20,0, 0,0.8,0, 10)
---jelly_fish(0,20,0,0,0.8, 10)
---jelly_fish(0,-20, 0.8,0.8,0, 10)
+jelly_fish(-20,0, 0.8,0,0, 5)
+jelly_fish(20,0, 0,0.8,0, 5)
+jelly_fish(0,20,0,0,0.8, 5)
+jelly_fish(0,-20, 0.8,0.8,0, 5)
 
 enemy_grid(-50, 0, 10, 10, 2.1)
 
