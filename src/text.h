@@ -23,7 +23,8 @@ public:
 
    int screenWidth() { return w; }
    int screenHeight() { return h; }
-   int cellWidth() { return cw; }
+   // the -6 is because the character cells overlap
+   int cellWidth() { return cw-6; }
    int cellHeight() { return ch; }
 
    void _begin();

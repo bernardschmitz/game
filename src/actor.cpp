@@ -1,5 +1,5 @@
 
-// $Id: actor.cpp,v 1.7 2003-08-05 23:24:07 bernard Exp $
+// $Id: actor.cpp,v 1.8 2003-08-06 23:15:30 bernard Exp $
 
 #include "actor.h"
 
@@ -151,9 +151,9 @@ void ActorManager::render() {
    ActorList::iterator k = master_actor_list.begin();
    while(k != master_actor_list.end()) {
       //printf("calling render for %p %d %d\n", (void *)(*k), (*k)->actor_type, (*k)->actor_id);
-      int t = SDL_GetTicks();
+  //    int t = SDL_GetTicks();
       (*k)->render();
-printf("rendering %d %d took %d\n", (*k)->actor_type, (*k)->actor_id, SDL_GetTicks()-t);
+//printf("rendering %d %d took %d\n", (*k)->actor_type, (*k)->actor_id, SDL_GetTicks()-t);
       k++;
    }
 }

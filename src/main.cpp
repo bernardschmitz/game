@@ -5,6 +5,15 @@
 #include <stdio.h>
 #include <string.h>
 
+extern "C"
+{
+ #include <lua.h>
+ #include <lualib.h>
+ #include <lauxlib.h>
+}
+
+#include <string>
+
 #include "main.h"
 
 #include "background.h"
@@ -36,8 +45,10 @@
 */
 
 
+lua_State *L = 0;
+
+
 static Background *bg;
-static Enemy *enemy;
 
 static Console *console;
 
@@ -45,25 +56,14 @@ static Input *input;
 
 GLuint blurry_spot;
 
-static GLint T0 = 0;
-static GLint Frames = 0;
-
-static GLuint torus;
 static GLuint box;
 
-static GLuint blur;
 
 static int follow = 1;
-static int flags = 0;
-
-static GLuint texture[3];
 
 static GLUquadric *fsphere;
 static GLUquadric *bsphere;
 
-static GLfloat view_rotx = 0.0, view_roty = 0.0, view_rotz = 90.0;
-static GLfloat vel_x = 0.0, vel_y = 0.0;
-static GLint gear1, gear2, gear3;
 static GLfloat angle = 0.0;
 
 static GLuint world;
@@ -73,23 +73,90 @@ static GLuint world;
   //{5.0, 5.0, 10.0, 0.0};
   static GLfloat red[4] =
   {0.8, 0.8, 0.0, 0.15};
-  static GLfloat green[4] =
-  {0.0, 0.8, 0.0, 1.0};
-  static GLfloat yellow[4] =
-  {0.8, 0.8, 0.0, 1.0};
   static GLfloat blue[4] =
   {0.0, 0.0, 0.8, 0.25};
   static GLfloat lcol[4] =
   { 1.0,  1.0,  1.0, 1.0};
-  static GLfloat white[4] =
-  {0.8, 0.8, 0.8, 1.0};
 
-  static GLfloat sgen[4] =
-  {0.5, 0.0, 0.0, 0.0};
-  static GLfloat tgen[4] =
-  {0.0, 0.5, 0.0, 0.0};
 
 static int delta = 0;
+
+
+
+/*
+** If your system does not support `stdout', you can just remove this function.
+** If you need, you can define your own `print' function, following this
+** model but changing `fputs' to put the strings at a proper place
+** (a console window or a log file, for instance).
+*/
+static int luaB_print (lua_State *L) {
+  int n = lua_gettop(L);  /* number of arguments */
+  int i;
+  lua_getglobal(L, "tostring");
+
+  std::string out;
+
+  for (i=1; i<=n; i++) {
+    const char *s;
+    lua_pushvalue(L, -1);  /* function to be called */
+    lua_pushvalue(L, i);   /* value to print */
+    lua_call(L, 1, 1);
+    s = lua_tostring(L, -1);  /* get result */
+    if (s == NULL)
+      return luaL_error(L, "`tostring' must return a string to `print'");
+    if (i>1) out.append("\t");
+    out.append(s);
+    lua_pop(L, 1);  /* pop result */
+  }
+
+  Console::getInstance()->addString(out.c_str());
+
+  return 0;
+}
+
+
+
+int exec_lua_string(lua_State *L, const char *buf) {
+
+   int s = 0;
+
+   lua_settop(L, 0);
+   lua_pushstring(L, buf);
+   s = luaL_loadbuffer(L, lua_tostring(L, 1), lua_strlen(L, 1), "=console");
+   lua_remove(L, 1);
+
+   if(s == 0) {
+       int base = lua_gettop(L) - 0;
+       lua_pushliteral(L, "_TRACEBACK");
+       lua_rawget(L, LUA_GLOBALSINDEX);
+       lua_insert(L, base);
+       s = lua_pcall(L, 0, LUA_MULTRET, base);
+       lua_remove(L, base);
+   }
+
+   if(s) {
+      const char *c = lua_tostring(L, -1);
+      if(c == 0)
+         c = "no message";
+      char b[1000];  
+      sprintf(b, "[%s]\n", c);
+      Console::getInstance()->addString(b);
+      lua_pop(L, 1);
+   }
+
+   if(s == 0 && lua_gettop(L) > 0) {
+      printf("ok\n");
+
+      lua_getglobal(L, "print");
+      lua_insert(L, 1);
+      lua_pcall(L, lua_gettop(L)-1, 0, 0);
+   }
+
+   return s;
+}
+
+
+
 
 
 static void draw(void) {
@@ -135,7 +202,7 @@ static void draw(void) {
    //mag = -vel.length();
    mag = (mag*100 + -vel.length()*1.5)/101;
 
-   printf("mag = %f\n", mag);
+   //printf("mag = %f\n", mag);
 
    if(follow) {
        //  want cam to move between 0.0 and -36.0
@@ -172,7 +239,7 @@ static void draw(void) {
       out = now;
       glColor4f(1.0, 1.0, 1.0, 1.0);
       printf("%s\n", fs);
-      console->addString(fs);
+      //console->addString(fs);
    }
 
    // pause a little...
@@ -502,6 +569,31 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
  
   input = Input::getInstance(); 
 
+
+   L = lua_open();
+
+  luaopen_base(L);
+  luaopen_table(L);
+  luaopen_io(L);
+  luaopen_string(L);
+  luaopen_math(L);
+  luaopen_debug(L);
+  luaopen_loadlib(L);
+
+
+   lua_register(L, "print", luaB_print);
+
+   //static char buffer[1000];
+   //strcpy(buffer, "a = 45 / 68");
+   //strcpy(buffer, "print(45)");
+   //strcpy(buffer, "for i=1,5 do print(i) end");
+
+   exec_lua_string(L, "copyright=\"Sword of Cydonia (c) 2003 Bernard Schmitz\"");
+   exec_lua_string(L, "print(copyright)");
+
+   //exec_lua_string(L, "this is an error");
+
+
   init(argc, argv);
   reshape(screen->w, screen->h);
   done = 0;
@@ -509,6 +601,9 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
     SDL_Event event;
 
     idle();
+
+    done = input->quit;
+
     while ( SDL_PollEvent(&event) ) {
       switch(event.type) {
         case SDL_QUIT:
@@ -524,47 +619,12 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
       }
     }
 
+/*
   keys = SDL_GetKeyState(NULL);
 
     if ( keys[SDLK_ESCAPE] ) {
       done = 1;
     }
-
-
-    if(keys[SDLK_f]) {
-       follow = !follow;
-    }
-
-
-
-/*
-    if ( keys[SDLK_UP] ) {
-      vel_x += 0.4*cos(view_rotz*M_PI/180.0)/40.0;
-      vel_y += 0.1*sin(view_rotz*M_PI/180.0)/40.0;
-    }
-    if ( keys[SDLK_DOWN] ) {
-      vel_x -= 0.4*cos(view_rotz*M_PI/180.0)/40.0;
-      vel_y -= 0.1*sin(view_rotz*M_PI/180.0)/40.0;
-    }
-    if ( keys[SDLK_LEFT] ) {
-      view_rotz += 5.0;
-    }
-    if ( keys[SDLK_RIGHT] ) {
-      view_rotz -= 5.0;
-    }
-
-    if(vel_x > 0.5)
-       vel_x = 0.5;
-    if(vel_x < -0.5)
-       vel_x = -0.5;
-
-    if(vel_y > 0.5)
-       vel_y = 0.5;
-    if(vel_y < -0.5)
-       vel_y = -0.5;
-
-    view_rotx += vel_x;
-    view_roty += vel_y;
 */
 
     draw();
@@ -572,6 +632,7 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
   SDL_Quit();
 
 
+   lua_close(L);
 /*
   sgVec3 A, B, C, D;
 

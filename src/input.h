@@ -30,6 +30,8 @@ public:
    int thrust;
    int fire;
    int bomb;
+
+   int quit;
 };
 
 

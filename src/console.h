@@ -10,10 +10,22 @@ typedef std::deque<std::string> Buffer;
 
 class Console {
 private:
-   int max_lines;
-   int disp_lines;
+   unsigned int buf_max;
    Buffer buf;
+
+   unsigned int hist_max;
+   int hist_pos;
+   Buffer history;
+
+   std::string cmd_line;
+   unsigned int cursor;
+   std::string prompt;
+
    bool visible, vis;
+   int disp_lines;
+
+   float cursor_rate, cursor_time;
+   bool cursor_on;
 
    float spos, dpos;
    float delay;
@@ -21,8 +33,10 @@ private:
 
    static Console *instance;
 
-   Console() { scroll = false; max_lines = 1000; disp_lines = 15; visible = false; } 
-   ~Console() { printf("console destroyed\n"); }
+   Console();
+   ~Console();
+
+   void keypress(int code, bool isdown, char ascii);
 public:
 
    static Console* getInstance();

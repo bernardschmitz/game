@@ -1,5 +1,7 @@
 
-#include "main.h"
+#include <string.h>
+#include <SDL/SDL.h>
+#include <SDL/SDL_image.h>
 
 #include "image.h"
 
@@ -8,8 +10,8 @@ Image::Image(const Image& img) {
 
    width = img.width; 
    height = img.height; 
-   pixels = new byte[width*height*4]; 
-   memcpy(pixels, img.pixels, sizeof(byte)*width*height*4); 
+   pixels = new unsigned char[width*height*4]; 
+   memcpy(pixels, img.pixels, sizeof(unsigned char)*width*height*4); 
 }
 
 
@@ -26,11 +28,11 @@ printf("loading %s...\n", filename);
 
       width  = surf->w;       
       height = surf->h;       
-      pixels = new byte[width*height*4];
+      pixels = new unsigned char[width*height*4];
 
       SDL_LockSurface(surf);
 
-      byte *p = (byte *)surf->pixels;
+      unsigned char *p = (unsigned char *)surf->pixels;
       for(int y=0; y<height; y++) {
          for(int x=0; x<width; x++) {
             pixels[y*height*4+x*4+0] = p[y*surf->pitch+x*4+0];
