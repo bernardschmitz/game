@@ -553,7 +553,7 @@ int Player::render() {
    glTranslatef(position[0], position[1], position[2]);
    glTranslatef(-7.0, 4.5, 0.0); 
    glBegin(GL_QUADS);
-    glColor4f(0.8, 0.8, 1.0, 0.1);
+    glColor4f(0.5, 0.5, 1.0, 0.1);
     glVertex3f( 2.5,  2.5, 0.0);
     glVertex3f(-2.5,  2.5, 0.0);
     glVertex3f(-2.5, -2.5, 0.0);

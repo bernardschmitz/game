@@ -169,7 +169,7 @@ void Background::render(sgVec3 center, int flags) {
 
    float g = s/gap;
 
-   if(flags) {
+   if(!flags) {
 
 
 //   glBegin(GL_QUADS);

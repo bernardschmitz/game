@@ -8,29 +8,18 @@
 #include "SDL_opengl.h"
 #include "SDL_image.h"
 
-#include "main.h"
-#include "background.h"
-#include "player.h"
-#include "input.h"
-#include "settings.h"
-#include "enemy.h"
-
 #ifndef M_PI
 #define M_PI 3.14159265
 #endif
 
-/*
 #define FS 0
 #define WIDTH 800
 #define HEIGHT 600
-*/
+/*
 #define FS 1
 #define WIDTH 640
 #define HEIGHT 480
-
-static Background *bg;
-static Enemy *enemy;
-
+*/
 
 static GLint T0 = 0;
 static GLint Frames = 0;
@@ -56,7 +45,7 @@ static GLfloat angle = 0.0;
 static GLuint world;
 
   static GLfloat pos[4] =
-  {-20.0, 20.0, 20.0, 1.0};
+  { 5.0, 10.0, 20.0, 1.0};
   //{5.0, 5.0, 10.0, 0.0};
   static GLfloat red[4] =
   {0.8, 0.8, 0.0, 0.15};
@@ -91,28 +80,13 @@ static void draw(void) {
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
 
-   sgVec3 pos;
-   player->getPosition(pos);
+   glTranslatef(0.0, 0.0, -5.0);
 
-   if(follow)
-      glTranslatef(-pos[0], -pos[1], 0.0);
-   else
-      glTranslatef(-pos[0], -pos[1], -60.0);
+   glRotatef(angle, 1.0, 0.0, 0.0);
+   glRotatef(angle, 0.0, 1.0, 0.0);
+   glRotatef(angle, 0.0, 0.0, 1.0);
 
-
-   GLint st = SDL_GetTicks();
-
-   bg->render(pos, flags);
-
-   GLint bg_time = SDL_GetTicks() - st;
-
-   st = SDL_GetTicks();
-
-   alEnemy.render();
-
-   player->render();
-
-   GLint player_time = SDL_GetTicks() - st;
+#include "object.c"
 
    SDL_GL_SwapBuffers();
 
@@ -126,7 +100,6 @@ static void draw(void) {
       T0 = t;
       Frames = 0;
 
-      printf("%d %d %d\n", clear_time, bg_time, player_time);
    }
 
 
@@ -142,10 +115,6 @@ idle(void)
 {
    angle += 1.0;
 
-   input.process();
-
-   player->action();
-   alEnemy.action();
 }
 
 /* new window size or exposure */
@@ -179,93 +148,7 @@ init(int argc, char *argv[])
   glEnable(GL_LIGHT0);
   glEnable(GL_DEPTH_TEST);
 
-  fsphere = gluNewQuadric();  
-  gluQuadricDrawStyle(fsphere, GLU_LINE);
-  //gluQuadricNormals(fsphere, GLU_FLAT);
-  bsphere = gluNewQuadric();  
-  gluQuadricOrientation(bsphere, GLU_INSIDE);
-
-  world = glGenLists(1);
-  glLoadIdentity();
-  glNewList(world, GL_COMPILE);
-   //glShadeModel(GL_FLAT);
-   glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, blue);
-   gluSphere(bsphere, 1.0, 10, 10);
-   glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, red);
-   gluSphere(fsphere, 1.0, 10, 10);
-  glEndList();
-
-
-//  glEnable(GL_POLYGON_SMOOTH);
-//  glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
-
-  //glEnable(GL_LINE_SMOOTH);
-  //glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-  //glLineWidth(1);
-
-
-  //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
   glEnable(GL_NORMALIZE);
-
-
-  bg = new Background();
-
-   sgVec3 p =  { -20.0, 20.0, -10.0 };
-  
-   for(int i=0; i<20; i++) {
-      p[0] += 4.0;
-      alEnemy.insert(new Enemy(p));
-   }
-
-   player = new Player();
-
-
-   box = glGenLists(1);
-   glNewList(box, GL_COMPILE);
-   glBegin(GL_QUADS);
-    static GLfloat yellow1[] = { 1.0, 1.0, 0.0, 1.0 };
-
-    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, yellow1);
-
-    glNormal3f(0.0, 0.0, 1.0);
-    glVertex3f(-1.0,  1.0, 1.0);
-    glVertex3f(-1.0, -1.0, 1.0);
-    glVertex3f( 1.0, -1.0, 1.0);
-    glVertex3f( 1.0,  1.0, 1.0);
-
-    glNormal3f(0.0, 0.0, -1.0);
-    glVertex3f( 1.0,  1.0, -1.0);
-    glVertex3f( 1.0, -1.0, -1.0);
-    glVertex3f(-1.0, -1.0, -1.0);
-    glVertex3f(-1.0,  1.0, -1.0);
-
-    glNormal3f(0.0, 1.0, 0.0);
-    glVertex3f( 1.0, 1.0,  1.0);
-    glVertex3f( 1.0, 1.0, -1.0);
-    glVertex3f(-1.0, 1.0, -1.0);
-    glVertex3f(-1.0, 1.0,  1.0);
-
-    glNormal3f(0.0, -1.0, 0.0);
-    glVertex3f(-1.0,-1.0,  1.0);
-    glVertex3f(-1.0,-1.0, -1.0);
-    glVertex3f( 1.0,-1.0, -1.0);
-    glVertex3f( 1.0,-1.0,  1.0);
-
-    glNormal3f(1.0, 0.0, 0.0);
-    glVertex3f( 1.0, 1.0,  1.0);
-    glVertex3f( 1.0,-1.0,  1.0);
-    glVertex3f( 1.0,-1.0, -1.0);
-    glVertex3f( 1.0, 1.0, -1.0);
-
-    glNormal3f(-1.0, 0.0, 0.0);
-    glVertex3f(-1.0, 1.0, -1.0);
-    glVertex3f(-1.0,-1.0, -1.0);
-    glVertex3f(-1.0,-1.0,  1.0);
-    glVertex3f(-1.0, 1.0,  1.0);
-    glEnd();
-
-   glEndList();
 
 
 /*
@@ -303,8 +186,6 @@ int main(int argc, char *argv[])
   int done;
   Uint8 *keys;
 
-  settings.screen_width = WIDTH;
-  settings.screen_height = HEIGHT;
 
   SDL_Init(SDL_INIT_VIDEO);
 

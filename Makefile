@@ -1,11 +1,13 @@
 
-# $Id: Makefile,v 1.4 2003-07-17 18:49:13 bernard Exp $
+# $Id: Makefile,v 1.5 2003-07-21 22:28:55 bernard Exp $
 
 CC=g++
 
 LD=$(CC)
 
-CPPFLAGS = -ansi -pedantic -Wall -g -DHAVE_OPENGL -DWIN32 `sdl-config --cflags` 
+#-O9 -funroll-loops -ffast-math -fomit-frame-pointer -malign-double -mcpu=pentiumpro -finline-functions -march=pentiumpro -fno-exceptions
+CPPFLAGS = -g -ansi -pedantic -Wall -DHAVE_OPENGL -DWIN32 `sdl-config --cflags` 
+#CPPFLAGS = -O3 -ansi -pedantic -Wall -DHAVE_OPENGL -DWIN32 `sdl-config --cflags` 
 LFLAGS = `sdl-config --libs` -lopengl32 -lglu32 -lSDL_image -ljpeg -lpng -lz -lm
 
 HEADERFILES =
@@ -34,6 +36,8 @@ depend :
 		-I../cross-tools/include/SDL \
       -DWIN32 -DHAVE_OPENGL -Dmain=SDL_main  ${SRCS}
 
+view_obj.exe: src/view_obj.o src/object.c
+	$(LD) -o $@ src/view_obj.o ${LFLAGS}
 
 
 # DO NOT DELETE
