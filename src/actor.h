@@ -1,5 +1,5 @@
 
-// $Id: actor.h,v 1.2 2003-07-18 03:33:57 bernard Exp $
+// $Id: actor.h,v 1.3 2003-07-25 01:47:38 bernard Exp $
 
 #ifndef __ACTOR_H__
 #define __ACTOR_H__
@@ -50,6 +50,20 @@ class Actor {
 };
 
 
+/*
+class ActorManager {
+
+   private:
+      vector<Actor*> actor_list;
+
+   public:
+      ActorManager() { }
+      ~ActorManager() { cout << "ActorManager destructor should destroy actor_list elements!\n"; }
+
+      void action
+};
+*/
+
 // list of actors
 
 class ActorListBase {
@@ -96,7 +110,6 @@ template<class T> class ActorList : public ActorListBase {
       T *first() { return((T *)ActorListBase::first()); }
       T *next() { return((T *)ActorListBase::next()); }
 };
-
 
 #endif
 

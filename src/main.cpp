@@ -364,25 +364,43 @@ int main(int argc, char *argv[])
   int done;
   Uint8 *keys;
 
-  settings.screen_width = WIDTH;
-  settings.screen_height = HEIGHT;
+  int fs = FS;
+  int w = WIDTH;
+  int h = HEIGHT;
+
+  if(argc > 1) 
+     w = atoi(argv[1]);     
+
+  if(argc > 2) 
+     h = atoi(argv[2]);     
+
+  if(argc > 3) 
+    fs  = atoi(argv[3]);     
+
+
+  settings.screen_width = w;
+  settings.screen_height = h;
+
+printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
+
+
 
   SDL_Init(SDL_INIT_VIDEO);
 
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 //  SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 1);
 
-   if(FS)
-     screen = SDL_SetVideoMode(WIDTH, HEIGHT, 32, SDL_OPENGL|SDL_FULLSCREEN);
+
+   if(fs)
+     screen = SDL_SetVideoMode(w, h, 32, SDL_OPENGL|SDL_FULLSCREEN);
    else
-     screen = SDL_SetVideoMode(WIDTH, HEIGHT, 32, SDL_OPENGL|SDL_RESIZABLE);
+     screen = SDL_SetVideoMode(w, h, 32, SDL_OPENGL);
   if ( ! screen ) {
     fprintf(stderr, "Couldn't set 300x300 GL video mode: %s\n", SDL_GetError());
     SDL_Quit();
     exit(2);
   }
-  SDL_WM_SetCaption("Gears", "gears");
-
+  SDL_WM_SetCaption("Sword of Cydonia", "Sword of Cydonia");
 
   init(argc, argv);
   reshape(screen->w, screen->h);
@@ -393,16 +411,6 @@ int main(int argc, char *argv[])
     idle();
     while ( SDL_PollEvent(&event) ) {
       switch(event.type) {
-        case SDL_VIDEORESIZE:
-          screen = SDL_SetVideoMode(event.resize.w, event.resize.h, 16,
-                                    SDL_OPENGL|SDL_RESIZABLE);
-          if ( screen ) {
-            reshape(screen->w, screen->h);
-          } else {
-            /* Uh oh, we couldn't set the new video mode?? */;
-          }
-          break;
-
         case SDL_QUIT:
           done = 1;
           break;
