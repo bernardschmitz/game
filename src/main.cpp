@@ -130,17 +130,17 @@ static void draw(void) {
    float pa = degToRad(player->getZRot());
    vector3 dir(cos(pa), sin(pa), 0.0);
 
-   //float mag = -30.0*vel.length();
    static float mag = 0.0;
 
-   // TODO smooth the zoom a little
-   //mag = (mag + -vel.length())/2;
-   mag = -vel.length();
+   //mag = -vel.length();
+   mag = (mag*100 + -vel.length()*1.5)/101;
+
+   printf("mag = %f\n", mag);
 
    if(follow) {
        //  want cam to move between 0.0 and -36.0
 //      glTranslatef(-pos.x, -pos.y, 0.0);
-      glTranslatef(-pos.x, -pos.y, mag);
+      glTranslatef(-pos.x, -pos.y, mag*0.75);
    }
    else
       glTranslatef(-pos.x, -pos.y, -100.0);
@@ -193,7 +193,7 @@ idle(void)
 
    actor_manager.update(delta/1000.0);
 
-   console->process();
+   console->process(delta/1000.0);
 }
 
 /* new window size or exposure */

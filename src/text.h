@@ -25,6 +25,10 @@ public:
    int screenHeight() { return h; }
    int cellWidth() { return cw; }
    int cellHeight() { return ch; }
+
+   void _begin();
+   void _draw(const int x, const int y, const char *s);
+   void _end();
 };
 
 

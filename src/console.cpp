@@ -35,7 +35,18 @@ void Console::addString(const char *s) {
 }
 
 
-void Console::process() {
+void Console::process(float dt) {
+
+   if(scroll) {
+      spos += dpos*dt;
+      delay -= dt;
+      if(delay <= 0.0) {
+         spos = 0.0;
+         scroll = false;
+         visible = vis;
+      }
+      return;
+   }
 
    if(!visible)
       return;
@@ -59,6 +70,23 @@ void Console::process() {
    }
 }
 
+void Console::show() { 
+
+   delay = 0.5;
+   spos = disp_lines*TextManager::getInstance()->cellHeight();
+   dpos = -disp_lines*TextManager::getInstance()->cellHeight() / delay;
+   scroll = true;
+   vis = visible = true;
+}
+
+void Console::hide() { 
+
+   delay = 0.5; 
+   spos = 0.0;
+   dpos = disp_lines*TextManager::getInstance()->cellHeight() / delay;
+   scroll = true;
+   vis = false;
+}
 
 void Console::render() {
 
@@ -74,15 +102,33 @@ void Console::render() {
    if(first < last) {
 
       TextManager *tm = TextManager::getInstance();
+      int w = tm->screenWidth();
+      int h = tm->screenHeight();
+      int cw = tm->cellWidth();
+      int ch = tm->cellHeight();
 
-      glColor4f(1.0, 1.0, 1.0, 1.0);
+      tm->_begin();
 
-      int pos = tm->screenHeight() - tm->cellHeight();
+      glDisable(GL_TEXTURE_2D);
+      glColor4f(0.0, 0.0, 0.0, 0.5);
+      glBegin(GL_QUADS);
+       glVertex2i(0, (int)spos+h-disp_lines*ch);
+       glVertex2i(w, (int)spos+h-disp_lines*ch);
+       glVertex2i(w, (int)spos+h);
+       glVertex2i(0, (int)spos+h);
+      glEnd();
+      glEnable(GL_TEXTURE_2D);
+
+      glColor4f(1.0, 1.0, 1.0, 0.75);
+
+      int pos = (int)spos+h - ch;
       for(int i=first; i<last; i++) {
 //printf("printing at 0, %d [%s]\n", pos, buf[i]);
-         tm->draw(0, pos, buf[i]);
-         pos -= tm->cellHeight();
+         tm->_draw(0, pos, buf[i]);
+         pos -= ch;
       }
-   }
+
+      tm->_end();
+    }
 }
 

@@ -48,8 +48,7 @@ TextManager *TextManager::getInstance() {
    return instance;
 }
 
-
-void TextManager::draw(int x, int y, const char *s) {
+void TextManager::_begin() {
 
    glShadeModel(GL_FLAT);
    glDisable(GL_LIGHTING);
@@ -71,11 +70,9 @@ void TextManager::draw(int x, int y, const char *s) {
    glPushMatrix();
    glLoadIdentity();
 
-   glPushMatrix();
-   glTranslated(x, y, 0);
-   glListBase(base-32+(128*0));  // 128*1 for 2nd font
-   glCallLists(strlen(s), GL_UNSIGNED_BYTE, s);
-   glPopMatrix();
+}
+
+void TextManager::_end() {
 
    glMatrixMode(GL_PROJECTION); 
    glPopMatrix();
@@ -89,5 +86,25 @@ void TextManager::draw(int x, int y, const char *s) {
    glDisable(GL_BLEND);
 
    glDisable(GL_TEXTURE_2D); 
+}
+
+
+
+void TextManager::_draw(int x, int y, const char *s) {
+
+   glPushMatrix();
+   glTranslated(x, y, 0);
+   glListBase(base-32+(128*0));  // 128*1 for 2nd font
+   glCallLists(strlen(s), GL_UNSIGNED_BYTE, s);
+   glPopMatrix();
+}
+
+
+void TextManager::draw(int x, int y, const char *s) {
+
+   _begin();
+   glColor4f(1.0, 1.0, 1.0, 1.0);
+   _draw(x, y, s);
+   _end();
 }
 

@@ -12,23 +12,27 @@ private:
    int max_lines;
    int disp_lines;
    Buffer buf;
-   bool visible;
+   bool visible, vis;
+
+   float spos, dpos;
+   float delay;
+   bool scroll;
 
    static Console *instance;
 
-   Console() { max_lines = 1000; disp_lines = 15; visible = false; } 
+   Console() { scroll = false; max_lines = 1000; disp_lines = 15; visible = false; } 
    ~Console() { printf("console destroyed\n"); }
 public:
 
    static Console* getInstance();
 
-   void show() { visible = true; }
-   void hide() { visible = false; }
+   void show();
+   void hide();
    bool isVisible() { return visible; }
 
    void addString(const char *s);
 
-   void process();
+   void process(float dt);
    void render();
 };
 
