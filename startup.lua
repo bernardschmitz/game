@@ -1,7 +1,7 @@
 
 -- This is the main startup code
 --
--- $Id: startup.lua,v 1.5 2003-08-21 17:35:04 bernard Exp $
+-- $Id: startup.lua,v 1.6 2003-08-21 18:47:15 bernard Exp $
 
 copyright = "Sword of Cydonia (c) Bernard Schmitz 2003";
 
@@ -23,13 +23,15 @@ print(copyright)
 -- add some enemies
 --rand_enemy(2)
 
-size=25
+size=10
 
+o = 2.5/4
 for y=-3.0, -size, -2.5 do
    for x=-size, size, 2.5 do
-      Enemy(x, y)
-      print("adding enemy at ",x,",",y)
+      Enemy(o+x, y)
+      print("adding enemy at ",o+x,",",y)
    end
+   o = -o
 end
    
 

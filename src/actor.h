@@ -1,5 +1,5 @@
 
-// $Id: actor.h,v 1.12 2003-08-20 18:57:19 bernard Exp $
+// $Id: actor.h,v 1.13 2003-08-21 18:47:15 bernard Exp $
 
 #ifndef __ACTOR_H__
 #define __ACTOR_H__
@@ -10,12 +10,12 @@
 #include "vector.h"
 
 // TODO change to enum elsewhere...
-#define ACT_CONSOLE      1
-#define ACT_BACKGROUND   2
-#define ACT_PLAYER       3
-#define ACT_ENEMY        4
-#define ACT_PARTICLE     5
-#define ACT_BULLET       6
+#define ACT_CONSOLE      0x01
+#define ACT_BACKGROUND   0x02
+#define ACT_PLAYER       0x04
+#define ACT_ENEMY        0x08
+#define ACT_PARTICLE     0x10
+#define ACT_BULLET       0x20
 
 
 // actor class, much like a sprite
@@ -55,6 +55,7 @@ class Actor {
 
       int state;                // action state
       int flags;                // various flags, collision, delete etc...
+      int collision_flags;
 
       static int id_seq;       
 

@@ -22,6 +22,8 @@ Player::Player() : Actor(ACT_PLAYER, vector3(0.0, 0.0, -10.0)) {
 
    z_rotation = 0.0;
 
+   collision_flags = ACT_ENEMY;
+
    thrusting = 0;
    shooting = 0;
 
@@ -641,7 +643,7 @@ void Player::action(float dt) {
       //alEnemy.insert(new Enemy(position+pp));
 
       vector3 d( cos(degToRad(z_rotation)), sin(degToRad(z_rotation)), 0.0f);
-      ActorManager::getInstance()->insert(new Bullet(position+d*0.5, velocity, d*1500.0));
+      ActorManager::getInstance()->insert(new Bullet(position+d*0.5, velocity, d*50000.0));
    }
 
    //printf("shooting = %f\n", shooting);

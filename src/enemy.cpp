@@ -26,6 +26,8 @@ Enemy::Enemy(vector3 p) : Actor(ACT_ENEMY, p) {
    radius = 1.0;
 //   mass = 1.0;
 
+   collision_flags = ACT_ENEMY | ACT_BULLET | ACT_PLAYER;
+
    max_speed = 25.0 + uniform_random_float(-15.0, 10.0);
    max_force = 150.0+ uniform_random_float(50, 200.0);
 
@@ -972,7 +974,7 @@ void Enemy::action(float dt) {
       force += mass*vector3(0, -2,  0) / dt;
    }
 
-   //force += mass * vector3(0, -1.7f, 0);
+//   force += mass * vector3(0, -2.0f, 0);
 
 }
 

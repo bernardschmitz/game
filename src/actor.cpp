@@ -1,5 +1,5 @@
 
-// $Id: actor.cpp,v 1.12 2003-08-21 17:35:04 bernard Exp $
+// $Id: actor.cpp,v 1.13 2003-08-21 18:47:15 bernard Exp $
 
 #include <iostream>
 
@@ -56,7 +56,7 @@ Actor::Actor(int type, vector3 p, vector3 v, float m, float ms, float br, float 
 
 
    delay = 0.0f;
-   state = flags = 0;
+   state = flags = collision_flags = 0;
 }
 
 
@@ -125,8 +125,10 @@ bool sphere_collision(const vector3& Ap, vector3& Av, const float Ar, const vect
 //   if(fabs(t) < 0.01f)
 //      t = 0.0f;
 
+/*
    Av *= t;
    Bv *= t;
+*/
 
 //   std::cout << "\tt " << t << std::endl;
 
@@ -209,15 +211,30 @@ void ActorManager::insert_new_actors() {
 }
 
 
+/*
+bool collide_with_all(Actor *p) {
+
+   ActorList::iterator k = master_actor_list.begin();
+
+   while(k != master_actor_list.end()) {
+      if(*k != p) {
+
+         
+
+      }
+      ++k;
+   }
+}
+*/
 
 
 void ActorManager::collide(float dt) {
 
-   std::cout << "collide\n";
+//   std::cout << "collide\n";
 
    for(int i=0; i<master_actor_list.size()-1; ++i) {
 
-      if(master_actor_list[i]->actor_type == ACT_BACKGROUND)
+      if(master_actor_list[i]->collision_flags == 0) 
          continue;
 
 
@@ -231,33 +248,33 @@ void ActorManager::collide(float dt) {
 
       for(int j=i+1; j<master_actor_list.size(); ++j) {
       
-         if(master_actor_list[j]->actor_type == ACT_BACKGROUND)
-            continue;
+         if(master_actor_list[i]->collision_flags & master_actor_list[j]->actor_type) {
 
-         vector3& Bdp = master_actor_list[j]->delta_position;
-         vector3 Bp = master_actor_list[j]->position;
-         float Br = master_actor_list[j]->radius;
-
-         //std::cout << " check " << i << " against " << j;
-
-         if(sphere_collision(Ap, Adp, Ar, Bp, Bdp, Br)) {
-            // calc collision response
-
-            master_actor_list[i]->flags = ACT_COLLISION;
-            master_actor_list[i]->hit_actor = master_actor_list[j];
-            master_actor_list[i]->hit_position = Adp;
-
-            master_actor_list[j]->flags = ACT_COLLISION;
-            master_actor_list[j]->hit_actor = master_actor_list[i];
-            master_actor_list[j]->hit_position = Bdp;
-
-//            if(master_actor_list[i]->actor_type == ACT_PLAYER) {
-/*
-               std::cout << "check " << i << " against " << j << " HIT! " << std::endl;
-               std::cout << "\tAp " << Ap << " Adp " << Adp << std::endl;
-               std::cout << "\tBp " << Bp << " Bdp " << Bdp << std::endl;
-*/
-//            }
+            vector3& Bdp = master_actor_list[j]->delta_position;
+            vector3 Bp = master_actor_list[j]->position;
+            float Br = master_actor_list[j]->radius;
+   
+            //std::cout << " check " << i << " against " << j;
+   
+            if(sphere_collision(Ap, Adp, Ar, Bp, Bdp, Br)) {
+               // calc collision response
+   
+               master_actor_list[i]->flags |= ACT_COLLISION;
+               master_actor_list[i]->hit_actor = master_actor_list[j];
+               master_actor_list[i]->hit_position = Adp;
+   
+               master_actor_list[j]->flags |= ACT_COLLISION;
+               master_actor_list[j]->hit_actor = master_actor_list[i];
+               master_actor_list[j]->hit_position = Bdp;
+   
+   //            if(master_actor_list[i]->actor_type == ACT_PLAYER) {
+   /*
+                  std::cout << "check " << i << " against " << j << " HIT! " << std::endl;
+                  std::cout << "\tAp " << Ap << " Adp " << Adp << std::endl;
+                  std::cout << "\tBp " << Bp << " Bdp " << Bdp << std::endl;
+   */
+   //            }
+            }
          }
       }
    }
@@ -327,8 +344,8 @@ void ActorManager::update(float dt) {
 
  //        std::cout << "\t\tAv " << Av << " Bv " << Bv << std::endl;
 
-         (*k)->flags = 0;
-         p->flags = 0;
+         (*k)->flags &= ~ACT_COLLISION;
+         p->flags &= ~ACT_COLLISION;
       }
 
       // constraint velocity

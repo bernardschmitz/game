@@ -17,7 +17,15 @@ Bullet::Bullet(vector3 p, vector3 v, vector3 f, float l) : Actor(ACT_BULLET, p, 
 
    squid = false;
 
+   collision_flags = ACT_ENEMY;
+
    force = f;
+
+   mass = 10.0;
+
+   radius = 0.1;
+
+   max_force = f.length();
 
 
    for(int i=0; i<4; i++) {
@@ -42,6 +50,11 @@ void Bullet::action(float dt) {
    //position += velocity;
    //force = ff;
 
+   std::cout << "position " << position
+             << " velocity " << velocity
+             << " force " << force
+             << " mass " << mass << std::endl;
+
    if(delay < 0.0)
       flags |= ACT_REMOVE;
 
@@ -50,6 +63,7 @@ void Bullet::action(float dt) {
    ActorList al = ActorManager::getInstance()->get_actor_type_list(ACT_ENEMY);
 
    squid = false;
+/*
    if(!squid && al.size() >= 3) {
       A = player->getPosition();
       B = al[0]->getPosition();
@@ -103,6 +117,7 @@ void Bullet::action(float dt) {
          pts[9] = D;
        }
    }
+*/
 }
 
 
