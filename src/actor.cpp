@@ -1,5 +1,5 @@
 
-// $Id: actor.cpp,v 1.8 2003-08-06 23:15:30 bernard Exp $
+// $Id: actor.cpp,v 1.9 2003-08-07 02:51:33 bernard Exp $
 
 #include "actor.h"
 
@@ -7,7 +7,15 @@
 int Actor::id_seq = 1;
 
 
-ActorManager actor_manager;
+ActorManager *ActorManager::instance = 0;
+
+ActorManager *ActorManager::getInstance() {
+
+   if(instance == 0)
+      instance = new ActorManager();
+
+   return instance;
+}
 
 
 // creates a blank actor

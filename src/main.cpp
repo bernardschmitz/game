@@ -47,6 +47,7 @@ extern "C"
 
 lua_State *L = 0;
 
+static ActorManager *actor_manager;
 
 static Background *bg;
 
@@ -81,6 +82,16 @@ static GLuint world;
 
 static int delta = 0;
 
+int  glue_addEnemy(lua_State *L) {
+
+   float x = (float)luaL_checknumber(L, 1);
+   float y = (float)luaL_checknumber(L, 2);
+
+   printf("adding enemy at %f %f\n", x, y);
+   actor_manager->insert(new Enemy(vector3(x, y, -10.0)));
+
+   return 0;
+}
 
 static int LuaError( lua_State *L ) {
 
@@ -186,7 +197,7 @@ static void draw(void) {
    //bg->setCenter(vector3(pos.x, pos.y, 0.0));
    bg->setCenter(vector3(pos.x, pos.y, mag));
 
-   actor_manager.render();
+   actor_manager->render();
 
    char fs[100];
    sprintf(fs, "fps %3d", (int)fps);
@@ -228,7 +239,7 @@ idle(void)
 
    input->process();
 
-   actor_manager.update(delta/1000.0);
+   actor_manager->update(delta/1000.0);
 
    console->process(delta/1000.0);
 }
@@ -300,12 +311,14 @@ init(int argc, char *argv[])
 
    console = Console::getInstance();
 
-   actor_manager.insert(bg);
+   actor_manager->insert(bg);
 
+/*
    actor_manager.insert(new Enemy(vector3(10, 10, -10)));
    actor_manager.insert(new Enemy(vector3(20, 10, -10)));
    actor_manager.insert(new Enemy(vector3(-50, -25, -10)));
    actor_manager.insert(new Enemy(vector3(10, -10, -10)));
+*/
 
    blurry_spot = TextureManager::getInstance()->load("white_spot.png");
 
@@ -329,7 +342,7 @@ init(int argc, char *argv[])
    //actor_manager.insert(new ParticleSystem(vector3(0.0,0.0,-10.0), vector3(0.0,0.0,0.0), pd));
 
    player = new Player();
-   actor_manager.insert(player);
+   actor_manager->insert(player);
 
    box = glGenLists(1);
    glNewList(box, GL_COMPILE);
@@ -536,9 +549,12 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
   SDL_EnableUNICODE(1);
  
   SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+
+
  
   input = Input::getInstance(); 
 
+  actor_manager = ActorManager::getInstance();
 
    L = lua_open();
 
@@ -554,20 +570,16 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
    lua_register(L, "print", luaB_print);
    lua_register(L, "_ALERT", LuaError );
 
-   //static char buffer[1000];
-   //strcpy(buffer, "a = 45 / 68");
-   //strcpy(buffer, "print(45)");
-   //strcpy(buffer, "for i=1,5 do print(i) end");
+   lua_register(L, "Enemy", glue_addEnemy );
 
-   //exec_lua_string(L, "copyright=\"Sword of Cydonia (c) 2003 Bernard Schmitz\"");
-   //exec_lua_string(L, "print(copyright)");
+
+// gl init
+  init(argc, argv);
 
    lua_dofile(L, "startup.lua");
 
-   //exec_lua_string(L, "this is an error");
 
 
-  init(argc, argv);
   reshape(screen->w, screen->h);
   done = 0;
   while ( ! done ) {

@@ -1,5 +1,5 @@
 
-// $Id: actor.h,v 1.8 2003-08-05 23:24:07 bernard Exp $
+// $Id: actor.h,v 1.9 2003-08-07 02:51:33 bernard Exp $
 
 #ifndef __ACTOR_H__
 #define __ACTOR_H__
@@ -102,12 +102,15 @@ class ActorManager {
       ActorList new_actor_list;
 
       void insert_new_actors();
-   public:
+
+      static ActorManager *instance;
+
       ActorManager() { }
       // TODO
       ~ActorManager() { std::cout << "ActorManager destructor probably should destroy actor_list elements!\n"; }
 
-
+   public:
+      static ActorManager *getInstance();
       // add a new actor
       void insert(Actor *p) { new_actor_list.push_back(p); }
 
@@ -122,7 +125,6 @@ class ActorManager {
       ActorList get_actor_type_list(int t); 
 };
 
-extern ActorManager actor_manager;
 
 /*
 // list of actors

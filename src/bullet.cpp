@@ -47,7 +47,7 @@ void Bullet::action(float dt) {
 
 
    // get a list of all enemies
-   ActorList al = actor_manager.get_actor_type_list(ACT_ENEMY);
+   ActorList al = ActorManager::getInstance()->get_actor_type_list(ACT_ENEMY);
 
    squid = false;
    if(!squid && al.size() >= 3) {

@@ -1,5 +1,5 @@
 
-# $Id: Makefile,v 1.18 2003-08-06 23:14:26 bernard Exp $
+# $Id: Makefile,v 1.19 2003-08-07 02:51:33 bernard Exp $
 
 
 ifdef OPTIMIZE
@@ -73,8 +73,54 @@ src/main.o: ../cross-tools/i386-mingw32msvc/include/sys/types.h
 src/main.o: ../cross-tools/i386-mingw32msvc/include/stdio.h
 src/main.o: ../cross-tools/i386-mingw32msvc/include/stdarg.h
 src/main.o: ../cross-tools/lib/gcc-lib/i386-mingw32msvc/3.2.3/include/stdarg.h
-src/main.o: ../cross-tools/i386-mingw32msvc/include/string.h src/main.h
+src/main.o: ../cross-tools/i386-mingw32msvc/include/string.h
+src/main.o: ../cross-tools/include/c++/3.2.3/string
+src/main.o: ../cross-tools/include/c++/3.2.3/i386-mingw32msvc/bits/c++config.h
+src/main.o: ../cross-tools/include/c++/3.2.3/i386-mingw32msvc/bits/os_defines.h
+src/main.o: ../cross-tools/include/c++/3.2.3/bits/stringfwd.h
+src/main.o: ../cross-tools/include/c++/3.2.3/bits/char_traits.h
+src/main.o: ../cross-tools/include/c++/3.2.3/cstring
+src/main.o: ../cross-tools/include/c++/3.2.3/cstddef
+src/main.o: ../cross-tools/include/c++/3.2.3/bits/fpos.h
+src/main.o: ../cross-tools/include/c++/3.2.3/i386-mingw32msvc/bits/c++io.h
+src/main.o: ../cross-tools/include/c++/3.2.3/cstdio
+src/main.o: ../cross-tools/include/c++/3.2.3/i386-mingw32msvc/bits/gthr.h
+src/main.o: ../cross-tools/include/c++/3.2.3/i386-mingw32msvc/bits/gthr-single.h
+src/main.o: ../cross-tools/include/c++/3.2.3/cwchar
+src/main.o: ../cross-tools/include/c++/3.2.3/ctime
+src/main.o: ../cross-tools/i386-mingw32msvc/include/wchar.h
+src/main.o: ../cross-tools/i386-mingw32msvc/include/ctype.h
+src/main.o: ../cross-tools/include/c++/3.2.3/memory
+src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_algobase.h
+src/main.o: ../cross-tools/include/c++/3.2.3/climits
+src/main.o: ../cross-tools/i386-mingw32msvc/include/limits.h
+src/main.o: ../cross-tools/include/c++/3.2.3/cstdlib
+src/main.o: ../cross-tools/include/c++/3.2.3/new
+src/main.o: ../cross-tools/include/c++/3.2.3/exception
+src/main.o: ../cross-tools/include/c++/3.2.3/iosfwd
+src/main.o: ../cross-tools/include/c++/3.2.3/bits/functexcept.h
+src/main.o: ../cross-tools/include/c++/3.2.3/exception_defines.h
+src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_pair.h
+src/main.o: ../cross-tools/include/c++/3.2.3/bits/type_traits.h
+src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_iterator_base_types.h
+src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_iterator_base_funcs.h
+src/main.o: ../cross-tools/include/c++/3.2.3/bits/concept_check.h
+src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_iterator.h
+src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_alloc.h
+src/main.o: ../cross-tools/include/c++/3.2.3/cassert
 src/main.o: ../cross-tools/i386-mingw32msvc/include/assert.h
+src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_threads.h
+src/main.o: ../cross-tools/include/c++/3.2.3/i386-mingw32msvc/bits/atomicity.h
+src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_construct.h
+src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_uninitialized.h
+src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_raw_storage_iter.h
+src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_function.h
+src/main.o: ../cross-tools/include/c++/3.2.3/bits/basic_string.h
+src/main.o: ../cross-tools/include/c++/3.2.3/algorithm
+src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_algo.h
+src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_heap.h
+src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_tempbuf.h
+src/main.o: ../cross-tools/include/c++/3.2.3/bits/basic_string.tcc src/main.h
 src/main.o: ../cross-tools/include/SDL/SDL.h
 src/main.o: ../cross-tools/include/SDL/SDL_main.h
 src/main.o: ../cross-tools/include/SDL/SDL_types.h
@@ -119,59 +165,13 @@ src/main.o: ../cross-tools/i386-mingw32msvc/include/GL/glu.h
 src/main.o: ../cross-tools/include/SDL/SDL_image.h
 src/main.o: ../cross-tools/include/SDL/SDL.h src/vector.h src/quaternion.h
 src/main.o: src/actor.h ../cross-tools/include/c++/3.2.3/iostream
-src/main.o: ../cross-tools/include/c++/3.2.3/i386-mingw32msvc/bits/c++config.h
-src/main.o: ../cross-tools/include/c++/3.2.3/i386-mingw32msvc/bits/os_defines.h
 src/main.o: ../cross-tools/include/c++/3.2.3/ostream
 src/main.o: ../cross-tools/include/c++/3.2.3/ios
-src/main.o: ../cross-tools/include/c++/3.2.3/iosfwd
-src/main.o: ../cross-tools/include/c++/3.2.3/bits/stringfwd.h
-src/main.o: ../cross-tools/include/c++/3.2.3/bits/fpos.h
-src/main.o: ../cross-tools/include/c++/3.2.3/i386-mingw32msvc/bits/c++io.h
-src/main.o: ../cross-tools/include/c++/3.2.3/cstdio
-src/main.o: ../cross-tools/include/c++/3.2.3/cstddef
-src/main.o: ../cross-tools/include/c++/3.2.3/i386-mingw32msvc/bits/gthr.h
-src/main.o: ../cross-tools/include/c++/3.2.3/i386-mingw32msvc/bits/gthr-single.h
-src/main.o: ../cross-tools/include/c++/3.2.3/cwchar
-src/main.o: ../cross-tools/include/c++/3.2.3/ctime
-src/main.o: ../cross-tools/i386-mingw32msvc/include/wchar.h
-src/main.o: ../cross-tools/i386-mingw32msvc/include/ctype.h
-src/main.o: ../cross-tools/include/c++/3.2.3/bits/functexcept.h
-src/main.o: ../cross-tools/include/c++/3.2.3/exception_defines.h
-src/main.o: ../cross-tools/include/c++/3.2.3/exception
-src/main.o: ../cross-tools/include/c++/3.2.3/bits/char_traits.h
-src/main.o: ../cross-tools/include/c++/3.2.3/cstring
 src/main.o: ../cross-tools/include/c++/3.2.3/bits/localefwd.h
 src/main.o: ../cross-tools/include/c++/3.2.3/i386-mingw32msvc/bits/c++locale.h
 src/main.o: ../cross-tools/include/c++/3.2.3/clocale
 src/main.o: ../cross-tools/i386-mingw32msvc/include/locale.h
-src/main.o: ../cross-tools/include/c++/3.2.3/climits
-src/main.o: ../cross-tools/i386-mingw32msvc/include/limits.h
 src/main.o: ../cross-tools/include/c++/3.2.3/cctype
-src/main.o: ../cross-tools/include/c++/3.2.3/string
-src/main.o: ../cross-tools/include/c++/3.2.3/memory
-src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_algobase.h
-src/main.o: ../cross-tools/include/c++/3.2.3/cstdlib
-src/main.o: ../cross-tools/include/c++/3.2.3/new
-src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_pair.h
-src/main.o: ../cross-tools/include/c++/3.2.3/bits/type_traits.h
-src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_iterator_base_types.h
-src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_iterator_base_funcs.h
-src/main.o: ../cross-tools/include/c++/3.2.3/bits/concept_check.h
-src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_iterator.h
-src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_alloc.h
-src/main.o: ../cross-tools/include/c++/3.2.3/cassert
-src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_threads.h
-src/main.o: ../cross-tools/include/c++/3.2.3/i386-mingw32msvc/bits/atomicity.h
-src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_construct.h
-src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_uninitialized.h
-src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_raw_storage_iter.h
-src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_function.h
-src/main.o: ../cross-tools/include/c++/3.2.3/bits/basic_string.h
-src/main.o: ../cross-tools/include/c++/3.2.3/algorithm
-src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_algo.h
-src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_heap.h
-src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_tempbuf.h
-src/main.o: ../cross-tools/include/c++/3.2.3/bits/basic_string.tcc
 src/main.o: ../cross-tools/include/c++/3.2.3/bits/ios_base.h
 src/main.o: ../cross-tools/include/c++/3.2.3/streambuf
 src/main.o: ../cross-tools/include/c++/3.2.3/bits/streambuf.tcc
