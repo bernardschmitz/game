@@ -18,19 +18,22 @@ Console *Console::getInstance() {
 void Console::addString(const char *s) {
 
    // allocate, copy and insert new string
+/*
    char *c = new char[strlen(s)+1];
    strcpy(c,s);
    buf.push_back(c);
-
+*/
+   std::string str(s);
+   buf.push_back(s);
 //printf("added [%s]\n", c);
 
    // if reached maximum, remove and delete the first string
    if(buf.size() > max_lines) {
-      Buffer::iterator k = buf.begin();
-      c = *k;
+//      Buffer::iterator k = buf.begin();
+  //    c = *k;
       buf.pop_front();
 //printf("deleted [%s]\n", c);
-      delete [] c;
+  //    delete [] c;
    }
 }
 
@@ -124,7 +127,7 @@ void Console::render() {
       int pos = (int)spos+h - ch;
       for(int i=first; i<last; i++) {
 //printf("printing at 0, %d [%s]\n", pos, buf[i]);
-         tm->_draw(0, pos, buf[i]);
+         tm->_draw(0, pos, buf[i].c_str());
          pos -= ch;
       }
 

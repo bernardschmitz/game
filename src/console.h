@@ -4,8 +4,9 @@
 
 #include <stdio.h>
 #include <deque>
+#include <string>
 
-typedef std::deque<char*> Buffer;
+typedef std::deque<std::string> Buffer;
 
 class Console {
 private:
