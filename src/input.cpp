@@ -2,7 +2,7 @@
 #include <SDL/SDL.h>
 
 #include "input.h"
-
+#include "console.h"
 
 Input *Input::instance = 0;
 
@@ -14,65 +14,89 @@ Input *Input::getInstance() {
    return instance;
 }
 
+Input::Input() { 
+
+//   con = Console::getInstance(); 
+
+   rotate_left = rotate_right = thrust = fire = bomb = 0; 
+}
+
+
+Input::~Input() { 
+
+   instance = 0;
+}
 
 
 void Input::process() {
-
-   Uint8 *keys = SDL_GetKeyState(NULL);
-
-   if(keys != 0) {
-      rotate_left  = keys[SDLK_LEFT];
-      rotate_right = keys[SDLK_RIGHT];
-      thrust       = keys[SDLK_UP];
-      fire         = keys[SDLK_LCTRL];
-      bomb         = keys[SDLK_SPACE];
-   }
-
-// if the console is up it grabs the keyboard
 
 /*
    SDL_Event event;
 
    while(SDL_PollEvent(&event)) {
       switch(event.type) {
-
       case SDL_KEYDOWN:
+         if(event.key.keysym.sym == SDLK_LEFT)
+            rotate_left = 1;
+         if(event.key.keysym.sym == SDLK_RIGHT)
+            rotate_right = 1;
+         if(event.key.keysym.sym == SDLK_UP)
+            thrust = 1;
+         if(event.key.keysym.sym == SDLK_LCTRL)
+            fire = 1;
+         if(event.key.keysym.sym == SDLK_SPACE)
+            bomb = 1;
+
+         break;
+
       case SDL_KEYUP:
-         keypress(event.key.keysym.sym, event.key.state==SDL_PRESSED, event.key.keysym.unicode);
+         if(event.key.keysym.sym == SDLK_LEFT)
+            rotate_left = 0;
+         if(event.key.keysym.sym == SDLK_RIGHT)
+            rotate_right = 0;
+         if(event.key.keysym.sym == SDLK_UP)
+            thrust = 0;
+         if(event.key.keysym.sym == SDLK_LCTRL)
+            fire = 0;
+         if(event.key.keysym.sym == SDLK_SPACE)
+            bomb = 0;
+
+         if(event.key.keysym.sym == 96)
+            Console::getInstance()->show();
+
          break;
       }
    }
-*/
-}
 
-
-void Input::keypress(int code, bool isdown, int unicode) {
-
-/*
-   if(isdown && (unicode & 0xff80) == 0) 
-      printf(" char %d is [%c]\n", code, unicode & 0x7F);
 */
 
-/*
-   if(isdown && code > SDLK_FIRST && code < SDLK_LAST) {
-      if(key[code] != 0)
-         (key[code])();
-   }
-*/
+      // return if console up
+      if(Console::getInstance()->isVisible()) {
+         rotate_left = rotate_right = thrust = fire = bomb = 0; 
+         return;
+      }
 
-   // game keys
 
-//   rotate_left = rotate_right = thrust = fire = bomb = 0;
+      Uint8 *keys = SDL_GetKeyState(NULL);
+   
+      if(keys != 0) {
+         rotate_left  = keys[SDLK_LEFT];
+         rotate_right = keys[SDLK_RIGHT];
+         thrust       = keys[SDLK_UP];
+         fire         = keys[SDLK_LCTRL];
+         bomb         = keys[SDLK_SPACE];
+         
+         // tilde brings up the console
+         if(keys[96]) {
+            // wait until user releases the tilde key
+            while(keys[96]) {
+               SDL_Event event;
+               SDL_PollEvent(&event);
+               keys = SDL_GetKeyState(NULL);
+            }
+            Console::getInstance()->show();
+         }
+      }
 
-   if(code == SDLK_LEFT)
-      rotate_left = isdown?1:0;
-   if(code == SDLK_RIGHT)
-      rotate_right = isdown?1:0;
-   if(code == SDLK_UP)
-      thrust = isdown?1:0;
-   if(code == SDLK_LCTRL)
-      fire = isdown?1:0;
-   if(code == SDLK_SPACE)
-      bomb = isdown?1:0;
 }
 

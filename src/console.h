@@ -14,17 +14,21 @@ private:
    Buffer buf;
    bool visible;
 
+   static Console *instance;
 
-public:
-   Console() { max_lines = 4; disp_lines = 10; visible = false; } 
+   Console() { max_lines = 1000; disp_lines = 15; visible = false; } 
    ~Console() { printf("console destroyed\n"); }
+public:
+
+   static Console* getInstance();
 
    void show() { visible = true; }
    void hide() { visible = false; }
+   bool isVisible() { return visible; }
 
    void addString(const char *s);
 
-   void action();
+   void process();
    void render();
 };
 

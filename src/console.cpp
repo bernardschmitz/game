@@ -4,6 +4,17 @@
 #include "console.h"
 #include "text.h"
 
+Console *Console::instance = 0;
+
+Console *Console::getInstance() {
+
+   if(instance == 0)
+      instance = new Console();
+
+   return instance;
+}
+
+
 void Console::addString(const char *s) {
 
    // allocate, copy and insert new string
@@ -24,22 +35,28 @@ void Console::addString(const char *s) {
 }
 
 
-void Console::action() {
+void Console::process() {
 
    if(!visible)
       return;
-/*
+
    SDL_Event event;
 
    while(SDL_PollEvent(&event)) {
       switch(event.type) {
-      case SDL_KEYDOWN:
-         if(event.key.keysym == SDLK_TILDE)
+
+      case SDL_KEYUP:
+         // tilde turns console off
+         if(event.key.keysym.sym == 96)
             hide();
+ 
+         break;
+
+      case SDL_KEYDOWN:
+
          break;
       }
    }
-*/
 }
 
 
@@ -57,6 +74,8 @@ void Console::render() {
    if(first < last) {
 
       TextManager *tm = TextManager::getInstance();
+
+      glColor4f(1.0, 1.0, 1.0, 1.0);
 
       int pos = tm->screenHeight() - tm->cellHeight();
       for(int i=first; i<last; i++) {

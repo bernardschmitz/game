@@ -131,7 +131,11 @@ static void draw(void) {
    vector3 dir(cos(pa), sin(pa), 0.0);
 
    //float mag = -30.0*vel.length();
-   float mag = -vel.length();
+   static float mag = 0.0;
+
+   // TODO smooth the zoom a little
+   //mag = (mag + -vel.length())/2;
+   mag = -vel.length();
 
    if(follow) {
        //  want cam to move between 0.0 and -36.0
@@ -147,16 +151,10 @@ static void draw(void) {
 
    actor_manager.render();
 
+   char fs[100];
+   sprintf(fs, "fps %3d", (int)fps);
    glColor4f(1.0, 1.0, 1.0, 1.0);
-
-
-
-
-   char fs[80];
-   sprintf(fs, "fps %4d", (int)fps);
    TextManager::getInstance()->draw(800-strlen(fs)*16, 600-16, fs);
-
-   console->addString(fs);
 
    console->render();
 
@@ -169,8 +167,12 @@ static void draw(void) {
    static int out = 0;
 
    if(now - out >= 1000) {
-      printf("delta %d fps %f\n", delta, fps);
+      char fs[100];
+      sprintf(fs, "delta %d ms fps %f", delta, fps);
       out = now;
+      glColor4f(1.0, 1.0, 1.0, 1.0);
+      printf("%s\n", fs);
+      console->addString(fs);
    }
 
    // pause a little...
@@ -191,7 +193,7 @@ idle(void)
 
    actor_manager.update(delta/1000.0);
 
-   console->action();
+   console->process();
 }
 
 /* new window size or exposure */
@@ -259,7 +261,7 @@ init(int argc, char *argv[])
    bg = new Background();
    printf("\tdone\n");
 
-   console = new Console();
+   console = Console::getInstance();
 
    actor_manager.insert(bg);
 
