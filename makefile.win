@@ -1,5 +1,5 @@
 
-# $Id: makefile.win,v 1.2 2003-08-02 19:44:04 bernard Exp $
+# $Id: makefile.win,v 1.3 2003-08-02 20:02:32 bernard Exp $
 
 
 ifdef OPTIMIZE
@@ -17,10 +17,10 @@ else
    endif
 endif
   
-CPPFLAGS = $(CPPF) -Wall -DHAVE_OPENGL -DWIN32 -Dmain=SDL_main -I/mingw/include/SDL
-LFLAGS = $(LF) -L/mingw/lib -lSDL_image -lmingw32 -lSDLmain -lSDL -mwindows -lopengl32 -lglu32 -ljpeg -lpng -lz -lm
+CPPFLAGS = $(CPPF) -Wall -DHAVE_OPENGL -DWIN32 -Dmain=SDL_main -Ic:/mingw.3.0.0.rc3/include/SDL
+LFLAGS = $(LF) -Lc:/mingw.3.0.0.rc3/lib -lSDL_image -lmingw32 -lSDLmain -lSDL -mwindows -lopengl32 -lglu32 -ljpeg -lpng -lz -lm
 
-CC=g++
+CC=mingw32-g++
 LD=$(CC)
 
 
