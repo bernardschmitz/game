@@ -7,8 +7,8 @@
 class Player {
 
    private:
-      sgVec3 position;
-      sgVec3 velocity;
+      vector3 position;
+      vector3 velocity;
 
       float z_rotation;
       int thrusting;
@@ -25,8 +25,8 @@ class Player {
       Player();
       ~Player();
 
-      void getPosition(sgVec3 pos) { sgCopyVec3(pos, position); }
-      void getVelocity(sgVec3 vel) { sgCopyVec3(vel, velocity); }
+      vector3 getPosition() { return position; }
+      vector3 getVelocity() { return velocity; }
 
       int action();
       int render();

@@ -5,9 +5,9 @@
 #include "main.h"
 
 struct Particle {
-   sgVec3 pos, vel;
-   sgVec3 oldPos;
-   sgVec4 color;
+   vector3 pos, vel;
+   vector3 oldPos;
+   vector4 color;
    float size;
    int energy;
    int max_energy;
@@ -15,9 +15,9 @@ struct Particle {
 
 struct ParticleDesc {
    int n;                        // total number
-   sgVec3 pos, vel;              // position and velocity of actor
+   vector3 pos, vel;              // position and velocity of actor
 
-   sgVec3 gen_pos;               // position of generated particles relative to actor pos
+   vector3 gen_pos;               // position of generated particles relative to actor pos
 //   sgVec3 
    // dir and vel of parts
    // uniform or gaussian rand?

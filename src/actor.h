@@ -1,5 +1,5 @@
 
-// $Id: actor.h,v 1.3 2003-07-25 01:47:38 bernard Exp $
+// $Id: actor.h,v 1.4 2003-07-29 08:12:39 bernard Exp $
 
 #ifndef __ACTOR_H__
 #define __ACTOR_H__
@@ -11,17 +11,17 @@
 class Actor {
    protected:
 
-      sgVec3 pos;               // position
-      sgVec3 vel, acc;          // velocity and acceleration
-      sgVec3 dir, hpr;          // direction vector, rotation angles
-      sgQuat rot;               // rotation quaternion
+      vector3 pos;               // position
+      vector3 vel, acc;          // velocity and acceleration
+      vector3 dir, hpr;          // direction vector, rotation angles
+      quaternion rot;            // rotation quaternion
 
       int delay;                // delay counter
       int state;                // action state
       int flags;                // various flags, collision, delete etc...
 
-      sgBox bound_box;
-      sgSphere bound_sphere;
+      //sgBox bound_box;
+      //sgSphere bound_sphere;
 
       Actor *pactNext;           // next actor
       Actor *pactPrev;           // prev actor
@@ -34,7 +34,7 @@ class Actor {
       //int Width(void) { return(nWidth); }
       //int Height(void) { return(nHeight); }
 
-      void position(sgVec3 p) { sgCopyVec3(p, pos); }
+      vector3 position() { return pos; }
 
       //int Overlap(Actor *);   // returns true if this actor overlaps (collides)
                               // with the actor pointed to

@@ -9,13 +9,13 @@ class Background {
    private:
       GLuint texture_id[4];
 
-      sgVec4 *palette;
+      vector4 *palette;
 
    public:
       Background();
       ~Background();
 
-      void render(sgVec3 center, int flags);
+      void render(vector3 center, int flags);
 };
 
 #endif

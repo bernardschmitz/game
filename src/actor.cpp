@@ -1,5 +1,5 @@
 
-// $Id: actor.cpp,v 1.1 2003-07-18 02:44:18 bernard Exp $
+// $Id: actor.cpp,v 1.2 2003-07-29 08:12:39 bernard Exp $
 
 #include "actor.h"
 
@@ -7,15 +7,11 @@
 
 Actor::Actor() {
 
-   sgZeroVec3(pos);
-   sgZeroVec3(vel);
-   sgZeroVec3(acc);
+   dir.set(0.0, 1.0, 0.0);
 
-   sgSetVec3(dir, 0.0, 1.0, 0.0);
+  // sgHPRfromVec3(hpr, dir);
 
-   sgHPRfromVec3(hpr, dir);
-
-   sgMakeIdentQuat(rot);
+   //sgMakeIdentQuat(rot);
 
    delay = state = flags = 0;
 

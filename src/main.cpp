@@ -10,6 +10,7 @@
 #include "SDL_image.h"
 
 #include "main.h"
+
 #include "background.h"
 #include "player.h"
 #include "input.h"
@@ -96,18 +97,16 @@ static void draw(void) {
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
 
-   sgVec3 pos;
-   player->getPosition(pos);
+   vector3 pos(player->getPosition());
 
-   sgVec3 vel;
-   player->getVelocity(vel);
+   vector3 vel(player->getVelocity());
 
-   float mag = -15.0*sgLengthVec3(vel);
+   float mag = -15.0*vel.magnitude();
 
    if(follow)
-      glTranslatef(-pos[0]-15*vel[0], -pos[1]-15*vel[1], mag);
+      glTranslatef(-pos.x-15*vel.x, -pos.y-15*vel.y, mag);
    else
-      glTranslatef(-pos[0], -pos[1], -100.0);
+      glTranslatef(-pos.x, -pos.y, -100.0);
 
 
    GLint st = SDL_GetTicks();
@@ -124,7 +123,7 @@ static void draw(void) {
 
    alParticles.render();
 
-
+/*
    sgVec3 A, B, C, D;
 
    sgCopyVec3(A, pos);
@@ -156,7 +155,7 @@ static void draw(void) {
      }
    glEnd();
 
-
+*/
 
    GLint player_time = SDL_GetTicks() - st;
 
@@ -258,10 +257,10 @@ init(int argc, char *argv[])
 
   bg = new Background();
 
-   sgVec3 p =  { -20.0, 20.0, -10.0 };
+   vector3 p( -20.0, 20.0, -10.0 );
   
    for(int i=0; i<20; i++) {
-      p[0] += 4.0;
+      p.x += 4.0;
       alEnemy.insert(new Enemy(p));
    }
 

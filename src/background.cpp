@@ -9,14 +9,14 @@ Background::Background() {
 
 
    // default
-   static sgVec4 map[8] = { { 0.5, 0.0, 0.0, 0.0   }, 
-                            { 0.0, 0.5, 0.0, 0.1   },
-                            { 0.0, 0.0, 0.5, 0.0   },
-                            { 0.0, 0.5, 0.0, 0.1   },
-                            { 0.5, 0.0, 0.0, 0.0   },
-                            { 0.0, 0.0, 0.5, 0.1   },
-                            { 0.5, 0.5, 0.0, 0.0   },
-                            { 0.0, 0.0, 0.0, 0.1  }  };
+   static vector4 map[8] = { vector4( 0.5, 0.0, 0.0, 0.0   ), 
+                            vector4( 0.0, 0.5, 0.0, 0.1   ),
+                            vector4( 0.0, 0.0, 0.5, 0.0   ),
+                            vector4( 0.0, 0.5, 0.0, 0.1   ),
+                            vector4( 0.5, 0.0, 0.0, 0.0   ),
+                            vector4( 0.0, 0.0, 0.5, 0.1   ),
+                            vector4( 0.5, 0.5, 0.0, 0.0   ),
+                            vector4( 0.0, 0.0, 0.0, 0.1  )  };
 
 
 /*
@@ -71,11 +71,14 @@ Background::Background() {
                             { 1.0, 1.0, 0.0, 0.125 }  };
 */
 
-   palette = new sgVec4[256];
+   palette = new vector4[256];
 
    for(int i=0; i<8; i++) {
       for(int j=0; j<32; j++) {
-         sgLerpVec4(palette[i*32+j], map[i], map[(i+1)&0x7], j/32.0);
+
+         palette[i*32+j] = map[i]*(1.0f-j/32.0f) + map[(i+1)&0x7]*j/32.0f;
+
+//         sgLerpVec4(palette[i*32+j], map[i], map[(i+1)&0x7], j/32.0);
          //printf("%d : %f %f %f\n", i*32+j, palette[i*32+j][0], palette[i*32+j][1], palette[i*32+j][2]);
       }
    }
@@ -99,14 +102,11 @@ int plasma(float x, float y, float z) {
 }
 
 
-void Background::render(sgVec3 center, int flags) {
+void Background::render(vector3 center, int flags) {
 
 
    glDisable(GL_LIGHTING);
    glDisable(GL_DEPTH_TEST);
-
-   glEnable(GL_BLEND);
-   glBlendFunc(GL_SRC_ALPHA,GL_ONE);
 
 
    float s = settings.background_step;
@@ -121,8 +121,8 @@ void Background::render(sgVec3 center, int flags) {
    else
       zs = (n - f) / (p-1);
 
-   float cx = floor(center[0]/s)*s;
-   float cy = floor(center[1]/s)*s;
+   float cx = floor(center.x/s)*s;
+   float cy = floor(center.y/s)*s;
 
 
    static float u = 0.0;
@@ -141,25 +141,21 @@ void Background::render(sgVec3 center, int flags) {
       float dd = fabs(z);
       for(float y=cy-dd; y<cy+dd+s; y+=s) {
          for(float x=cx-dd; x<cx+dd+s; x+=s) {
-             sgVec4 c;
-             sgCopyVec4(c, palette[plasma(ux+x, uy+y, uz+z)&0xff]);
-             sgScaleVec4(c, 0.5);
-             glColor4f(c[0], c[1], c[2], 1.0);
+             vector4 c;
+             c = palette[plasma(ux+x, uy+y, uz+z)&0xff] * 0.5;
+             glColor4f(c.x, c.y, c.z, 1.0);
              glVertex3f(x, y, z);
 
-             sgCopyVec4(c, palette[plasma(ux+x+s, uy+y, uz+z)&0xff]);
-             sgScaleVec4(c, 0.5);
-             glColor4f(c[0], c[1], c[2], 1.0);
+             c = palette[plasma(ux+x+s, uy+y, uz+z)&0xff] * 0.5;
+             glColor4f(c.x, c.y, c.z, 1.0);
              glVertex3f(x+s, y, z);
 
-             sgCopyVec4(c, palette[plasma(ux+x+s, uy+y+s, uz+z)&0xff]);
-             sgScaleVec4(c, 0.5);
-             glColor4f(c[0], c[1], c[2], 1.0);
+             c = palette[plasma(ux+x+s, uy+y+s, uz+z)&0xff] * 0.5;
+             glColor4f(c.x, c.y, c.z, 1.0);
              glVertex3f(x+s, y+s, z);
 
-             sgCopyVec4(c, palette[plasma(ux+x, uy+y+s, uz+z)&0xff]);
-             sgScaleVec4(c, 0.5);
-             glColor4f(c[0], c[1], c[2], 1.0);
+             c = palette[plasma(ux+x, uy+y+s, uz+z)&0xff] * 0.5;
+             glColor4f(c.x, c.y, c.z, 1.0);
              glVertex3f(x, y+s, z);
 
          }
@@ -168,6 +164,11 @@ void Background::render(sgVec3 center, int flags) {
    glEnd();
 
    float g = s/gap;
+
+   glEnable(GL_BLEND);
+   glBlendFunc(GL_SRC_ALPHA,GL_ONE);
+
+   flags = 0;
 
    if(!flags) {
 
@@ -191,7 +192,8 @@ void Background::render(sgVec3 center, int flags) {
                float x1 = x0+r0*cos(angle);
                float y1 = y0+r0*sin(angle);
 
-               glColor4fv(palette[plasma(ux+y1, uy+x1, uz+z)&0xff]);
+               vector4 c = palette[plasma(ux+y1, uy+x1, uz+z)&0xff];
+               glColor4f(c.x, c.y, c.z, c.w);
                glVertex3f(x1, y1, z);
             }
             glEnd();
@@ -222,7 +224,7 @@ void Background::render(sgVec3 center, int flags) {
    glBegin(GL_LINES);
 
    //sgVec4 white = { 0.6, 0.6, 0.6, 0.3 };
-   sgVec4 white = { 0.75, 0.75, 0.75, 0.1 };
+   float white[] = { 0.75, 0.75, 0.75, 0.1 };
 
 //-(sgScalarProductVec3(vel, vel)*0.3/(1.2*1.2)) };
 

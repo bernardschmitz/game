@@ -8,14 +8,14 @@ class Enemy : public Actor {
 
    private:
 
-      sgVec3 target_pos, target_dir, target_hpr;
+      vector3 target_pos, target_dir, target_hpr;
 
-      sgQuat src, dst;
+      quaternion src, dst;
 
       GLuint dl_enemy;
 
    public:
-      Enemy(sgVec3 p);
+      Enemy(vector3 p);
       ~Enemy();
 
       void render();

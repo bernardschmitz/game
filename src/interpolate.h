@@ -4,6 +4,14 @@
 
 #include "main.h"
 
+/*
+inline Vec3 lerp(const Vec3& from, const Vec3& to, float t) {
+
+   return from*(1.0f-t)+to*t;
+}
+*/
+
+/*
 inline void linear_interpolate(sgVec3 dst, const sgVec3 a, const sgVec3 b, const float t) {
 
    sgLerpVec3(dst, a, b, t);
@@ -34,6 +42,7 @@ inline void cubic_interpolate(sgVec3 dst, const sgVec3 p0, const sgVec3 p1, cons
 //   dst[1] = p0[1] + t*(3.0*p1[1]-3.0*p0[1]+t*(3.0*p2[1]-6.0*p1[1]+p0[1]+t*(3.0+p3[1]-3.0*p2[1]+6.0*p1[1])));
 //   dst[2] = p0[2] + t*(3.0*p1[2]-3.0*p0[2]+t*(3.0*p2[2]-6.0*p1[2]+p0[2]+t*(3.0+p3[2]-3.0*p2[2]+6.0*p1[2])));
 }
+*/
 
 //extern void bezier_curve(sgVec3 *p, int depth, const sgVec3 p0, const sgVec3 p1, const sgVec3 p2, const sgVec3 p3);
 

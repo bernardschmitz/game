@@ -1,5 +1,6 @@
 
 #include "player.h"
+
 #include "input.h"
 #include "settings.h"
 #include "enemy.h"
@@ -9,8 +10,8 @@ Player *player = NULL;
 
 Player::Player() {
 
-   sgSetVec3(position, 0.0, 0.0, -10.0);
-   sgZeroVec3(velocity);
+   position.set(0.0f, 0.0f, -10.0f);
+   velocity.set(0.0f, 0.0f, 0.0f);
 
    z_rotation = 0.0;
 
@@ -572,8 +573,8 @@ int Player::action() {
       if(thrusting < 30)
          thrusting++;
 
-      sgVec3 acceleration = { sgCos(z_rotation)/75.0, sgSin(z_rotation)/75.0, 0.0 };
-      sgAddVec3(velocity, acceleration);
+      vector3 acceleration( cos(degToRad(z_rotation))/75.0f, sin(degToRad(z_rotation))/75.0f, 0.0f);
+      velocity += acceleration;
    }
    else {
       if(thrusting > 0)
@@ -583,10 +584,9 @@ int Player::action() {
    // shoot
    if(input.fire && shooting == 0) {
       shooting = 15;
-      sgVec3 acceleration = { -sgCos(z_rotation)/50.0, -sgSin(z_rotation)/50.0, 0.0 };
-      sgAddVec3(velocity, acceleration);
+      vector3 acceleration( -cos(degToRad(z_rotation))/50.0f, -sin(degToRad(z_rotation))/50.0f, 0.0f);
+      velocity += acceleration;
 
-      sgVec3 shot_pos;
       alEnemy.insert(new Enemy(position));
 
       alParticles.first()->init();
@@ -597,24 +597,28 @@ int Player::action() {
    }
 
    // friction
-   float vmag = sgScalarProductVec3(velocity, velocity);
-   if(vmag > 0.0) {
-      sgVec3 friction;
-      sgNormaliseVec3(friction, velocity);
-      sgAddScaledVec3(velocity, friction, -0.001-0.05*vmag/(1.2*1.2));
+   float vmag = velocity.magnitudeSquared();
+   if(vmag > 0.0f) {
+      vector3 friction(velocity);
+      friction.normalize();
+      velocity += friction * (-0.001f-0.05f*vmag/(1.2f*1.2f));
    }
 
    // clamp velocity
-   if(sgScalarProductVec3(velocity, velocity) > 1.2*1.2) {
-      sgVec3 n;
-      sgNormaliseVec3(n, velocity);
-      sgScaleVec3(velocity, n, 1.2);
+   if(velocity.magnitudeSquared() > 1.2f*1.2f) {
+      vector3 n(velocity);
+      n.normalize();
+
+      velocity += n * -1.2f;
    }
 
-   sgAddVec3(position, velocity);
+   position += velocity;
 
-   if(position[0] < -settings.world_width)
-      position[0] += settings.world_width*2.0;
+/*
+   // wrap pos
+
+   if(position.x < -settings.world_width)
+      position.x += settings.world_width*2.0;
 
    if(position[0] >  settings.world_width)
       position[0] -= settings.world_width*2.0;
@@ -624,7 +628,7 @@ int Player::action() {
 
    if(position[1] >  settings.world_height)
       position[1] -= settings.world_height*2.0;
-
+*/
 
 
    return 0;
@@ -632,8 +636,8 @@ int Player::action() {
 
 int Player::render() {
 
-   sgVec4 green  = { 1.0, 1.0, 1.0, 1.0 };
-   sgVec4 yellow = { 1.0, 1.0, 0.0, 1.0 };
+   float  green[] = { 1.0, 1.0, 1.0, 1.0 };
+   float  yellow[] = { 1.0, 1.0, 0.0, 1.0 };
 
    float thrust = 30.0*sin((float)thrusting/30.0*M_PI/2.0); 
 
@@ -642,7 +646,7 @@ int Player::render() {
    // ship
    glPushMatrix();
 
-   glTranslatef(position[0], position[1], position[2]);
+   glTranslatef(position.x, position.y, position.z);
    glRotatef(-90.0, 0.0, 0.0, 1.0);
    glRotatef(z_rotation, 0.0, 0.0, 1.0);
 
@@ -690,6 +694,76 @@ int Player::render() {
    }
 
 
+
+   // target indicator
+   vector3 target(0.0f, 0.0f, -10.0f);
+
+   target -= position;
+
+   float dist = target.magnitude();
+
+   target.normalize();
+
+/*
+   sgVec3 hpr;
+   sgHPRfromVec3(hpr, target);
+
+   float angle = hpr[0];
+*/
+
+   float angle = radToDeg(acos(target * vector3(0.0f, 1.0f, 0.0f)));
+
+   static int dir_finder_delay = 15;
+   static int dir_finder_on = 0;
+
+   if(dir_finder_delay > 0) {
+      dir_finder_delay--;
+   }
+   else {
+      dir_finder_delay = 15;
+      dir_finder_on = !dir_finder_on;
+   }
+
+   if(dir_finder_on && dist > 20.0) {
+
+   glDisable(GL_LIGHTING);
+   glEnable(GL_BLEND);
+   glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+   glDisable(GL_DEPTH_TEST);
+
+   glPushMatrix();
+  
+   glTranslatef(position.x, position.y, position.z);
+   glRotatef(angle, 0.0, 0.0, 1.0);
+   glTranslatef(0.0, 3.0, 0.0); 
+
+   float al = 0.6;
+
+   if(dist < 70.0)
+      al = ((dist-20.0)*0.6)/50.0;
+  
+   glBegin(GL_TRIANGLE_STRIP);
+     glColor4f(0.5, 0.25, 0.0, al/1.5);
+//    glColor4f(0.0, 1.0, 0.0, 0.2);
+    glVertex3f(-0.25, -0.2, 0.0);
+//    glColor4f(1.0, 1.0, 0.0, 0.1);
+     glColor4f(0.7, 0.25, 0.0, al/2.0);
+    glVertex3f(0.0, 0.0, 0.0);
+    //glColor4f(1.0, 0.0, 0.0, 0.5);
+     glColor4f(0.7, 0.25, 0.0, al);
+    glVertex3f(0.0, 1.0, 0.0);
+  //  glColor4f(0.0, 1.0, 0.0, 0.2);
+     glColor4f(0.5, 0.25, 0.0, al/1.5);
+    glVertex3f(0.25, -0.2, 0.0);
+   glEnd();
+
+   glPopMatrix();
+  
+   glEnable(GL_LIGHTING);
+   glDisable(GL_BLEND);
+   glEnable(GL_DEPTH_TEST);
+
+   }
 /*
    glDisable(GL_DEPTH_TEST);
    glDisable(GL_LIGHTING);

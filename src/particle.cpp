@@ -90,23 +90,23 @@ void ParticleSystem::init() {
    alive = n;
 
    for(int i=0; i<n; i++) {
-      p[i].pos[0] = uniform_random_float(-0.01, 0.01); 
-      p[i].pos[1] = uniform_random_float(-0.01, 0.01); 
-      p[i].pos[2] = -10.0;
-      sgCopyVec3(p[i].oldPos, p[i].pos);
-      p[i].vel[0] = uniform_random_float(-1.0, 1.0); 
-      p[i].vel[1] = uniform_random_float(-1.0, 1.0); 
-      p[i].vel[2] = uniform_random_float(-1.0, 1.0); 
+      p[i].pos.x = uniform_random_float(-0.01, 0.01); 
+      p[i].pos.y = uniform_random_float(-0.01, 0.01); 
+      p[i].pos.z = -10.0;
+      p[i].oldPos = p[i].pos;
+      p[i].vel.x = uniform_random_float(-1.0, 1.0); 
+      p[i].vel.y = uniform_random_float(-1.0, 1.0); 
+      p[i].vel.z = uniform_random_float(-1.0, 1.0); 
       //p[i].vel[2] = 0.0;
 
-      sgNormalizeVec3(p[i].vel);
+      p[i].vel.normalize();
       //sgScaleVec3(p[i].vel, uniform_random_float(0.01, 0.15));
-      sgScaleVec3(p[i].vel, 0.15*gaussian_random_float(0.0, 2.0));
+      p[i].vel *= 0.15*gaussian_random_float(0.0, 2.0);
 
-      p[i].color[0] = uniform_random_float(0.5, 1.0); 
-      p[i].color[1] = uniform_random_float(0.5, 1.0); 
-      p[i].color[2] = uniform_random_float(0.5, 1.0); 
-      p[i].color[3] = 1.0;
+      p[i].color.x = uniform_random_float(0.5, 1.0); 
+      p[i].color.y = uniform_random_float(0.5, 1.0); 
+      p[i].color.z = uniform_random_float(0.5, 1.0); 
+      p[i].color.w = 1.0;
 
       p[i].size = uniform_random_float(0.02, 0.2);
       p[i].max_energy = p[i].energy = uniform_random_int(10, 50);
@@ -115,18 +115,17 @@ void ParticleSystem::init() {
    for(int i=0; i<250; i++) {
       p[i].size = uniform_random_float(0.1, 0.3);
 
-      sgNormalizeVec3(p[i].vel);
       //sgScaleVec3(p[i].vel, uniform_random_float(1.5, 2.5));
-      sgScaleVec3(p[i].vel, 0.15*gaussian_random_float(0.0, 1.0));
+      p[i].vel.normalize();
+      p[i].vel *= 0.15*gaussian_random_float(0.0, 1.0);
 
       p[i].max_energy = p[i].energy = uniform_random_int(45, 75);
    }
 
-   sgVec3 u;
-   sgSetVec3(u, 0.0, 0.0, 0.0);
+   vector3 u(0.0, 0.0, 0.0);
 
    for(int i=0; i<n; i++)
-      sgAddVec3(p[i].vel, u);
+      p[i].vel += u;
 
 }
 
@@ -142,7 +141,7 @@ void ParticleSystem::action() {
    for(int i=0; i<n; i++) {
       p[i].energy--;
       if(p[i].energy > 0) {
-         sgCopyVec3(p[i].oldPos, p[i].pos);
+         p[i].oldPos = p[i].pos;
 
          // acceleration
 /*        
@@ -155,8 +154,8 @@ void ParticleSystem::action() {
          sgAddScaledVec3(p[i].vel, dir, 0.01);
 
 */
-         sgAddVec3(p[i].pos, p[i].vel);
-         p[i].color[3] = p[i].energy*1.0/p[i].max_energy;
+         p[i].pos += p[i].vel;
+         p[i].color.w = p[i].energy*1.0/p[i].max_energy;
 
       }
       else {
@@ -189,7 +188,7 @@ void ParticleSystem::render() {
 
    glPushMatrix();
 
-   glTranslatef(pos[0], pos[1], pos[2]);
+   glTranslatef(pos.x, pos.y, pos.z);
 
    glDisable(GL_LIGHTING);
 
@@ -204,55 +203,46 @@ void ParticleSystem::render() {
 
    glDisable(GL_DEPTH_TEST);
 
-   static sgVec4 pink = { 1.0, 1.0, 1.0, 1.0 };
+   static float pink[] = { 1.0, 1.0, 1.0, 1.0 };
    glColor4fv(pink);
 
    glBegin(GL_QUADS);
    for(int i=0; i<n; i++) {
       if(p[i].energy > 0) {
 
-         glColor4fv(p[i].color);
+         glColor4f(p[i].color.x, p[i].color.y, p[i].color.z, p[i].color.w);
 
-         sgVec3 dir;
-         sgSubVec3(dir, p[i].pos, p[i].oldPos);
-         sgNormalizeVec3(dir);
+         vector3 dir;
+         dir = ~(p[i].pos - p[i].oldPos) * p[i].size;
 
-         sgScaleVec3(dir, p[i].size);
+         vector3 up, down, back;
 
-         sgVec3 up, down, back;
+         up.x = -dir.y;
+         up.y = dir.x;
+         up.z = 0.0f;
 
-         up[0] = -dir[1];
-         up[1] = dir[0];
-         up[2] = 0.0;
+         down = -up;
 
-         sgNegateVec3(down, up);
+         back = -dir;
 
-         sgNegateVec3(back, dir);
+         vector3 p0, p1, p2, p3;
 
+         p0 = p[i].oldPos + up + back;
 
-         sgVec3 p0, p1, p2, p3;
+         p1 = p[i].oldPos + down + back;
 
-         sgAddVec3(p0, p[i].oldPos, up);
-         sgAddVec3(p0, back);
+         p2 = p[i].pos + down + dir;
 
-         sgAddVec3(p1, p[i].oldPos, down);
-         sgAddVec3(p1, back);
-
-         sgAddVec3(p2, p[i].pos, down);
-         sgAddVec3(p2, dir);
-
-         sgAddVec3(p3, p[i].pos, up);
-         sgAddVec3(p3, dir);
-
+         p3 = p[i].pos + up + dir;
 
                glTexCoord2f(0.0, 0.0);
-               glVertex3f(p0[0], p0[1], p0[2]);
+               glVertex3f(p0.x, p0.y, p0.z);
                glTexCoord2f(0.0, 1.0);
-               glVertex3f(p1[0], p1[1], p1[2]);
+               glVertex3f(p1.x, p1.y, p1.z);
                glTexCoord2f(1.0, 1.0);
-               glVertex3f(p2[0], p2[1], p2[2]);
+               glVertex3f(p2.x, p2.y, p2.z);
                glTexCoord2f(1.0, 0.0);
-               glVertex3f(p3[0], p3[1], p3[2]);
+               glVertex3f(p3.x, p3.y, p3.z);
 
 
 

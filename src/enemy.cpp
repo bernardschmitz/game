@@ -12,11 +12,11 @@ ActorList<Enemy> alEnemy;
 
 
 
-Enemy::Enemy(sgVec3 p) : Actor() { 
+Enemy::Enemy(vector3 p) : Actor() { 
 
-   sgCopyVec3(pos, p); 
+   pos = p;
 
-   sgMakeIdentQuat(rot);
+   //sgMakeIdentQuat(rot);
 
    delay = 1;
    state = TARGET;
@@ -859,7 +859,7 @@ void Enemy::action() {
    switch(state) {
 
       case MOVING:
-         sgAddVec3(pos, vel);
+         pos += vel;
          delay--;
          if(delay == 0) {
             delay = 1;
@@ -870,19 +870,22 @@ void Enemy::action() {
       case TARGET:
          delay--;
          if(delay == 0) {
-            player->getPosition(target_pos);
+            target_pos = player->getPosition();
 
-            sgSubVec3(target_dir, target_pos, pos);
-            sgNormaliseVec3(target_dir);
+            target_dir = ~(target_pos - pos);
 
-            sgHPRfromVec3(target_hpr, target_dir);
+            //sgHPRfromVec3(target_hpr, target_dir);
 
-            float angle = target_hpr[0];
+            float angle = radToDeg(acos(vector3(1.0f, 0.0f, 0.0f)*target_dir));  
+
+//            float angle = target_hpr[0];
             //float angle = sgAngleBetweenNormalizedVec3(dir, target);  
 
-            sgAngleAxisToQuat(dst, angle, 0.0, 0.0, -1.0);
+            dst.setAxisAngle(vector3(0.0, 0.0, -1.0), angle); 
+            //sgAngleAxisToQuat(dst, angle, 0.0, 0.0, -1.0);
 
-            sgCopyQuat(src, rot);
+            //sgCopyQuat(src, rot);
+            src = rot;
 
             delay = 15;
             state = TRACKING;
@@ -892,9 +895,9 @@ void Enemy::action() {
       case TRACKING:
 
 
-         sgAddVec3(pos, vel);
+         pos += vel;
 
-         sgSlerpQuat(rot, src, dst, (15.0-delay)/15.0);
+         //sgSlerpQuat(rot, src, dst, (15.0-delay)/15.0);
 
 /*   		sgVec3 axis;
 		   float angle;
@@ -903,21 +906,22 @@ void Enemy::action() {
          // get dir vector from quaternion
          sgSetVec3(dir, -sgSin(angle), sgCos(angle), 0.0);
 */
-         sgCopyVec3(dir, target_dir);
+         dir = target_dir;
 
          delay--;
 //printf("%d %p ta %f angle %f dir %f %f %f\n", delay, (void*)this, target_hpr[0], angle, dir[0], dir[1], dir[2]);
          if(delay == 0) {
 
+rot = dst;
 
             // acceleration
-            sgAddScaledVec3(vel, dir, 0.025);
-            //sgScaleVec3(vel, dir, 0.025);
+            vel += dir * 0.025f;
 
     //friction
-    float vmag = sgScalarProductVec3(vel, vel);
+/* TODO
+    float vmag = vel.magnitudeSquared();
           if(vmag > 0.0) {
-                sgVec3 friction;
+                vector3 friction;
                 sgNormaliseVec3(friction, vel);
                 sgAddScaledVec3(vel, friction, -0.001-0.05*vmag/(1.2*1.2));
            }
@@ -929,7 +933,7 @@ void Enemy::action() {
                                            sgScaleVec3(vel, n, 0.5);
                                    }
    
-
+*/
             delay = 5;
             state = MOVING;
          }
@@ -945,12 +949,12 @@ void Enemy::action() {
 
 void Enemy::render() {
 
-   sgVec4 green = { 0.5, 0.8, 1.0, 1.0 };
-   sgVec4 red = { 0.9, 0.3, 0.4, 1.0 };
-   sgVec4 white = { 1.0, 1.0, 1.0, 1.0 };
+   float green[] = { 0.5, 0.8, 1.0, 1.0 };
+   float red[] = { 0.9, 0.3, 0.4, 1.0 };
+   float white[] = { 1.0, 1.0, 1.0, 1.0 };
 
    glPushMatrix();
-   glTranslatef(pos[0], pos[1], pos[2]);
+   glTranslatef(pos.x, pos.y, pos.z);
 
 /*
    glBegin(GL_LINES);
@@ -991,14 +995,14 @@ void Enemy::render() {
 
 
    glPushMatrix();
-   sgVec3 axis;
-   float angle;
+   vector3 axis = rot.getAxis();
+   float angle = rot.getAngle();
 
-   sgQuatToAngleAxis(&angle, axis, rot);
-
+   //sgQuatToAngleAxis(&angle, axis, rot);
+   
    glScalef(0.2, 0.2, 0.2);
 
-   glRotatef(angle, axis[0], axis[1], axis[2]);
+   glRotatef(angle, axis.x, axis.y, axis.z);
 
    glCallList(dl_enemy);
 

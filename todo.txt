@@ -1,2 +1,28 @@
 
+have a rendertarget that maintains a list of polygon.  
+draws transparent triangles correctly.
+
+
+
+lua error handler is _ALERT.  redefine like this:
+
+static int LuaError( lua_State *L ) {
+
+  const char *errormsg = lua_tostring( L, -1 );
+  // ...do whatever U wanna do with errormsg...
+  return 0;
+}
+
+// (..)
+    lua_State *state = lua_open();
+    lua_register( state, "_ALERT", LuaError );
+// (..)
+
+
+=====
+
 polygon counter...
+
+export from blender in a format for glDrawElements.
+
+

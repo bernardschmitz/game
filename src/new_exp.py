@@ -7,14 +7,34 @@ print "opened file..."
 
 #print Blender.Object.Get()
 
+
+mh = {}
+mi = 0
+for m in Blender.Material.Get():
+  #print mi, mat
+  print "exporting material %s..." % m.name
+  mh[m.name] = mi
+  out.write( "// %s material\n" % m.name)
+  out.write( "static GLfloat mat_%d_diffuse[] = { %f, %f, %f, %f };\n" % (mi, m.R, m.G, m.B, m.alpha) )
+  out.write( "static GLfloat mat_%d_ambient[] = { %f, %f, %f, 1.0 };\n" % (mi, m.R*m.amb, m.G*m.amb, m.B*m.amb) )
+  out.write( "static GLfloat mat_%d_specular[] = { %f, %f, %f, 1.0 };\n" % (mi, m.specR*m.spec, m.specG*m.spec, m.specB*m.spec) )
+  out.write( "static GLfloat mat_%d_emission[] = { %f, %f, %f, 1.0 };\n" % (mi, m.R*m.emit, m.G*m.emit, m.B*m.emit) )
+  out.write( "static GLfloat mat_%d_shine = %f;\n" % (mi, m.hard*128.0/255.0) )
+  mi = mi + 1
+
 oi = 0
 for obj in Blender.Object.Get():
 
-  if obj.data.name != "Camera" and obj.data.name != "Lamp":
+  ot = obj.getType()
 
-    print obj.parent
+  if ot == "Empty":
+    print obj.name, obj.loc
 
-    print "exporting %s..." % obj.data.name
+  if ot == "Mesh":
+
+    #print obj.parent
+
+    print "exporting mesh %s..." % obj.data.name
     out.write("\n// %s\n" % obj.data.name)
 
     out.write( "glPushMatrix();\n" )
@@ -28,22 +48,7 @@ for obj in Blender.Object.Get():
 
     # get materials
     mats = nmesh.materials
-
-    mi = 0;
-    for m in mats:
-      out.write( "static GLfloat mat_%d_%d_diffuse[] = { %f, %f, %f, %f };\n" % (oi, mi, m.R, m.G, m.B, m.alpha) )
-      out.write( "static GLfloat mat_%d_%d_ambient[] = { %f, %f, %f, 1.0 };\n" % (oi, mi, m.R*m.amb, m.G*m.amb, m.B*m.amb) )
-      out.write( "static GLfloat mat_%d_%d_specular[] = { %f, %f, %f, 1.0 };\n" % (oi, mi, m.specR*m.spec, m.specG*m.spec, m.specB*m.spec) )
-      out.write( "static GLfloat mat_%d_%d_emission[] = { %f, %f, %f, 1.0 };\n" % (oi, mi, m.R*m.emit, m.G*m.emit, m.B*m.emit) )
-      out.write( "static GLfloat mat_%d_%d_shine = %f;\n" % (oi, mi, m.hard*128.0/255.0) );
-      mi = mi + 1
-
-    #for m in mats:
-    #  print m.R, m.G, m.B
-    #  print m.specR*m.spec, m.specG*m.spec, m.specB*m.spec
-    #  print m.hard
-    #  print m.R*m.emit, m.G*m.emit, m.B*m.emit
-    #  print m.R*m.amb, m.G*m.amb, m.B*m.amb
+    #print mats[0].name, mh[mats[0].name]
 
     for sides in (2, 3, 4):
       if sides == 2:
@@ -91,11 +96,12 @@ for obj in Blender.Object.Get():
           # output each vertex and associated info
           if f.mat != old_mat:
              old_mat = f.mat
-             out.write(" glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_%d_%d_diffuse);\n" % (oi, f.mat));
-             out.write(" glMaterialfv(GL_FRONT, GL_AMBIENT, mat_%d_%d_ambient);\n" % (oi, f.mat));
-             out.write(" glMaterialfv(GL_FRONT, GL_SPECULAR, mat_%d_%d_specular);\n" % (oi, f.mat));
-             out.write(" glMaterialf(GL_FRONT, GL_SHININESS, mat_%d_%d_shine);\n" % (oi, f.mat));
-             out.write(" glMaterialfv(GL_FRONT, GL_EMISSION, mat_%d_%d_emission);\n" % (oi, f.mat));
+             mm = mh[mats[f.mat].name]
+             out.write(" glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_%d_diffuse);\n" % (mm))
+             out.write(" glMaterialfv(GL_FRONT, GL_AMBIENT, mat_%d_ambient);\n" % (mm))
+             out.write(" glMaterialfv(GL_FRONT, GL_SPECULAR, mat_%d_specular);\n" % (mm))
+             out.write(" glMaterialf(GL_FRONT, GL_SHININESS, mat_%d_shine);\n" % (mm))
+             out.write(" glMaterialfv(GL_FRONT, GL_EMISSION, mat_%d_emission);\n" % (mm))
  
           i = 0
           for v in f.v:
