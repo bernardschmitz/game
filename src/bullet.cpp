@@ -90,6 +90,30 @@ void Bullet::render() {
 
    glDisable(GL_LIGHTING);
 
+   static float pink[] = { 0.75, 0.75, 0.75, 0.75 };
+   glColor4fv(pink);
+
+/*
+ // TODO
+  // try quadatric spline, a at player, c at enemy and b some radius away from player
+     glBegin(GL_LINE_STRIP);
+     int st = 10;
+     for(int i=0; i<=st; i++) {
+        vector3 p;
+        p.quadratic_interpolate(A, D, B, i/(float)st);
+        glVertex3f(p.x, p.y, p.z);
+     }
+    glEnd();
+    glBegin(GL_LINE_STRIP);
+     st = 10;
+     for(int i=0; i<=st; i++) {
+        vector3 p;
+        p.quadratic_interpolate(A, D, C, i/(float)st);
+        glVertex3f(p.x, p.y, p.z);
+     }
+    glEnd();
+*/
+
    glEnable(GL_TEXTURE_2D);
 
    glEnable(GL_BLEND);
@@ -100,9 +124,6 @@ void Bullet::render() {
    glShadeModel(GL_FLAT);
 
    glDisable(GL_DEPTH_TEST);
-
-   static float pink[] = { 0.75, 0.75, 0.75, 0.75 };
-   glColor4fv(pink);
 
    //glTranslatef(pos.x, pos.y, pos.z);
 

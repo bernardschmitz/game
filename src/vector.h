@@ -1,5 +1,5 @@
 
-// $Id: vector.h,v 1.3 2003-07-31 19:06:08 bernard Exp $
+// $Id: vector.h,v 1.4 2003-08-01 06:02:23 bernard Exp $
 
 #ifndef __VECTOR_H__
 #define __VECTOR_H__
@@ -154,7 +154,7 @@ public:
       z = a.z + d.z*t;
    }
 
-   void cosine_interpolate(const vector2& a, const vector2& b, const float t) {
+   void cosine_interpolate(const vector3& a, const vector3& b, const float t) {
       linear_interpolate(a, b, (1.0-cos(t*M_PI))*0.5);
    }
 
