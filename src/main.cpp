@@ -23,8 +23,10 @@
 #define WIDTH 800
 #define HEIGHT 600
 
+
 static Background *bg;
 static Enemy *enemy;
+
 
 static GLint T0 = 0;
 static GLint Frames = 0;
@@ -50,7 +52,7 @@ static GLfloat angle = 0.0;
 static GLuint world;
 
   static GLfloat pos[4] =
-  {0.0, 0.0, 200.0, 1.0};
+  {-20.0, 20.0, 20.0, 1.0};
   //{5.0, 5.0, 10.0, 0.0};
   static GLfloat red[4] =
   {0.8, 0.8, 0.0, 0.15};
@@ -61,7 +63,7 @@ static GLuint world;
   static GLfloat blue[4] =
   {0.0, 0.0, 0.8, 0.25};
   static GLfloat lcol[4] =
-  { 10.0,  10.0,  10.0, 1.0};
+  { 1.0,  1.0,  1.0, 1.0};
   static GLfloat white[4] =
   {0.8, 0.8, 0.8, 1.0};
 
@@ -209,7 +211,7 @@ init(int argc, char *argv[])
   
    enemy = new Enemy(p);
 
-  player = new Player();
+   player = new Player();
 
 
    box = glGenLists(1);

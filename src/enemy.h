@@ -10,6 +10,8 @@ class Enemy {
       sgVec3 position;
       sgVec3 velocity;
 
+      sgVec3 dir;
+
       int delay;
       int state;
 

@@ -13,7 +13,11 @@ class Player {
       float z_rotation;
       int thrusting;
 
-      GLuint shape;
+      GLuint dl_cockpit;
+      GLuint dl_left_wing;
+      GLuint dl_right_wing;
+      GLuint dl_left_engine;
+      GLuint dl_right_engine;
 
    public:
 
