@@ -24,6 +24,8 @@ class Enemy : public Actor {
 
       GLuint dl_enemy;
 
+      int life;
+
       vector3 pain;
 
    public:

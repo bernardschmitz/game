@@ -27,6 +27,8 @@ class Background : public Actor {
 
       int hex_tex;
 
+      float cx, cy, cz;
+
       Vertex *strips;
       Vertex *hexes;
 

@@ -1,5 +1,5 @@
 
-// $Id: actor.h,v 1.19 2003-08-25 18:19:25 bernard Exp $
+// $Id: actor.h,v 1.20 2003-08-25 23:08:31 bernard Exp $
 
 #ifndef __ACTOR_H__
 #define __ACTOR_H__
@@ -113,7 +113,7 @@ class Actor {
 
       float getRadius() { return radius; }
 
-      virtual void update(float dt);  // update, calls action, move etc...
+//      virtual void update(float dt);  // update, calls action, move etc...
 
       virtual void action(float dt) =0;  // actors user function
 
@@ -125,7 +125,7 @@ class Actor {
       // sets the ACT_COLLISON flag and the various hit_* variables.
       inline bool collide(Actor *p) {
 
-         const vector3 delta = p->position - position;
+         const vector3 delta = p->next_position - next_position;
          const float rest_length = p->radius + radius;
 
          const float delta_squared = delta*delta;
@@ -142,8 +142,8 @@ class Actor {
          if(diff > 0.0f)
             return false;
 
-         position += diff * inv_mass * delta;
-         p->position -= diff * p->inv_mass * delta;
+         next_position += diff * inv_mass * delta;
+         p->next_position -= diff * p->inv_mass * delta;
 
          flags |= ACT_COLLISION;
          hit_actor = p;
@@ -255,6 +255,8 @@ class ActorManager {
 
       void add_all_constraints(Actor *p);
       void remove_all_constraints(Actor *p);
+
+      void move_actors(float dt);
 
       bool constrain_collision(Actor *p1, Actor *p2);
       void relax(float dt);

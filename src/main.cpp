@@ -326,11 +326,10 @@ static void draw(void) {
 
    glTranslatef(-pos.x, -pos.y, mag);
 
-
-   actor_manager->render();
-
    bg->setCenter(vector3(pos.x, pos.y, mag));
    //bg->setCenter(vector3(pos.x, pos.y, -40.0));
+
+   actor_manager->render();
 
 
    char fs[1000];

@@ -231,20 +231,34 @@ inline int plasma(float x, float y, float z) {
 
 void Background::action(float dt) {
 
-   u += M_PI/400.0*50.0*dt;
+
+   float s= 5.0;
+   assert(center.z > -45.0);
+
+   cx = rint(center.x/s)*s;
+   cy = rint(center.y/s)*s;
+   cz = rint(center.z/s)*s;
+
+
+   static float rate = 1.0/30.0;
+   static float now = 0.0;
+
+   bool update = true;
+
+   now -= dt;
+
+   if(now > 0.0)
+      return;
+
+   now = rate;
+ 
+
+   //u += M_PI/400.0*50.0*dt;
+   u += M_PI/400.0*50.0*rate;
 
    ux = 20.0*cos(u) ;// + center.x;
    uy = 45.0*sin(u) ;//+ center.y; // + 15.0*cos(u/2.0);
    uz = 35.0*cos(u) ;//+ center.z; // + 25.0*cos(u/4.0);
-
-   float s= 5.0;
-
-//   std::cout << center << std::endl;
-   assert(center.z > -45.0);
-
-   float cx = rint(center.x/s)*s;
-   float cy = rint(center.y/s)*s;
-   float cz = rint(center.z/s)*s;
 
    float z,d,sx,sy;
 
@@ -295,7 +309,7 @@ void Background::action(float dt) {
 
 
    //float *c = cols;
-
+if(update) {
    for(int i=0; i<w; i++) {
       Vertex *v = &strips[idx+i*max_v];
 
@@ -322,7 +336,7 @@ void Background::action(float dt) {
 
       }
    }
-
+}
 
 
    z = -20.0;
@@ -343,6 +357,9 @@ void Background::action(float dt) {
    int vi = ow*max_hv+6*oh;
 
    float zs = -10.0f;
+
+if(update) {
+
    for(int i=0; i<w; i++) {
          Vertex *v = &hexes[vi + i*max_hv];
 
@@ -368,10 +385,11 @@ void Background::action(float dt) {
       z += zs;
 }
 
+}
+
 void Background::render() {
 
 
-//   glClear(GL_COLOR_BUFFER_BIT);
 
    glDisable(GL_LIGHTING);
    glDisable(GL_DEPTH_TEST);
@@ -380,16 +398,15 @@ void Background::render() {
    float s = 5.0;
 
    // nearest grid from center
-   float cx;
-   float cy;
-   float cz;
 
    float z, d, sx, sy;
 
+#if 0
+/*
    cx = rint(center.x/s)*s;
    cy = rint(center.y/s)*s;
    cz = rint(center.z/s)*s;
-
+*/
    //printf("c %f %f %f cx %f cy %f cz %f\n", center.x, center.y, center.z, cx, cy, cz);
 
    glPushMatrix();
@@ -467,7 +484,17 @@ void Background::render() {
 
 
    glPopMatrix();
- 
+
+#endif
+
+
+   // TODO remove this
+   glClearColor(0.0, 0.0, 0.6, 1.0);
+   glClear(GL_COLOR_BUFFER_BIT);
+   glEnable(GL_BLEND);
+   glBlendFunc(GL_SRC_ALPHA,GL_ONE);
+
+
    glPushMatrix();
    glTranslatef(cx,cy,-10.0);
 

@@ -30,12 +30,11 @@ Enemy::Enemy(vector3 p) : Actor(ACT_ENEMY, "Enemy", p) {
 
    inv_mass = 1.0/mass;
 
+   life = 20;
+
    collision_flags = ACT_ENEMY | ACT_BULLET | ACT_PLAYER;
 
-   max_speed = 25.0 + uniform_random_float(-15.0, 10.0);
-   max_force = 150.0+ uniform_random_float(50, 200.0);
-
-   max_speed = 30;
+   max_speed = 5; //30;
    max_force = 5000;
 
    velocity.x = uniform_random_float(-1.0f, 1.0f);
@@ -968,25 +967,34 @@ void Enemy::action(float dt) {
       std::cout << position << " " << hit_position << " " << hit_normal << " " << hit_time << " " << std::endl;
    }
 */
-   float size = 140.0;
+/*
+   if(flags & ACT_COLLISION) {
+      life--;
+      if(life < 0)
+         flags |= ACT_REMOVE;
+   }
+ */  
+
+
+   float size = 200.0;
 
    force = vector3(0,0,0);
 
    if(position.x-radius < -size) {
-      force += mass*vector3(2, 0, 0) / dt;
+      force += mass*vector3(5, 0, 0) / dt;
    }
    if(position.x+radius > size) {
-      force += mass*vector3(-2, 0, 0) / dt;
+      force += mass*vector3(-5, 0, 0) / dt;
    }
 
    if(position.y-radius < -size) {
-      force += mass*vector3(0, 2,  0) / dt;
+      force += mass*vector3(0, 5,  0) / dt;
    }
    if(position.y+radius > size) {
-      force += mass*vector3(0, -2,  0) / dt;
+      force += mass*vector3(0, -5,  0) / dt;
    }
 
-   //force += mass * vector3(0, -2.0f, 0);
+   //force += mass * vector3(0, -5.0f, 0);
 
 }
 
@@ -1002,9 +1010,14 @@ void Enemy::render() {
    float n = grid_list.size()/4.0;
 
    glDisable(GL_LIGHTING);
-/*
-   glColor4f(pain.x, pain.y, pain.z, 0.0);
 
+//   glEnable(GL_BLEND);
+//   glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+
+   //printf("speed %f alpha %f\n", speed, (max_speed-speed)/max_speed);
+//   glColor4f(pain.x, pain.y, pain.z, fabs(0.25-speed)/0.25);
+
+/*
    if(flags & ACT_COLLISION) {
       assert(hit_actor != 0);
       vector3 other = hit_actor->getPosition();
@@ -1044,6 +1057,7 @@ void Enemy::render() {
 */
   glPopMatrix();
 
+   glDisable(GL_BLEND);
    glEnable(GL_LIGHTING);
 }
 

@@ -1,5 +1,5 @@
 
-// $Id: actor.cpp,v 1.19 2003-08-25 18:19:25 bernard Exp $
+// $Id: actor.cpp,v 1.20 2003-08-25 23:08:31 bernard Exp $
 
 #include <iostream>
 #include <sstream>
@@ -76,27 +76,25 @@ Actor::Actor(int t, std::string s, const vector3& p, const vector3& v, float m, 
 
 
 
-void Actor::update(float dt) {
+void ActorManager::move_actors(float dt) {
 
-   //printf("update with %f\n", dt);
+   ActorList::iterator k = master_actor_list.begin();
 
-   //delay -= dt;
+   while(k != master_actor_list.end()) {
 
-   //action(dt);
+      if((*k)->force.lengthSquared() > (*k)->max_force*(*k)->max_force)
+         (*k)->force = (!(*k)->force) * (*k)->max_force;
 
-   if(force.lengthSquared() > max_force*max_force)
-      force = (!force) * max_force;
+      vector3 acceleration = (*k)->force * (*k)->inv_mass;
 
-   vector3 acceleration = force * inv_mass;
+      vector3 new_pos = 2.0f * (*k)->next_position - (*k)->prev_position + acceleration * dt * dt;
+      (*k)->prev_position = (*k)->next_position;
+      (*k)->next_position = new_pos;
 
-   vector3 new_position = 2.0f * position - prev_position + acceleration * dt * dt;
-   prev_position = position;
-   position = new_position;
+      //(*k)->position = (*k)->prev_position;
 
-
-//   std::cout << name << " " << position << " " << prev_position << std::endl;
-
-   //std::cout << actor_type << " " << actor_id << " " << position << " " << velocity << " " << velocity.length() << " " << force << " " << force.length() << std::endl;
+      ++k;
+   }
 }
 
 void ActorManager::insert(Actor *p) { 
@@ -377,62 +375,86 @@ void CollisionGrid::update_position(Actor *p) {
 
 void ActorManager::update(float dt) {
 
-//   printf("update with %f\n", dt);
+   static float now = 0.0;
+   static float last = 0.0;
 
-   insert_new_actors();
+   static float rate = 1.0/100.0;
 
-   // now call user function
+   now += dt;
+
+   float delta = now - last;
+
+//   printf("now %f delta %f\n", now, delta);
+
+   // TODO 1/100 should be a parameter
+   if(delta >= rate) {
+
+      last = now;
+
+//      printf("update!\n");
+
+      delta -= rate;
+
+      // time to update
+   
+      insert_new_actors();
+   
+      // now call user function
+      ActorList::iterator k = master_actor_list.begin();
+      while(k != master_actor_list.end()) {
+         (*k)->action(rate);
+         ++k;
+      }
+      // remove old actors
+      remove_dead_actors();
+   
+      k = master_actor_list.begin();
+      while(k != master_actor_list.end()) {
+         // reset collision flags
+         (*k)->flags &= ~ACT_COLLISION;
+         (*k)->hit_actor = 0;
+         // update position
+         //(*k)->update(dt);
+         // update actors position in the collision grid
+         if((*k)->collision_flags != 0) 
+            grid.update_position(*k);
+         ++k;
+      }
+   
+      // update position
+      move_actors(rate);
+   
+      // hit actors
+      collide(1);
+   
+      k = master_actor_list.begin();
+      while(k != master_actor_list.end()) {
+   
+         // calculate velocity
+         (*k)->velocity = (*k)->next_position - (*k)->prev_position;
+   
+         // constrain velocity
+         if((*k)->velocity.lengthSquared() > (*k)->max_speed*(*k)->max_speed)
+            (*k)->prev_position = (*k)->next_position - !(*k)->velocity * (*k)->max_speed;
+//            (*k)->velocity = (!(*k)->velocity) * (*k)->max_speed;
+   
+//         if((*k)->velocity.lengthSquared() < tiny)
+//            (*k)->velocity.set(0.0f, 0.0f, 0.0f);
+   
+         // calc speed
+         (*k)->speed = (*k)->velocity.length();
+   
+         ++k;
+      }
+   }
+
+
+   // interpolate positions if not ready to update
+   float t = delta / rate;
+//   printf("lerp by %f\n", t);
    ActorList::iterator k = master_actor_list.begin();
    while(k != master_actor_list.end()) {
-      (*k)->action(dt);
-      ++k;
-   }
-   // remove old actors
-   remove_dead_actors();
-
-   k = master_actor_list.begin();
-   while(k != master_actor_list.end()) {
-      // reset collision flags
-      (*k)->flags &= ~ACT_COLLISION;
-      (*k)->hit_actor = 0;
-      // update position
-      (*k)->update(dt);
-      // update actors position in the collision grid
-      if((*k)->collision_flags != 0) 
-         grid.update_position(*k);
-      ++k;
-   }
-
-
-/*
-   GridMap::iterator g = grid.grid_map.begin();
-   int i=0;
-   while(g != grid.grid_map.end()) {
-      std::cout << "grid " << std::dec << i << " " << (*g).second->size() << " key " << std::hex << (*g).first << std::endl;
-      i++;
-      ++g;
-   }
-   std::cout << std::dec << std::endl;
-*/
-
-   // hit actors
-   collide(1);
-
-   k = master_actor_list.begin();
-   while(k != master_actor_list.end()) {
-
-      // calculate velocity
-      (*k)->velocity = (*k)->position - (*k)->prev_position;
-
-      // constrain velocity
-      if((*k)->velocity.lengthSquared() > (*k)->max_speed*(*k)->max_speed)
-         (*k)->velocity = (!(*k)->velocity) * (*k)->max_speed;
-
-      if((*k)->velocity.lengthSquared() < tiny)
-         (*k)->velocity.set(0.0f, 0.0f, 0.0f);
-
-      (*k)->speed = (*k)->velocity.length();
-
+      (*k)->position = (*k)->prev_position + (*k)->velocity * t;
       ++k;
    }
 }
