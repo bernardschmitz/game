@@ -6,16 +6,29 @@ Background::Background() {
 
 
 
-   // default
-   static sgVec4 map[8] = { { 0.25, 0.0, 0.0, 0.1 },
-                            { 0.0, 0.25, 0.0, 0.1 },
-                            { 0.0, 0.0, 0.25, 0.1 },
-                            { 0.25, 0.25, 0.0, 0.1 },
-                            { 0.25, 0.0, 0.25, 0.1 },
-                            { 0.25, 0.25, 0.25, 0.1 },
-                            { 0.0, 0.25, 0.25, 0.1 },
-                            { 0.25, 0.25, 0.25, 0.5 }  };
 
+   // default
+   static sgVec4 map[8] = { { 0.5, 0.0, 0.0, 0.0   }, 
+                            { 0.0, 0.5, 0.0, 0.1   },
+                            { 0.0, 0.0, 0.5, 0.0   },
+                            { 0.0, 0.5, 0.0, 0.1   },
+                            { 0.5, 0.0, 0.0, 0.0   },
+                            { 0.5, 0.5, 0.5, 0.1   },
+                            { 0.5, 0.5, 0.0, 0.0   },
+                            { 0.0, 0.0, 0.0, 0.1  }  };
+
+
+/*
+   // blue yellow
+   static sgVec4 map[8] = { { 0.0, 0.0, 0.3, 0.1 },
+                            { 0.3, 0.3, 0.0, 0.2 },
+                            { 0.3, 0.0, 0.0, 0.1 },
+                            { 0.3, 0.3, 0.0, 0.3 },
+                            { 0.0, 0.3, 0.3, 0.1 },
+                            { 0.3, 0.3, 0.0, 0.2 },
+                            { 0.0, 0.0, 0.0, 0.0 },
+                            { 0.0, 0.0, 0.3, 0.1 }  };
+*/
 
 /*
 
@@ -47,16 +60,16 @@ Background::Background() {
 
 /*
    // reds
-   static sgVec4 map[9] = { { 1.0, 0.0, 0.0, 0.125 },
+   static sgVec4 map[8] = { { 1.0, 0.0, 0.0, 0.125 },
                             { 1.0, 1.0, 0.0, 0.25 },
                             { 1.0, 0.0, 0.0, 0.125 },
                             { 1.0, 1.0, 0.0, 0.125 },
                             { 1.0, 1.0, 1.0, 0.25 },
                             { 1.0, 1.0, 0.0, 0.125 },
                             { 1.0, 0.0, 0.0, 0.25 },
-                            { 1.0, 1.0, 0.0, 0.125 },
-                            { 1.0, 0.0, 0.0, 0.125 }  };
+                            { 1.0, 1.0, 0.0, 0.125 }  };
 */
+
    palette = new sgVec4[256];
 
    for(int i=0; i<8; i++) {
@@ -75,18 +88,13 @@ Background::~Background() {
 }
 
 int plasma(float x, float y, float z) {
-   float k = (sin(sqrt(x*x+y*y)/16.0) + cos(sqrt(x*x+z*z)/-23.0)) / 2.0;
-   //float k = sin(sqrt(x*x+y*y+z*z)/16.0) + cos(40.0+sqrt(y*y+z*z)/32.0) +  sin(90.0+sqrt(x*x+z*z)/6.0) + cos(-40.0+sqrt(z*z)/43.0);
-   //float k = (sin(x*M_PI/40.0)*cos(y*M_PI/70.0)+sin(z*M_PI/80.0)) / 2.0;
+
+   float k = 0.25*(sin(x/60)+sin(y/30)+sin(z/23)+sin(x*y*z)/100);
+//   float k = (sin(sqrt(x*x+y*y)/16.0) + cos(sqrt(x*x+z*z)/-23.0)) / 2.0;
+//   float k = sin(sqrt(x*x+y*y)/20)*sin(z/60); //+sin(y/100)+sin(z/80);
+
+
    return int(128.0+127.0*k);
-
-
-   //float k =  sin( x/(37.0+15.0*cos(y/74.0)) ) * cos( x/(31.0+11.0*sin(z/57.0))) ;
-   //float k = (sin(x/50) + sin(z/40) + cos(y/90))/3.0 ;
-
-   //return sin(sqrt(x*x)/20.0)*sin(sqrt(y*y)/20.0)*sin(sqrt(z*z)/20.0);
-   //float k = sin(40.0+cos(x/20.0))+sin(y/20.0)+sin(z/20.0);
-   //return sin( x/(37.0+15.0*cos(y/74.0)) ) * cos( x/(31.0+11.0*sin(z/57.0))) ;
 }
 
 
@@ -104,55 +112,116 @@ void Background::render(sgVec3 center, int flags) {
    float n = settings.background_near;
    float f = settings.background_far;
    float gap = settings.background_gap;
+   int p = settings.background_planes;
+   float zs;
+
+   if(p == 0)
+      zs = 0.0;
+   else
+      zs = (n - f) / (p-1);
 
    float cx = floor(center[0]/s)*s;
    float cy = floor(center[1]/s)*s;
 
 
-   sgVec4 white = { 0.5, 0.5, 0.5, 0.5 };
-   glColor4fv(white);
-
    static float u = 0.0;
 
-   u += M_PI/200.0;
+   u += M_PI/400.0;
 
    float ux = 20.0*cos(u);
-   float uy = 45.0*sin(u) + 15.0*cos(u/2.0);
-   float uz = 35.0*cos(u) + 25.0*cos(u/4.0);
+   float uy = 45.0*sin(u); // + 15.0*cos(u/2.0);
+   float uz = 35.0*cos(u); // + 25.0*cos(u/4.0);
 
-   if(flags) {
-      s = 2.0;
-      n = f; 
-   }
-
+   // use quad strip
    glBegin(GL_QUADS);
-   for(float d=f; d<n+s; d+=s) {
-      float dd = fabs(d);
+   float z = f;
+//   for(int i=0; i<p; i++) {
+      //z += zs;
+      float dd = fabs(z);
       for(float y=cy-dd; y<cy+dd+s; y+=s) {
          for(float x=cx-dd; x<cx+dd+s; x+=s) {
-             glColor4fv(palette[plasma(ux+x+s, uy+y+s, uz+d)&0xff]);
-             glVertex3f(x, y, d);
+             sgVec4 c;
+             sgCopyVec4(c, palette[plasma(ux+x, uy+y, uz+z)&0xff]);
+             sgScaleVec4(c, 0.5);
+             glColor4f(c[0], c[1], c[2], 1.0);
+             glVertex3f(x, y, z);
 
-             glColor4fv(palette[plasma(ux+x, uy+y+s, uz+d)&0xff]);
-             glVertex3f(x+s, y, d);
+             sgCopyVec4(c, palette[plasma(ux+x+s, uy+y, uz+z)&0xff]);
+             sgScaleVec4(c, 0.5);
+             glColor4f(c[0], c[1], c[2], 1.0);
+             glVertex3f(x+s, y, z);
 
-             glColor4fv(palette[plasma(ux+x, uy+y, uz+d)&0xff]);
-             glVertex3f(x+s, y+s, d);
+             sgCopyVec4(c, palette[plasma(ux+x+s, uy+y+s, uz+z)&0xff]);
+             sgScaleVec4(c, 0.5);
+             glColor4f(c[0], c[1], c[2], 1.0);
+             glVertex3f(x+s, y+s, z);
 
-             glColor4fv(palette[plasma(ux+x+s, uy+y, uz+d)&0xff]);
-             glVertex3f(x, y+s, d);
+             sgCopyVec4(c, palette[plasma(ux+x, uy+y+s, uz+z)&0xff]);
+             sgScaleVec4(c, 0.5);
+             glColor4f(c[0], c[1], c[2], 1.0);
+             glVertex3f(x, y+s, z);
 
          }
       }
+//   }
+   glEnd();
+
+   float g = s/gap;
+
+   if(flags) {
+
+
+//   glBegin(GL_QUADS);
+   z = f+zs;
+   for(int i=0; i<p; i++) {
+      dd = fabs(z);
+      for(float y=cy-dd; y<cy+dd+s; y+=s) {
+         for(float x=cx-dd; x<cx+dd+s; x+=s) {
+
+            glBegin(GL_POLYGON);
+
+            float x0 = x+s/2.0;
+            float y0 = y+s/2.0;
+            float r0 = s*0.4;
+            int sides = 6;
+            for(int i=0; i<sides; i++) {
+               float angle = 2.0*M_PI/sides*i;
+               float x1 = x0+r0*cos(angle);
+               float y1 = y0+r0*sin(angle);
+
+               glColor4fv(palette[plasma(ux+y1, uy+x1, uz+z)&0xff]);
+               glVertex3f(x1, y1, z);
+            }
+            glEnd();
+/*
+             glColor4fv(palette[plasma(ux+x+s, uy+y+s, uz+z)&0xff]);
+             glVertex3f(x+g, y+g, z);
+
+             glColor4fv(palette[plasma(ux+x, uy+y+s, uz+z)&0xff]);
+             glVertex3f(x+s-g, y+g, z);
+
+             glColor4fv(palette[plasma(ux+x, uy+y, uz+z)&0xff]);
+             glVertex3f(x+s-g, y+s-g, z);
+
+             glColor4fv(palette[plasma(ux+x+s, uy+y, uz+z)&0xff]);
+             glVertex3f(x+g, y+s-g, z);
+*/
+         }
+      }
+      z += zs;
    }
    glEnd();
 
+}
    glBegin(GL_LINES);
 
+   sgVec4 white = { 0.6, 0.6, 0.6, 0.3 };
    glColor4fv(white);
 
-   for(float d=f; d<n+s; d+=s) {
-      float dd = fabs(d)+s;
+   s = s/2.0;
+   float d = -10.0;
+   //for(float d=f; d<n+s; d+=zs) {
+      dd = fabs(d)+s;
       for(float y=cy-dd; y<cy+dd+s; y+=s) {
          glVertex3f(cx-dd, y, d);
          glVertex3f(cx+dd, y, d);
@@ -161,9 +230,11 @@ void Background::render(sgVec3 center, int flags) {
          glVertex3f(x, cy-dd, d);
          glVertex3f(x, cy+dd, d);
       }
-   }
+   //}
 
    glEnd();
+
+
 
 
    glEnable(GL_LIGHTING);

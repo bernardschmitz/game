@@ -65,6 +65,7 @@ int Player::render() {
    sgVec4 green  = { 0.0, 1.0, 0.0, 1.0 };
    sgVec4 yellow = { 1.0, 1.0, 0.0, 1.0 };
 
+   // ship
    glPushMatrix();
    glTranslatef(position[0], position[1], position[2]);
    glRotatef(-90.0, 0.0, 0.0, 1.0);
@@ -82,6 +83,25 @@ int Player::render() {
     glVertex3f(-0.5, -0.5, 0.0);
    glEnd();
    glPopMatrix();
+
+
+   // blocks
+   for(float y = -30.0; y<=30.0; y+=10.0) {
+      for(float x = -30.0; x<=30.0; x+=10.0) {
+   glPushMatrix();
+   glTranslatef(x, y, -10.0);
+   glRotatef(z_rotation, 0.0, 0.0, 1.0);
+   glBegin(GL_QUADS);
+    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, yellow);
+    glNormal3f( 0.0, 0.0, -1);
+    glVertex3f(  0.5,  0.5, 0.0);
+    glVertex3f(-0.5,  0.5, 0.0);
+    glVertex3f(-0.5, -0.5, 0.0);
+    glVertex3f( 0.5, -0.5, 0.0);
+   glEnd();
+   glPopMatrix();
+}
+}
 
    return 0;
 }

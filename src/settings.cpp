@@ -12,12 +12,13 @@ Settings::Settings() {
    world_width = 1000.0;
    world_height = 1000.0;
 
-   background_far = -45.0;
-   background_near = -15.0;
-   background_step = 8.0;
+   background_far = -80.0;
+   background_near = -20.0;
+   background_step = 5.0;
+   background_planes = 3.0;
    background_width = 1000.0;
    background_height = 1000.0;
-   background_gap = 1.0;
+   background_gap = 8.0;
 
 }
 

@@ -13,6 +13,7 @@ struct Settings {
    float background_near;
    float background_far;
    float background_step;
+   float background_planes;
    float background_width;   
    float background_height;   
    float background_gap;   

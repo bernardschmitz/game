@@ -75,7 +75,11 @@ static void draw(void) {
    static GLfloat fps = 0;
    int i;
 
+   GLint st0 = SDL_GetTicks();
+
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+   GLint clear_time = SDL_GetTicks() - st0;
 
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
@@ -88,10 +92,18 @@ static void draw(void) {
    else
       glTranslatef(-pos[0], -pos[1], -60.0);
 
+
+   GLint st = SDL_GetTicks();
+
    bg.render(pos, flags);
+
+   GLint bg_time = SDL_GetTicks() - st;
+
+   st = SDL_GetTicks();
 
    player.render();
 
+   GLint player_time = SDL_GetTicks() - st;
 
    SDL_GL_SwapBuffers();
 
@@ -104,7 +116,16 @@ static void draw(void) {
       printf("%d frames in %g seconds = %g FPS\n", Frames, seconds, fps);
       T0 = t;
       Frames = 0;
+
+      printf("%d %d %d\n", clear_time, bg_time, player_time);
    }
+
+
+   // pause a little...
+   int ww = 1000/50 - (SDL_GetTicks() - st0);
+
+   if(ww > 1)
+      SDL_Delay(ww);
 }
 
 static void
@@ -354,8 +375,6 @@ int main(int argc, char *argv[])
 */
 
     draw();
-
-    SDL_Delay(1000/60);
   }
   SDL_Quit();
   return 0;             /* ANSI C requires main to return int. */
