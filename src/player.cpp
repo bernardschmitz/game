@@ -3,6 +3,7 @@
 #include "input.h"
 #include "settings.h"
 #include "enemy.h"
+#include "particle.h"
 
 Player *player = NULL;
 
@@ -587,6 +588,8 @@ int Player::action() {
 
       sgVec3 shot_pos;
       alEnemy.insert(new Enemy(position));
+
+      alParticles.first()->init();
    }
    else {
       if(shooting > 0)

@@ -1,6 +1,7 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include <time.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -14,6 +15,8 @@
 #include "input.h"
 #include "settings.h"
 #include "enemy.h"
+#include "particle.h"
+#include "random.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265
@@ -113,6 +116,8 @@ static void draw(void) {
 
    player->render();
 
+   alParticles.render();
+
    GLint player_time = SDL_GetTicks() - st;
 
    SDL_GL_SwapBuffers();
@@ -147,6 +152,7 @@ idle(void)
 
    player->action();
    alEnemy.action();
+   alParticles.action();
 }
 
 /* new window size or exposure */
@@ -218,6 +224,10 @@ init(int argc, char *argv[])
       p[0] += 4.0;
       alEnemy.insert(new Enemy(p));
    }
+
+
+   alParticles.insert(new ParticleSystem());
+
 
    player = new Player();
 
@@ -300,6 +310,16 @@ init(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
+
+   srand(time(NULL));
+
+
+
+
+
+
+
+
   SDL_Surface *screen;
   int done;
   Uint8 *keys;
@@ -395,5 +415,39 @@ int main(int argc, char *argv[])
     draw();
   }
   SDL_Quit();
+
+
+/*
+   float min = 100.0;
+   float max = -100.0;
+   float sum = 0.0;
+   for(int i=0; i<10000; i++) {
+      float k = random_float(-11.0, 11.0);
+      sum += k;
+      if(k > max)
+         max = k;
+      if(k < min)
+         min = k;
+   }
+   printf("\navg = %f min = %f max = %f\n", sum/10000.0, min, max);
+*/
+
+   int min = 100;
+   int max = -100;
+   int sum = 0;
+   for(int i=0; i<10000; i++) {
+      int k = random_int(-10, 10);
+      sum += k;
+      if(k > max)
+         max = k;
+      if(k < min)
+         min = k;
+   }
+   printf("\navg = %d min = %d max = %d\n", sum/10000, min, max);
+
+
+
+
+
   return 0;             /* ANSI C requires main to return int. */
 }
