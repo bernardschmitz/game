@@ -12,6 +12,9 @@ class Bullet : public Actor {
       bool squid;
       vector3 A,B,C,D;
 
+      vector3 pts[12];
+      float ang[4], dis[4];
+
    public:
       Bullet(vector3 p, vector3 v, int e=20);
       ~Bullet();

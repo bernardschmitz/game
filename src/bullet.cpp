@@ -2,6 +2,7 @@
 
 #include "bullet.h"
 #include "player.h"
+#include "random.h"
 
 #define MOVING      0
 #define TRACKING    1
@@ -11,9 +12,15 @@
 
 Bullet::Bullet(vector3 p, vector3 v, int e) : Actor(ACT_BULLET, p, v, vector3(0.0, 0.0, 1.0)) { 
 
-   energy = e;
+   energy = e; //*100;
 
    squid = false;
+
+
+   for(int i=0; i<4; i++) {
+         ang[i] = uniform_random_float(0.0, 2.0*M_PI);
+         dis[i] = uniform_random_float(1.5, 4.5);
+   }
 }
 
 Bullet::~Bullet() {
@@ -35,24 +42,58 @@ void Bullet::action() {
    ActorList al = actor_manager.get_actor_type_list(ACT_ENEMY);
 
    squid = false;
-   if(al.size() >= 3) {
+   if(!squid && al.size() >= 3) {
       A = player->getPosition();
       B = al[0]->getPosition();
       C = al[1]->getPosition();
       D = al[2]->getPosition();
 
       float dAB = (B-A)*(B-A);
-     float dBC = (C-A)*(C-A);
-     float dCD = (D-A)*(D-A);
+      float dBC = (C-A)*(C-A);
+      float dCD = (D-A)*(D-A);
 
-     float mm = dAB;
-     if(dBC < mm)
-        mm = dBC;
-     if(dCD < mm)
-        mm = dCD;
+      float mm = dAB;
+      if(dBC < mm)
+         mm = dBC;
+      if(dCD < mm)
+         mm = dCD;
 
-      if(mm < 20.0*20.0)
+      if(mm < 20.0*20.0) {
          squid = true;
+
+         //float ang, dis;
+
+         pts[0] = A;
+
+         //ang = uniform_random_float(0.0, 2.0*M_PI);
+         //dis = uniform_random_float(0.5, 2.5);
+         pts[1] = A + dis[0]*vector3(cos(ang[0]), sin(ang[0]), 0.0);
+
+         //ang = uniform_random_float(0.0, 2.0*M_PI);
+         //dis = uniform_random_float(0.5, 2.5);
+         pts[2] = pts[1] + dis[1]*vector3(cos(ang[1]), sin(ang[1]), 0.0);
+
+         pts[3] = B;
+
+         vector3 d;
+         d = !(B-pts[2]);
+         pts[4] = B + d*dis[1];
+
+         //ang = uniform_random_float(0.0, 2.0*M_PI);
+         //dis = uniform_random_float(0.5, 2.5);
+         pts[5] = pts[4] + dis[2]*vector3(cos(ang[2]), sin(ang[2]), 0.0);
+
+         pts[6] = C;
+
+         d = !(C-pts[5]);
+         pts[7] = C + d*dis[2];
+
+         //ang = uniform_random_float(0.0, 2.0*M_PI);
+         //dis = uniform_random_float(0.5, 2.5);
+         pts[8] = pts[7] + dis[3]*vector3(cos(ang[3]), sin(ang[3]), 0.0);
+
+         pts[9] = D;
+       }
    }
 }
 
@@ -94,6 +135,13 @@ void Bullet::render() {
    glColor4fv(pink);
 
 /*
+     glBegin(GL_LINE_STRIP);
+     for(int i=0; i<12; i++) {
+        glVertex3f(pts[i].x, pts[i].y, pts[i].z);
+     }
+     glEnd();
+*/
+ /*
  // TODO
   // try quadatric spline, a at player, c at enemy and b some radius away from player
      glBegin(GL_LINE_STRIP);
@@ -183,6 +231,13 @@ void Bullet::render() {
    if(squid) {
 
    glBegin(GL_QUADS);
+  for(int j=0; j<3; j++) {
+
+     A = pts[j*3+0];
+     B = pts[j*3+1];
+     C = pts[j*3+2];
+     D = pts[j*3+3];
+
      vector3 op(A);
      vector3 p(0.0, 0.0, 0.0);
 
@@ -197,7 +252,7 @@ void Bullet::render() {
         mm = dCD;
 
      int step = 30 + mm*120/400;
-
+ 
      for(int i=0; i<=step; i++) {
         p.cubic_interpolate(A, B, C, D, i/(float)step);
 
@@ -245,6 +300,7 @@ void Bullet::render() {
         op = p; 
         //glVertex3f(p.x, p.y, p.z);
      }
+}
    glEnd();
 }
    glEnable(GL_LIGHTING);
