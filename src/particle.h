@@ -10,6 +10,7 @@ struct Particle {
    sgVec4 color;
    float size;
    int energy;
+   int max_energy;
 };
 
 

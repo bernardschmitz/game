@@ -98,10 +98,16 @@ static void draw(void) {
    sgVec3 pos;
    player->getPosition(pos);
 
+   sgVec3 vel;
+   player->getVelocity(vel);
+
+
+   float mag = -15.0*sgLengthVec3(vel);
+
    if(follow)
-      glTranslatef(-pos[0], -pos[1], 0.0);
+      glTranslatef(-pos[0]-15*vel[0], -pos[1]-15*vel[1], mag);
    else
-      glTranslatef(-pos[0], -pos[1], -60.0);
+      glTranslatef(-pos[0], -pos[1], -100.0);
 
 
    GLint st = SDL_GetTicks();

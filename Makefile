@@ -1,5 +1,5 @@
 
-# $Id: Makefile,v 1.7 2003-07-23 02:57:00 bernard Exp $
+# $Id: Makefile,v 1.8 2003-07-23 07:41:25 bernard Exp $
 
 CC=g++
 
@@ -8,8 +8,8 @@ LD=$(CC)
 #-O9 -funroll-loops -ffast-math -fomit-frame-pointer -malign-double -mcpu=pentiumpro -finline-functions -march=pentiumpro -fno-exceptions
 CPPFLAGS = -g -ansi -pedantic -Wall -DHAVE_OPENGL -DWIN32 `sdl-config --cflags` 
 #CPPFLAGS = -O3 -ansi -pedantic -Wall -DHAVE_OPENGL -DWIN32 `sdl-config --cflags` 
-LFLAGS = `sdl-config --libs` -lopengl32 -lglu32 -lSDL_image -ljpeg -lpng -lz -lm
-#LFLAGS = -pg `sdl-config --libs` -lopengl32 -lglu32 -lSDL_image -ljpeg -lpng -lz -lm
+LFLAGS = -lSDL_image `sdl-config --libs` -lopengl32 -lglu32 -ljpeg -lpng -lz -lm
+#LFLAGS = -pg -lSDL_image `sdl-config --libs` -lopengl32 -lglu32 -ljpeg -lpng -lz -lm
 
 HEADERFILES =
 
@@ -48,6 +48,8 @@ src/main.o: ../cross-tools/i386-mingw32msvc/include/_mingw.h
 src/main.o: ../cross-tools/i386-mingw32msvc/include/stdlib.h
 src/main.o: ../cross-tools/i386-mingw32msvc/include/stddef.h
 src/main.o: ../cross-tools/lib/gcc-lib/i386-mingw32msvc/3.2.3/include/stddef.h
+src/main.o: ../cross-tools/i386-mingw32msvc/include/time.h
+src/main.o: ../cross-tools/i386-mingw32msvc/include/sys/types.h
 src/main.o: ../cross-tools/i386-mingw32msvc/include/stdio.h
 src/main.o: ../cross-tools/i386-mingw32msvc/include/stdarg.h
 src/main.o: ../cross-tools/lib/gcc-lib/i386-mingw32msvc/3.2.3/include/stdarg.h
@@ -98,7 +100,7 @@ src/main.o: ../cross-tools/i386-mingw32msvc/include/float.h
 src/main.o: ../cross-tools/lib/gcc-lib/i386-mingw32msvc/3.2.3/include/float.h
 src/main.o: ../cross-tools/i386-mingw32msvc/include/assert.h src/actor.h
 src/main.o: src/background.h src/player.h src/input.h src/settings.h
-src/main.o: src/enemy.h
+src/main.o: src/enemy.h src/particle.h src/random.h
 src/background.o: src/background.h src/main.h
 src/background.o: ../cross-tools/i386-mingw32msvc/include/math.h
 src/background.o: ../cross-tools/i386-mingw32msvc/include/_mingw.h
@@ -210,7 +212,7 @@ src/player.o: ../cross-tools/include/SDL/SDL_image.h src/sg/sg.h
 src/player.o: ../cross-tools/i386-mingw32msvc/include/float.h
 src/player.o: ../cross-tools/lib/gcc-lib/i386-mingw32msvc/3.2.3/include/float.h
 src/player.o: ../cross-tools/i386-mingw32msvc/include/assert.h src/actor.h
-src/player.o: src/input.h src/settings.h
+src/player.o: src/input.h src/settings.h src/enemy.h src/particle.h
 src/input.o: src/input.h src/main.h
 src/input.o: ../cross-tools/i386-mingw32msvc/include/math.h
 src/input.o: ../cross-tools/i386-mingw32msvc/include/_mingw.h
@@ -378,6 +380,62 @@ src/actor.o: ../cross-tools/include/SDL/SDL_image.h src/sg/sg.h
 src/actor.o: ../cross-tools/i386-mingw32msvc/include/float.h
 src/actor.o: ../cross-tools/lib/gcc-lib/i386-mingw32msvc/3.2.3/include/float.h
 src/actor.o: ../cross-tools/i386-mingw32msvc/include/assert.h
+src/particle.o: src/particle.h src/main.h
+src/particle.o: ../cross-tools/i386-mingw32msvc/include/math.h
+src/particle.o: ../cross-tools/i386-mingw32msvc/include/_mingw.h
+src/particle.o: ../cross-tools/i386-mingw32msvc/include/stdlib.h
+src/particle.o: ../cross-tools/i386-mingw32msvc/include/stddef.h
+src/particle.o: ../cross-tools/lib/gcc-lib/i386-mingw32msvc/3.2.3/include/stddef.h
+src/particle.o: ../cross-tools/i386-mingw32msvc/include/stdio.h
+src/particle.o: ../cross-tools/i386-mingw32msvc/include/stdarg.h
+src/particle.o: ../cross-tools/lib/gcc-lib/i386-mingw32msvc/3.2.3/include/stdarg.h
+src/particle.o: ../cross-tools/i386-mingw32msvc/include/string.h
+src/particle.o: ../cross-tools/include/SDL/SDL.h
+src/particle.o: ../cross-tools/include/SDL/SDL_main.h
+src/particle.o: ../cross-tools/include/SDL/SDL_types.h
+src/particle.o: ../cross-tools/include/SDL/begin_code.h
+src/particle.o: ../cross-tools/include/SDL/close_code.h
+src/particle.o: ../cross-tools/include/SDL/SDL_getenv.h
+src/particle.o: ../cross-tools/include/SDL/SDL_error.h
+src/particle.o: ../cross-tools/include/SDL/SDL_rwops.h
+src/particle.o: ../cross-tools/include/SDL/SDL_timer.h
+src/particle.o: ../cross-tools/include/SDL/SDL_audio.h
+src/particle.o: ../cross-tools/include/SDL/SDL_byteorder.h
+src/particle.o: ../cross-tools/include/SDL/SDL_cdrom.h
+src/particle.o: ../cross-tools/include/SDL/SDL_joystick.h
+src/particle.o: ../cross-tools/include/SDL/SDL_events.h
+src/particle.o: ../cross-tools/include/SDL/SDL_active.h
+src/particle.o: ../cross-tools/include/SDL/SDL_keyboard.h
+src/particle.o: ../cross-tools/include/SDL/SDL_keysym.h
+src/particle.o: ../cross-tools/include/SDL/SDL_mouse.h
+src/particle.o: ../cross-tools/include/SDL/SDL_video.h
+src/particle.o: ../cross-tools/include/SDL/SDL_mutex.h
+src/particle.o: ../cross-tools/include/SDL/SDL_quit.h
+src/particle.o: ../cross-tools/include/SDL/SDL_version.h
+src/particle.o: ../cross-tools/include/SDL/SDL_opengl.h
+src/particle.o: ../cross-tools/i386-mingw32msvc/include/windows.h
+src/particle.o: ../cross-tools/i386-mingw32msvc/include/windef.h
+src/particle.o: ../cross-tools/i386-mingw32msvc/include/winnt.h
+src/particle.o: ../cross-tools/i386-mingw32msvc/include/winerror.h
+src/particle.o: ../cross-tools/i386-mingw32msvc/include/basetsd.h
+src/particle.o: ../cross-tools/i386-mingw32msvc/include/pshpack4.h
+src/particle.o: ../cross-tools/i386-mingw32msvc/include/poppack.h
+src/particle.o: ../cross-tools/i386-mingw32msvc/include/wincon.h
+src/particle.o: ../cross-tools/i386-mingw32msvc/include/winbase.h
+src/particle.o: ../cross-tools/i386-mingw32msvc/include/wingdi.h
+src/particle.o: ../cross-tools/i386-mingw32msvc/include/winuser.h
+src/particle.o: ../cross-tools/i386-mingw32msvc/include/winnls.h
+src/particle.o: ../cross-tools/i386-mingw32msvc/include/winver.h
+src/particle.o: ../cross-tools/i386-mingw32msvc/include/winnetwk.h
+src/particle.o: ../cross-tools/i386-mingw32msvc/include/winreg.h
+src/particle.o: ../cross-tools/i386-mingw32msvc/include/winsvc.h
+src/particle.o: ../cross-tools/i386-mingw32msvc/include/GL/gl.h
+src/particle.o: ../cross-tools/i386-mingw32msvc/include/GL/glu.h
+src/particle.o: ../cross-tools/include/SDL/SDL_image.h src/sg/sg.h
+src/particle.o: ../cross-tools/i386-mingw32msvc/include/float.h
+src/particle.o: ../cross-tools/lib/gcc-lib/i386-mingw32msvc/3.2.3/include/float.h
+src/particle.o: ../cross-tools/i386-mingw32msvc/include/assert.h src/actor.h
+src/particle.o: src/random.h
 src/sg/sg.o: src/sg/sg.h ../cross-tools/i386-mingw32msvc/include/math.h
 src/sg/sg.o: ../cross-tools/i386-mingw32msvc/include/_mingw.h
 src/sg/sg.o: ../cross-tools/i386-mingw32msvc/include/float.h

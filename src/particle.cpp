@@ -15,11 +15,9 @@ ParticleSystem::ParticleSystem() : Actor() {
    GLuint gluerr;
    GLubyte tex[128][128][4];
    int x,y,t;
-   int hole_size = 3300; // ~ == 57.45 ^ 2.
+   int hole_size = 63*63; //3300; // ~ == 57.45 ^ 2.
 
    // Generate a texture index, then bind it for future operations.
-   glGenTextures(1, &texture_id);
-   glBindTexture(GL_TEXTURE_2D, texture_id);
    // Iterate across the texture array.
 
    for(y=0;y<128;y++) {
@@ -49,17 +47,21 @@ ParticleSystem::ParticleSystem() : Actor() {
             tex[x][y][3]=0;   // Outside of the dot, it's transparent.
          }
 
+
+ 
       }
    }
 
+
+   glGenTextures(1, &texture_id);
+   glBindTexture(GL_TEXTURE_2D, texture_id);
+
    // The GLU library helps us build MipMaps for our texture.
 
-   //if ((gluerr=gluBuild2DMipmaps(GL_TEXTURE_2D, 1, 128, 128, GL_ALPHA, GL_UNSIGNED_BYTE, (void *)tex))) {
    if ((gluerr=gluBuild2DMipmaps(GL_TEXTURE_2D, 4, 128, 128, GL_RGBA, GL_UNSIGNED_BYTE, (void *)tex))) {
 
       fprintf(stderr,"GLULib%s\n",gluErrorString(gluerr));
    }
-
 
    // Some pretty standard settings for wrapping and filtering.
    glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
@@ -71,6 +73,7 @@ ParticleSystem::ParticleSystem() : Actor() {
    glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 
    glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+   //glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
    glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 
    // We start with GL_MODULATE mode.
@@ -93,19 +96,32 @@ void ParticleSystem::init() {
       sgCopyVec3(p[i].oldPos, p[i].pos);
       p[i].vel[0] = random_float(-1.0, 1.0); 
       p[i].vel[1] = random_float(-1.0, 1.0); 
-      p[i].vel[2] = 0.0;
+      p[i].vel[2] = random_float(-1.0, 1.0); 
+      //p[i].vel[2] = 0.0;
       sgNormalizeVec3(p[i].vel);
-      sgScaleVec3(p[i].vel, random_float(0.01, 0.05));
+      sgScaleVec3(p[i].vel, random_float(0.01, 0.15));
 
       p[i].color[0] = random_float(0.5, 1.0); 
       p[i].color[1] = random_float(0.5, 1.0); 
       p[i].color[2] = random_float(0.5, 1.0); 
       p[i].color[3] = 1.0;
 
-      p[i].size = random_float(0.02, 0.15);
-      p[i].energy = random_int(50, 750);
+      p[i].size = random_float(0.02, 0.2);
+      p[i].max_energy = p[i].energy = random_int(25, 50);
    }
 
+   for(int i=0; i<250; i++) {
+      p[i].size = random_float(0.1, 0.3);
+      sgScaleVec3(p[i].vel, random_float(1.5, 2.5));
+      p[i].max_energy = p[i].energy = random_int(45, 75);
+   }
+
+
+   sgVec3 u;
+   sgSetVec3(u, 0.0, 0.0, 0.0);
+
+   for(int i=0; i<n; i++)
+      sgAddVec3(p[i].vel, u);
 
 }
 
@@ -124,7 +140,7 @@ void ParticleSystem::action() {
          sgCopyVec3(p[i].oldPos, p[i].pos);
 
          // acceleration
-        
+/*        
          sgVec3 k;
          sgSetVec3(k, 5.0, 5.0, -10.0); 
          sgVec3 dir;
@@ -133,9 +149,9 @@ void ParticleSystem::action() {
          sgNormalizeVec3(dir);
          sgAddScaledVec3(p[i].vel, dir, 0.01);
 
-
+*/
          sgAddVec3(p[i].pos, p[i].vel);
-         p[i].color[3] = p[i].energy*1.0/150.0;
+         p[i].color[3] = p[i].energy*1.0/p[i].max_energy;
 
       }
       else {
@@ -189,6 +205,7 @@ void ParticleSystem::render() {
    glBegin(GL_QUADS);
    for(int i=0; i<n; i++) {
       if(p[i].energy > 0) {
+
          glColor4fv(p[i].color);
 
          sgVec3 dir;
