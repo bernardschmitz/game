@@ -11,7 +11,7 @@
 
 
 
-Bullet::Bullet(vector3 p, vector3 v, vector3 f, float l) : Actor(ACT_BULLET, p, v) { 
+Bullet::Bullet(vector3 p, vector3 v, vector3 f, float l) : Actor(ACT_BULLET, p, v, 10.0, 60.0) { 
 
    delay = l;
 
@@ -50,11 +50,12 @@ void Bullet::action(float dt) {
    //position += velocity;
    //force = ff;
 
+/*
    std::cout << "position " << position
              << " velocity " << velocity
              << " force " << force
              << " mass " << mass << std::endl;
-
+*/
    if(delay < 0.0)
       flags |= ACT_REMOVE;
 
