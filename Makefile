@@ -1,5 +1,5 @@
 
-# $Id: Makefile,v 1.25 2003-08-24 23:59:13 bernard Exp $
+# $Id: Makefile,v 1.26 2003-08-26 23:21:03 bernard Exp $
 
 
 ifdef OPTIMIZE
@@ -206,15 +206,16 @@ src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_bvector.h
 src/main.o: ../cross-tools/include/c++/3.2.3/ext/hash_map
 src/main.o: ../cross-tools/include/c++/3.2.3/ext/stl_hashtable.h
 src/main.o: ../cross-tools/include/c++/3.2.3/ext/stl_hash_fun.h
+src/main.o: ../cross-tools/include/c++/3.2.3/ext/hash_set src/background.h
+src/main.o: src/player.h src/input.h src/settings.h src/enemy.h src/bullet.h
+src/main.o: src/particle.h src/random.h src/interpolate.h src/image.h
+src/main.o: src/texture.h src/text.h src/console.h
+src/main.o: ../cross-tools/include/c++/3.2.3/deque
+src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_deque.h
 src/main.o: ../cross-tools/include/c++/3.2.3/map
 src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_tree.h
 src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_map.h
 src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_multimap.h
-src/main.o: src/background.h src/player.h src/input.h src/settings.h
-src/main.o: src/enemy.h src/bullet.h src/particle.h src/random.h
-src/main.o: src/interpolate.h src/image.h src/texture.h src/text.h
-src/main.o: src/console.h ../cross-tools/include/c++/3.2.3/deque
-src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_deque.h
 src/background.o: ../cross-tools/i386-mingw32msvc/include/assert.h
 src/background.o: ../cross-tools/i386-mingw32msvc/include/_mingw.h
 src/background.o: src/background.h src/main.h
@@ -355,10 +356,7 @@ src/background.o: ../cross-tools/include/c++/3.2.3/bits/stl_bvector.h
 src/background.o: ../cross-tools/include/c++/3.2.3/ext/hash_map
 src/background.o: ../cross-tools/include/c++/3.2.3/ext/stl_hashtable.h
 src/background.o: ../cross-tools/include/c++/3.2.3/ext/stl_hash_fun.h
-src/background.o: ../cross-tools/include/c++/3.2.3/map
-src/background.o: ../cross-tools/include/c++/3.2.3/bits/stl_tree.h
-src/background.o: ../cross-tools/include/c++/3.2.3/bits/stl_map.h
-src/background.o: ../cross-tools/include/c++/3.2.3/bits/stl_multimap.h
+src/background.o: ../cross-tools/include/c++/3.2.3/ext/hash_set
 src/background.o: src/settings.h src/player.h src/texture.h src/image.h
 src/player.o: src/player.h src/main.h
 src/player.o: ../cross-tools/i386-mingw32msvc/include/math.h
@@ -500,12 +498,9 @@ src/player.o: ../cross-tools/include/c++/3.2.3/bits/stl_bvector.h
 src/player.o: ../cross-tools/include/c++/3.2.3/ext/hash_map
 src/player.o: ../cross-tools/include/c++/3.2.3/ext/stl_hashtable.h
 src/player.o: ../cross-tools/include/c++/3.2.3/ext/stl_hash_fun.h
-src/player.o: ../cross-tools/include/c++/3.2.3/map
-src/player.o: ../cross-tools/include/c++/3.2.3/bits/stl_tree.h
-src/player.o: ../cross-tools/include/c++/3.2.3/bits/stl_map.h
-src/player.o: ../cross-tools/include/c++/3.2.3/bits/stl_multimap.h
-src/player.o: src/input.h src/settings.h src/enemy.h src/particle.h
-src/player.o: src/random.h src/bullet.h src/texture.h src/image.h src/text.h
+src/player.o: ../cross-tools/include/c++/3.2.3/ext/hash_set src/input.h
+src/player.o: src/settings.h src/enemy.h src/particle.h src/random.h
+src/player.o: src/bullet.h src/texture.h src/image.h src/text.h
 src/input.o: ../cross-tools/include/SDL/SDL.h
 src/input.o: ../cross-tools/include/SDL/SDL_main.h
 src/input.o: ../cross-tools/include/SDL/SDL_types.h
@@ -726,11 +721,8 @@ src/enemy.o: ../cross-tools/include/c++/3.2.3/bits/stl_bvector.h
 src/enemy.o: ../cross-tools/include/c++/3.2.3/ext/hash_map
 src/enemy.o: ../cross-tools/include/c++/3.2.3/ext/stl_hashtable.h
 src/enemy.o: ../cross-tools/include/c++/3.2.3/ext/stl_hash_fun.h
-src/enemy.o: ../cross-tools/include/c++/3.2.3/map
-src/enemy.o: ../cross-tools/include/c++/3.2.3/bits/stl_tree.h
-src/enemy.o: ../cross-tools/include/c++/3.2.3/bits/stl_map.h
-src/enemy.o: ../cross-tools/include/c++/3.2.3/bits/stl_multimap.h
-src/enemy.o: src/player.h src/random.h
+src/enemy.o: ../cross-tools/include/c++/3.2.3/ext/hash_set src/player.h
+src/enemy.o: src/random.h
 src/actor.o: ../cross-tools/include/c++/3.2.3/iostream
 src/actor.o: ../cross-tools/include/c++/3.2.3/i386-mingw32msvc/bits/c++config.h
 src/actor.o: ../cross-tools/include/c++/3.2.3/i386-mingw32msvc/bits/os_defines.h
@@ -830,10 +822,7 @@ src/actor.o: ../cross-tools/include/c++/3.2.3/bits/stl_bvector.h
 src/actor.o: ../cross-tools/include/c++/3.2.3/ext/hash_map
 src/actor.o: ../cross-tools/include/c++/3.2.3/ext/stl_hashtable.h
 src/actor.o: ../cross-tools/include/c++/3.2.3/ext/stl_hash_fun.h
-src/actor.o: ../cross-tools/include/c++/3.2.3/map
-src/actor.o: ../cross-tools/include/c++/3.2.3/bits/stl_tree.h
-src/actor.o: ../cross-tools/include/c++/3.2.3/bits/stl_map.h
-src/actor.o: ../cross-tools/include/c++/3.2.3/bits/stl_multimap.h
+src/actor.o: ../cross-tools/include/c++/3.2.3/ext/hash_set
 src/particle.o: src/particle.h src/main.h
 src/particle.o: ../cross-tools/i386-mingw32msvc/include/math.h
 src/particle.o: ../cross-tools/i386-mingw32msvc/include/_mingw.h
@@ -974,11 +963,7 @@ src/particle.o: ../cross-tools/include/c++/3.2.3/bits/stl_bvector.h
 src/particle.o: ../cross-tools/include/c++/3.2.3/ext/hash_map
 src/particle.o: ../cross-tools/include/c++/3.2.3/ext/stl_hashtable.h
 src/particle.o: ../cross-tools/include/c++/3.2.3/ext/stl_hash_fun.h
-src/particle.o: ../cross-tools/include/c++/3.2.3/map
-src/particle.o: ../cross-tools/include/c++/3.2.3/bits/stl_tree.h
-src/particle.o: ../cross-tools/include/c++/3.2.3/bits/stl_map.h
-src/particle.o: ../cross-tools/include/c++/3.2.3/bits/stl_multimap.h
-src/particle.o: src/random.h
+src/particle.o: ../cross-tools/include/c++/3.2.3/ext/hash_set src/random.h
 src/random.o: src/random.h ../cross-tools/i386-mingw32msvc/include/stdlib.h
 src/random.o: ../cross-tools/i386-mingw32msvc/include/_mingw.h
 src/random.o: ../cross-tools/i386-mingw32msvc/include/stddef.h
@@ -1124,10 +1109,7 @@ src/interpolate.o: ../cross-tools/include/c++/3.2.3/bits/stl_bvector.h
 src/interpolate.o: ../cross-tools/include/c++/3.2.3/ext/hash_map
 src/interpolate.o: ../cross-tools/include/c++/3.2.3/ext/stl_hashtable.h
 src/interpolate.o: ../cross-tools/include/c++/3.2.3/ext/stl_hash_fun.h
-src/interpolate.o: ../cross-tools/include/c++/3.2.3/map
-src/interpolate.o: ../cross-tools/include/c++/3.2.3/bits/stl_tree.h
-src/interpolate.o: ../cross-tools/include/c++/3.2.3/bits/stl_map.h
-src/interpolate.o: ../cross-tools/include/c++/3.2.3/bits/stl_multimap.h
+src/interpolate.o: ../cross-tools/include/c++/3.2.3/ext/hash_set
 src/bullet.o: src/bullet.h src/main.h
 src/bullet.o: ../cross-tools/i386-mingw32msvc/include/math.h
 src/bullet.o: ../cross-tools/i386-mingw32msvc/include/_mingw.h
@@ -1268,11 +1250,8 @@ src/bullet.o: ../cross-tools/include/c++/3.2.3/bits/stl_bvector.h
 src/bullet.o: ../cross-tools/include/c++/3.2.3/ext/hash_map
 src/bullet.o: ../cross-tools/include/c++/3.2.3/ext/stl_hashtable.h
 src/bullet.o: ../cross-tools/include/c++/3.2.3/ext/stl_hash_fun.h
-src/bullet.o: ../cross-tools/include/c++/3.2.3/map
-src/bullet.o: ../cross-tools/include/c++/3.2.3/bits/stl_tree.h
-src/bullet.o: ../cross-tools/include/c++/3.2.3/bits/stl_map.h
-src/bullet.o: ../cross-tools/include/c++/3.2.3/bits/stl_multimap.h
-src/bullet.o: src/player.h src/random.h src/texture.h src/image.h
+src/bullet.o: ../cross-tools/include/c++/3.2.3/ext/hash_set src/player.h
+src/bullet.o: src/random.h src/texture.h src/image.h
 src/texture.o: src/texture.h ../cross-tools/include/c++/3.2.3/vector
 src/texture.o: ../cross-tools/include/c++/3.2.3/bits/functexcept.h
 src/texture.o: ../cross-tools/include/c++/3.2.3/exception_defines.h
@@ -1412,12 +1391,8 @@ src/texture.o: ../cross-tools/include/c++/3.2.3/bits/stl_list.h
 src/texture.o: ../cross-tools/include/c++/3.2.3/ext/hash_map
 src/texture.o: ../cross-tools/include/c++/3.2.3/ext/stl_hashtable.h
 src/texture.o: ../cross-tools/include/c++/3.2.3/ext/stl_hash_fun.h
-src/texture.o: ../cross-tools/include/c++/3.2.3/map
-src/texture.o: ../cross-tools/include/c++/3.2.3/bits/stl_tree.h
-src/texture.o: ../cross-tools/include/c++/3.2.3/bits/stl_map.h
-src/texture.o: ../cross-tools/include/c++/3.2.3/bits/stl_multimap.h
-src/texture.o: src/image.h src/console.h
-src/texture.o: ../cross-tools/include/c++/3.2.3/deque
+src/texture.o: ../cross-tools/include/c++/3.2.3/ext/hash_set src/image.h
+src/texture.o: src/console.h ../cross-tools/include/c++/3.2.3/deque
 src/texture.o: ../cross-tools/include/c++/3.2.3/bits/stl_deque.h
 src/image.o: ../cross-tools/i386-mingw32msvc/include/string.h
 src/image.o: ../cross-tools/i386-mingw32msvc/include/_mingw.h
@@ -1590,11 +1565,8 @@ src/text.o: ../cross-tools/include/c++/3.2.3/bits/stl_bvector.h
 src/text.o: ../cross-tools/include/c++/3.2.3/ext/hash_map
 src/text.o: ../cross-tools/include/c++/3.2.3/ext/stl_hashtable.h
 src/text.o: ../cross-tools/include/c++/3.2.3/ext/stl_hash_fun.h
-src/text.o: ../cross-tools/include/c++/3.2.3/map
-src/text.o: ../cross-tools/include/c++/3.2.3/bits/stl_tree.h
-src/text.o: ../cross-tools/include/c++/3.2.3/bits/stl_map.h
-src/text.o: ../cross-tools/include/c++/3.2.3/bits/stl_multimap.h
-src/text.o: src/texture.h src/image.h
+src/text.o: ../cross-tools/include/c++/3.2.3/ext/hash_set src/texture.h
+src/text.o: src/image.h
 src/console.o: ../cross-tools/i386-mingw32msvc/include/ctype.h
 src/console.o: ../cross-tools/i386-mingw32msvc/include/_mingw.h
 src/console.o: ../cross-tools/i386-mingw32msvc/include/stddef.h
@@ -1737,10 +1709,7 @@ src/console.o: ../cross-tools/include/c++/3.2.3/bits/stl_bvector.h
 src/console.o: ../cross-tools/include/c++/3.2.3/ext/hash_map
 src/console.o: ../cross-tools/include/c++/3.2.3/ext/stl_hashtable.h
 src/console.o: ../cross-tools/include/c++/3.2.3/ext/stl_hash_fun.h
-src/console.o: ../cross-tools/include/c++/3.2.3/map
-src/console.o: ../cross-tools/include/c++/3.2.3/bits/stl_tree.h
-src/console.o: ../cross-tools/include/c++/3.2.3/bits/stl_map.h
-src/console.o: ../cross-tools/include/c++/3.2.3/bits/stl_multimap.h
+src/console.o: ../cross-tools/include/c++/3.2.3/ext/hash_set
 src/vector.o: ../cross-tools/i386-mingw32msvc/include/math.h
 src/vector.o: ../cross-tools/i386-mingw32msvc/include/_mingw.h src/vector.h
 src/vector.o: ../cross-tools/include/c++/3.2.3/iostream

@@ -650,6 +650,10 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
 
    float avg_render = 0.0;
 
+   idle(10);
+   draw(10);
+   SDL_GL_SwapBuffers();
+
    while ( ! done ) {
 
       int now = SDL_GetTicks();
@@ -666,7 +670,17 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
 
       SDL_Event event;
 
-      idle(delta);
+      // catch up if too slow
+      int i = 10;
+      while(timer > 0 && --i > 0) {
+
+         idle(delta);
+
+         // simulate slow computer
+         //SDL_Delay(15);
+
+         timer--;
+      }
 
       done = input->quit;
 
@@ -675,33 +689,38 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
       draw(delta);
 
       char fs[1000];
-      sprintf(fs, "r %6.2f ms %6.2f fps %3d", avg_render, avg_delta, (int)fps);
+      sprintf(fs, "render %6.2f logic %6.2f fps %3d", avg_render, avg_delta, (int)fps);
       glColor4f(1.0, 1.0, 1.0, 1.0);
       TextManager::getInstance()->draw(800-strlen(fs)*16, 600-16, fs);
 
       SDL_GL_SwapBuffers();
 
-      int render_time = SDL_GetTicks() - now_d;
+      int end = SDL_GetTicks(); // - now_d;
 
       frames++;
 
-      avg_delta = (avg_delta*5 + delta) / 6.0;
+      avg_delta = (avg_delta*5 + now_d-now) / 6.0;
 
       fps = (1000.0/delta + fps*5)/6;
 
-      avg_render = (avg_render*5 + render_time) / 6.0;
+      avg_render = (avg_render*5 + end-now_d) / 6.0;
 
       static int out = 0;
 
-      if(now - out >= 4000) {
+      if(now - out >= 5000) {
          out = now;
          printf("r %f ms %f fps %f\n", avg_render, avg_delta, fps);
       }
 
+
+      // pause if too fast
+      while(timer <= 0)
+         ;
+
 /*
-   int ww = 1000/50 - (SDL_GetTicks() - now);
-   if(ww > 0)
-      SDL_Delay(ww);
+      int ww = 1000/100 - (SDL_GetTicks() - now);
+      if(ww > 0)
+         SDL_Delay(ww);
 */
    }
 

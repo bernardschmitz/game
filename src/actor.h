@@ -1,5 +1,5 @@
 
-// $Id: actor.h,v 1.22 2003-08-26 22:17:28 bernard Exp $
+// $Id: actor.h,v 1.23 2003-08-26 23:21:03 bernard Exp $
 
 #ifndef __ACTOR_H__
 #define __ACTOR_H__
@@ -51,9 +51,6 @@ class Actor {
 
       vector3 position;
       vector3 prev_position;
-      vector3 next_position;
-
-      float prev_time, next_time;
 
       vector3 force;
       vector3 velocity;
@@ -228,7 +225,7 @@ class ActorManager {
       void add_all_constraints(Actor *p);
       void remove_all_constraints(Actor *p);
 
-      void move_actors(float dt);
+      void move_actors();
 
       bool constrain_collision(Actor *p1, Actor *p2);
       void relax(float dt);

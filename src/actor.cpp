@@ -1,5 +1,5 @@
 
-// $Id: actor.cpp,v 1.22 2003-08-26 22:17:28 bernard Exp $
+// $Id: actor.cpp,v 1.23 2003-08-26 23:21:03 bernard Exp $
 
 #include <iostream>
 #include <sstream>
@@ -37,9 +37,6 @@ Actor::Actor(int t, std::string s, const vector3& p, const vector3& v, float m, 
 
    prev_position = position - velocity;
 
-   // TODO sure about this?
-   next_position = position;
-
    force.set(0.0f,0.0f,0.0f);
 
    speed = velocity.length();
@@ -76,7 +73,7 @@ Actor::Actor(int t, std::string s, const vector3& p, const vector3& v, float m, 
 
 
 
-void ActorManager::move_actors(float dt) {
+void ActorManager::move_actors() {
 
    ActorList::iterator k = master_actor_list.begin();
 
@@ -87,9 +84,9 @@ void ActorManager::move_actors(float dt) {
 
       vector3 acceleration = (*k)->force * (*k)->inv_mass;
 
-      vector3 new_pos = 2.0f * (*k)->next_position - (*k)->prev_position + acceleration * time_step * time_step;
-      (*k)->prev_position = (*k)->next_position;
-      (*k)->next_position = new_pos;
+      vector3 new_pos = 2.0f * (*k)->position - (*k)->prev_position + acceleration * time_step * time_step;
+      (*k)->prev_position = (*k)->position;
+      (*k)->position = new_pos;
 
       //(*k)->position = (*k)->prev_position;
 
@@ -167,7 +164,7 @@ void ActorManager::insert_new_actors() {
 // sets the ACT_COLLISON flag and the various hit_* variables.
 bool Actor::collide(Actor *p) {
 
-   const vector3 delta = p->next_position - next_position;
+   const vector3 delta = p->position - position;
    const float rest_length = p->radius + radius;
 
    const float delta_squared = delta*delta;
@@ -184,8 +181,8 @@ bool Actor::collide(Actor *p) {
    if(diff > 0.0f)
       return false;
 
-   next_position += diff * inv_mass * delta;
-   p->next_position -= diff * p->inv_mass * delta;
+   position += diff * inv_mass * delta;
+   p->position -= diff * p->inv_mass * delta;
 
    flags |= ACT_COLLISION;
    hit_actor = p;
@@ -467,101 +464,56 @@ void CollisionGrid::update_position(Actor *p) {
 
 void ActorManager::update(float dt) {
 
-   static float now = 0.0;
-   static float last = 0.0;
-   static int physics = 0;
-   static float rate = time_step; //1.0/60.0;
+   insert_new_actors();
 
-   now += dt;
-
-   float delta = now - last;
-
-//   printf("now %f delta %f\n", now, delta);
-
-   while(delta >= rate) {
-
-      last = now;
-
-      delta -= rate;
-
-      // time to update
-   
-      insert_new_actors();
-   
-      // now call user function
-      ActorList::iterator k = master_actor_list.begin();
-      while(k != master_actor_list.end()) {
-         (*k)->action(rate);
-         ++k;
-      }
-      // remove old actors
-      remove_dead_actors();
-   
-      k = master_actor_list.begin();
-      while(k != master_actor_list.end()) {
-         // reset collision flags
-         (*k)->flags &= ~ACT_COLLISION;
-         (*k)->hit_actor = 0;
-         // update position
-         //(*k)->update(dt);
-         // update actors position in the collision grid
-         if((*k)->collision_flags != 0) 
-            grid.update_position(*k);
-         ++k;
-      }
-   
-      // update position
-      move_actors(rate);
-   
-      // hit actors
-      collide(1);
-   
-      k = master_actor_list.begin();
-      while(k != master_actor_list.end()) {
-   
-         // calculate velocity
-         (*k)->velocity = (*k)->next_position - (*k)->prev_position;
-   
-         // constrain velocity
-         if((*k)->velocity.lengthSquared() > (*k)->max_speed*(*k)->max_speed)
-            (*k)->prev_position = (*k)->next_position - !(*k)->velocity * (*k)->max_speed;
-//            (*k)->velocity = (!(*k)->velocity) * (*k)->max_speed;
-   
-//         if((*k)->velocity.lengthSquared() < tiny)
-//            (*k)->velocity.set(0.0f, 0.0f, 0.0f);
-   
-         // calc speed
-         (*k)->speed = (*k)->velocity.length();
-
-         if((*k)->speed > 0.0) {
-            (*k)->forward_axis = !(*k)->velocity;
-            (*k)->right_axis = (*k)->forward_axis % (*k)->up_axis;
-            (*k)->up_axis = (*k)->forward_axis % (*k)->right_axis;
-         }
-   
-         ++k;
-      }
-
-      physics++;
-   }
-
-
-   // interpolate positions if not ready to update
-   float t = delta / rate;
-//   printf("lerp by %f\n", t);
+   // now call user function
    ActorList::iterator k = master_actor_list.begin();
    while(k != master_actor_list.end()) {
-      (*k)->position = (*k)->prev_position + (*k)->velocity * t;
+      (*k)->action(time_step);
+      ++k;
+   }
+   // remove old actors
+   remove_dead_actors();
+
+   k = master_actor_list.begin();
+   while(k != master_actor_list.end()) {
+      // reset collision flags
+      (*k)->flags &= ~ACT_COLLISION;
+      (*k)->hit_actor = 0;
+      // update position
+      //(*k)->update(dt);
+      // update actors position in the collision grid
+      if((*k)->collision_flags != 0) 
+         grid.update_position(*k);
       ++k;
    }
 
+   // update position
+   move_actors();
 
-   static float out = 0.0;
+   // hit actors
+   collide(1);
 
-   if(now - out >= 5) {
-      printf("physics %f\n", 1.0/(physics/5000.0));
-      physics = 0;
-      out = now;
+   k = master_actor_list.begin();
+   while(k != master_actor_list.end()) {
+
+      // calculate velocity
+      (*k)->velocity = (*k)->position - (*k)->prev_position;
+
+      // constrain velocity
+      if((*k)->velocity.lengthSquared() > (*k)->max_speed*(*k)->max_speed)
+         (*k)->prev_position = (*k)->position - !(*k)->velocity * (*k)->max_speed;
+
+      // calc speed
+      (*k)->speed = (*k)->velocity.length();
+
+      if((*k)->speed > 0.0) {
+         (*k)->forward_axis = !(*k)->velocity;
+         (*k)->right_axis = (*k)->forward_axis % (*k)->up_axis;
+         (*k)->up_axis = (*k)->forward_axis % (*k)->right_axis;
+      }
+
+      ++k;
    }
 
 }
