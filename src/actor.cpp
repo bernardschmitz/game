@@ -1,5 +1,5 @@
 
-// $Id: actor.cpp,v 1.18 2003-08-25 05:52:11 bernard Exp $
+// $Id: actor.cpp,v 1.19 2003-08-25 18:19:25 bernard Exp $
 
 #include <iostream>
 #include <sstream>
@@ -37,7 +37,9 @@ Actor::Actor(int t, std::string s, const vector3& p, const vector3& v, float m, 
 
    prev_position = position - velocity;
 
-//   acceleration.set(0.0f,0.0f,0.0f);
+   // TODO sure about this?
+   next_position = position;
+
    force.set(0.0f,0.0f,0.0f);
 
    speed = velocity.length();
@@ -68,6 +70,8 @@ Actor::Actor(int t, std::string s, const vector3& p, const vector3& v, float m, 
 
    delay = 0.0f;
    state = flags = collision_flags = 0;
+
+   
 }
 
 
@@ -84,7 +88,6 @@ void Actor::update(float dt) {
       force = (!force) * max_force;
 
    vector3 acceleration = force * inv_mass;
-
 
    vector3 new_position = 2.0f * position - prev_position + acceleration * dt * dt;
    prev_position = position;

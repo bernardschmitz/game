@@ -239,9 +239,18 @@ static int luaB_print (lua_State *L) {
   return 0;
 }
 
+volatile int timer;
+
+Uint32 timer_inc(Uint32 interval, void *param) {
+
+   timer++;
+   return 10;
+}
 
 
 
+
+static bool do_frame = true;
 
 
 static void draw(void) {
@@ -255,19 +264,25 @@ static void draw(void) {
 
    //printf("now %d last %d ", now, last);
 
-   if(now - last > 200)
-      last = now - 200;
+   if(now - last > 100)
+      last = now - 100;
    else
       if(now - last < 1)
          last = now - 1;
 
-
-
    delta = now - last;
 
-   avg_delta = (avg_delta*10 + delta) / 11.0;
-
    last = now;
+
+   avg_delta = (avg_delta*50 + delta) / 51.0;
+
+
+//   if(do_frame == false)
+//      return;
+
+   do_frame = false;
+
+
 
    //printf("delta %d %f\n", delta, delta/1000.0);
 
@@ -318,8 +333,8 @@ static void draw(void) {
    //bg->setCenter(vector3(pos.x, pos.y, -40.0));
 
 
-   char fs[100];
-   sprintf(fs, "ms %7.3f fps %3d", avg_delta, (int)fps);
+   char fs[1000];
+   sprintf(fs, "t %6d ms %7.3f fps %3d", timer, avg_delta, (int)fps);
    glColor4f(1.0, 1.0, 1.0, 1.0);
    TextManager::getInstance()->draw(800-strlen(fs)*16, 600-16, fs);
 
@@ -337,15 +352,15 @@ static void draw(void) {
       char fs[100];
       sprintf(fs, "ms %f fps %f", avg_delta, fps);
       out = now;
-      glColor4f(1.0, 1.0, 1.0, 1.0);
+      //glColor4f(1.0, 1.0, 1.0, 1.0);
       printf("%s\n", fs);
       //console->addString(fs);
    }
 
    // pause a little...
 /*
-   int ww = 1000/60 - (SDL_GetTicks() - now);
-   if(ww > 1)
+   int ww = 1000/100 - (SDL_GetTicks() - now);
+   if(ww > 0)
       SDL_Delay(ww);
 */
 
@@ -357,7 +372,7 @@ idle(void)
    angle += 1.0;
 
    input->process();
-
+/*
    static float tt = 1.0/100.0;
 
    tt -= delta/1000.0;
@@ -365,7 +380,10 @@ idle(void)
    if(tt <= 0.0) {
       tt = 1.0/100.0;
       actor_manager->update(1.0/100.0);
+      do_frame = true;
    }
+*/
+   actor_manager->update(delta/1000.0);
 
    console->process(delta/1000.0);
 }
@@ -657,6 +675,8 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
 
   SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER);
 
+  SDL_TimerID tid = SDL_AddTimer(10, timer_inc, 0);
+
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 //  SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 1);
 
@@ -736,6 +756,10 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
 
     draw();
   }
+
+   SDL_RemoveTimer(tid);
+
+
   SDL_Quit();
 
 

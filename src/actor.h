@@ -1,5 +1,5 @@
 
-// $Id: actor.h,v 1.18 2003-08-25 05:52:11 bernard Exp $
+// $Id: actor.h,v 1.19 2003-08-25 18:19:25 bernard Exp $
 
 #ifndef __ACTOR_H__
 #define __ACTOR_H__
@@ -49,8 +49,11 @@ class Actor {
 
       vector3 position;
       vector3 prev_position;
-      vector3 force;
+      vector3 next_position;
 
+      float prev_time, next_time;
+
+      vector3 force;
       vector3 velocity;
 
       vector3 forward_axis;
