@@ -888,8 +888,21 @@ void Player::render() {
    }
 
 
-
-
+/*
+   float ss = 10;
+   float xx = ss*100;
+   glColor4f(0, 1, 0, 1.0);
+   glBegin(GL_LINES);
+   for(float y=-xx; y<=xx; y+=ss) {
+      glVertex3f(-xx, y, -10.0);
+      glVertex3f(xx, y, -10.0);
+   }
+   for(float x=-xx; x<=xx; x+=ss) {
+      glVertex3f(x, xx, -10.0);
+      glVertex3f(x, -xx, -10.0);
+   }
+   glEnd();
+*/
 
 
 

@@ -1033,8 +1033,8 @@ void Enemy::render() {
    else {
       glColor4f(1.0*n, 1.0*n, 0.0, 1.0);
    }
-
 */
+
    glPushMatrix();
    glTranslatef(position.x, position.y, position.z);
 /*
@@ -1055,6 +1055,7 @@ void Enemy::render() {
     }
    glEnd();
 */
+
   glPopMatrix();
 
    glDisable(GL_BLEND);

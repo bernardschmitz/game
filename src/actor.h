@@ -1,5 +1,5 @@
 
-// $Id: actor.h,v 1.21 2003-08-26 05:41:23 bernard Exp $
+// $Id: actor.h,v 1.22 2003-08-26 22:17:28 bernard Exp $
 
 #ifndef __ACTOR_H__
 #define __ACTOR_H__
@@ -9,7 +9,7 @@
 #include <vector>
 #include <string>
 #include <ext/hash_map>
-#include <map>
+#include <ext/hash_set>
 
 #include "vector.h"
 
@@ -37,8 +37,10 @@ typedef std::vector<Constraint*> ConstraintList;
 
 // TODO change to list
 typedef std::vector<Actor*> ActorList;
+//typedef __gnu_cxx::hash_set<Actor*> ActorList;
 
 typedef std::vector<Grid*> GridList;
+//typedef __gnu_cxx::hash_set<Grid*> GridList;
 
 typedef __gnu_cxx::hash_map<int, Grid*> GridMap;
 
@@ -155,11 +157,11 @@ private:
    int w, h;
    GridMap grid_map;
 public:
-   CollisionGrid() { w = 5; h = 5; }
-   ~CollisionGrid() { }
+   CollisionGrid();
+   ~CollisionGrid();
 
    void update_position(Actor *p);
-   void insert(float x, float y, Actor *p);
+   Grid *insert(float x, float y, Actor *p);
 
    friend class ActorManager;
 };
@@ -194,6 +196,8 @@ class ActorManager {
 
       CollisionGrid grid;
 
+      float time_step;
+
       void insert_new_actors();
 
       static ActorManager *instance;
@@ -202,7 +206,7 @@ class ActorManager {
 
       void collision_test(ActorList& al);
 
-      ActorManager() { }
+      ActorManager(float ts) { time_step = ts; }
       // TODO
       ~ActorManager() { std::cout << "ActorManager destructor probably should destroy actor_list elements!\n"; }
 
@@ -220,8 +224,6 @@ class ActorManager {
 
 
       ActorList get_actor_type_list(int t); 
-
-      void check_collision(float dt);
 
       void add_all_constraints(Actor *p);
       void remove_all_constraints(Actor *p);

@@ -662,7 +662,6 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
 
       last = now;
 
-
       SDL_Event event;
 
       idle(delta);
@@ -688,7 +687,7 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
 
       if(now - out >= 4000) {
          out = now;
-         printf("ms %f fps %f\n", avg_delta, fps);
+         printf("t %d ms %f fps %f\n", timer, avg_delta, fps);
       }
 
 /*

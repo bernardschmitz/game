@@ -21,11 +21,11 @@ Bullet::Bullet(vector3 p, vector3 v, vector3 f, float r) : Actor(ACT_BULLET, "Bu
 
    collision_flags = ACT_ENEMY;
 
-   max_force = 20.0; //2000.0f;
+   max_force = 2000.0f;
 
    force = !f * max_force;
 
-   mass = 0.1; //10.0;
+   mass = 10.0;
    inv_mass = 1.0/mass;
    radius = 0.1;
 

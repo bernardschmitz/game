@@ -1,5 +1,5 @@
 
-// $Id: actor.cpp,v 1.21 2003-08-26 05:41:23 bernard Exp $
+// $Id: actor.cpp,v 1.22 2003-08-26 22:17:28 bernard Exp $
 
 #include <iostream>
 #include <sstream>
@@ -17,7 +17,7 @@ ActorManager *ActorManager::instance = 0;
 ActorManager *ActorManager::getInstance() {
 
    if(instance == 0)
-      instance = new ActorManager();
+      instance = new ActorManager(1.0/100.0);
 
    return instance;
 }
@@ -87,7 +87,7 @@ void ActorManager::move_actors(float dt) {
 
       vector3 acceleration = (*k)->force * (*k)->inv_mass;
 
-      vector3 new_pos = 2.0f * (*k)->next_position - (*k)->prev_position + acceleration * dt * dt;
+      vector3 new_pos = 2.0f * (*k)->next_position - (*k)->prev_position + acceleration * time_step * time_step;
       (*k)->prev_position = (*k)->next_position;
       (*k)->next_position = new_pos;
 
@@ -124,7 +124,7 @@ void ActorManager::add_all_constraints(Actor *p) {
    ActorList::iterator k = master_actor_list.begin();
    while(k != master_actor_list.end()) {
       // only add a constraint if we want to detect collisions
-      if((*k != p) && ((*k)->type & p->collision_flags))
+      if((*k != p) && ((*k)->type & p->collision_flags != 0))
          constraint_list.push_back(new Constraint(p, *k));
       ++k;
    }
@@ -199,6 +199,24 @@ bool Actor::collide(Actor *p) {
  
 void ActorManager::collision_test(ActorList& al) {
 
+   ActorList::iterator i = al.begin();
+   while(i != --(al.end())) {
+
+      if((*i)->collision_flags != 0) {
+
+         ActorList::iterator j = i;
+         ++j;
+
+         while(j != al.end()) {
+            if((*i)->collision_flags & (*j)->type)
+               (*i)->collide(*j);
+            ++j;
+         }
+      }
+      ++i;
+   }
+
+/*
    for(int i=0; i<al.size()-1; ++i) {
 
       if(al[i]->collision_flags == 0) 
@@ -212,6 +230,7 @@ void ActorManager::collision_test(ActorList& al) {
          }
       }
    }
+*/
 }
 
  
@@ -346,10 +365,30 @@ void Grid::remove_actor(Actor *p) {
 */
 }
 
-void CollisionGrid::insert(float x, float y, Actor *p) {
+CollisionGrid::CollisionGrid() { 
 
-   int grid_x = (int)(x / w);
-   int grid_y = (int)(y / h);
+   w = 10; 
+   h = 10; 
+}
+
+CollisionGrid::~CollisionGrid() { 
+   // nothing 
+}
+
+
+Grid* CollisionGrid::insert(float x, float y, Actor *p) {
+
+   int px = (int)x;
+   int py = (int)y;
+
+   int grid_x = px / w;
+   int grid_y = py / h;
+
+   if(px < 0)
+      grid_x--;
+
+   if(py < 0)
+      grid_y--;
 
    int key = ((grid_x&0xfff) << 16) | (grid_y & 0xfff);
 
@@ -364,12 +403,19 @@ void CollisionGrid::insert(float x, float y, Actor *p) {
       // add grid to map of grids
       grid_map[key] = g;
       g->add_actor(p);
+      return g;
    }
    else {
       // insert actor into this grid
 //      std::cout << "found grid\n";
       (*gm).second->add_actor(p);
+      return (*gm).second;
    }
+}
+
+bool point_in_grid(float x, float y, int gx, int gy, int w, int h) {
+
+   return x >= gx && y >= gy && x < gx+w && y < gy+h ;
 }
 
 void CollisionGrid::update_position(Actor *p) {
@@ -392,10 +438,21 @@ void CollisionGrid::update_position(Actor *p) {
       assert(p->grid_list.empty());
    }
 
-   insert(p->position.x+p->radius, p->position.y+p->radius, p);
-   insert(p->position.x-p->radius, p->position.y+p->radius, p);
-   insert(p->position.x+p->radius, p->position.y-p->radius, p);
-   insert(p->position.x-p->radius, p->position.y-p->radius, p);
+   Grid *g = insert(p->position.x+p->radius, p->position.y+p->radius, p);
+
+   const vector3& v = p->position;
+   const float r = p->radius;
+
+  
+   if(!point_in_grid(v.x-r, v.y+r, g->x, g->y, g->w, g->h))
+      insert(p->position.x-p->radius, p->position.y+p->radius, p);
+
+   if(!point_in_grid(v.x-r, v.y-r, g->x, g->y, g->w, g->h))
+      insert(p->position.x-p->radius, p->position.y-p->radius, p);
+
+   if(!point_in_grid(v.x+r, v.y-r, g->x, g->y, g->w, g->h))
+      insert(p->position.x-p->radius, p->position.y-p->radius, p);
+   
 
    // only holds if radius is less than grid size
    assert(p->grid_list.size() <= 4);
@@ -413,7 +470,7 @@ void ActorManager::update(float dt) {
    static float now = 0.0;
    static float last = 0.0;
    static int physics = 0;
-   static float rate = 0.02; //1.0/60.0;
+   static float rate = time_step; //1.0/60.0;
 
    now += dt;
 
