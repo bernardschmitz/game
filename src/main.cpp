@@ -213,7 +213,7 @@ init(int argc, char *argv[])
 
    sgVec3 p =  { -20.0, 20.0, -10.0 };
   
-   for(int i=0; i<10; i++) {
+   for(int i=0; i<20; i++) {
       p[0] += 4.0;
       alEnemy.insert(new Enemy(p));
    }

@@ -92,6 +92,7 @@ Player::Player() {
        sgCopyVec3(b, cockpit_verts[cockpit_faces[i*3+1]]);
        sgCopyVec3(c, cockpit_verts[cockpit_faces[i*3+2]]);
 
+       // TODO sgMakeNormal
        sgVec3 ba, bc;
 
        sgSubVec3(ba, a, b);
