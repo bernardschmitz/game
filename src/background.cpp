@@ -489,7 +489,7 @@ void Background::render() {
 
 
    // TODO remove this
-   glClearColor(0.0, 0.0, 0.6, 1.0);
+   //glClearColor(0.0, 0.0, 0.6, 1.0);
    glClear(GL_COLOR_BUFFER_BIT);
    glEnable(GL_BLEND);
    glBlendFunc(GL_SRC_ALPHA,GL_ONE);

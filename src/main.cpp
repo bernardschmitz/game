@@ -251,41 +251,13 @@ Uint32 timer_inc(Uint32 interval, void *param) {
 
 
 static bool do_frame = true;
-
-
-static void draw(void) {
-
-   static int frames = 0;
-   static float fps = 10.0;
-   static int last = 0;
-   static float avg_delta = 0.0f;
-
-   int now = SDL_GetTicks();
-
-   //printf("now %d last %d ", now, last);
-
-   if(now - last > 100)
-      last = now - 100;
-   else
-      if(now - last < 1)
-         last = now - 1;
-
-   delta = now - last;
-
-   last = now;
-
-   avg_delta = (avg_delta*50 + delta) / 51.0;
-
-
-//   if(do_frame == false)
-//      return;
-
-   do_frame = false;
+static int frames = 0;
+static float fps = 10.0;
+static float avg_delta = 0.0f;
 
 
 
-   //printf("delta %d %f\n", delta, delta/1000.0);
-
+static void draw(int ms) {
 
    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    glClear(GL_DEPTH_BUFFER_BIT);
@@ -294,20 +266,7 @@ static void draw(void) {
    glLoadIdentity();
 
    vector3 pos(player->getPosition());
-
    vector3 vel(player->getVelocity());
-
-/*
-   static float max_spd = 0.0;
-
-   if(vel.length() > max_spd) {
-      max_spd = vel.length(); 
-      printf("max speed %f\n", max_spd);
-   }
-*/
-
-   float pa = degToRad(player->getZRot());
-   vector3 dir(cos(pa), sin(pa), 0.0);
 
    static float mag = 0.0;
 
@@ -331,60 +290,17 @@ static void draw(void) {
 
    actor_manager->render();
 
-
-   char fs[1000];
-   sprintf(fs, "t %6d ms %7.3f fps %3d", timer, avg_delta, (int)fps);
-   glColor4f(1.0, 1.0, 1.0, 1.0);
-   TextManager::getInstance()->draw(800-strlen(fs)*16, 600-16, fs);
-
    console->render();
-
-   SDL_GL_SwapBuffers();
-
-   frames++;
-
-   fps = (1000.0/delta + fps*50)/51;
-
-   static int out = 0;
-
-   if(now - out >= 1000) {
-      char fs[100];
-      sprintf(fs, "ms %f fps %f", avg_delta, fps);
-      out = now;
-      //glColor4f(1.0, 1.0, 1.0, 1.0);
-      printf("%s\n", fs);
-      //console->addString(fs);
-   }
-
-   // pause a little...
-/*
-   int ww = 1000/100 - (SDL_GetTicks() - now);
-   if(ww > 0)
-      SDL_Delay(ww);
-*/
 
 }
 
-static void
-idle(void)
-{
-   angle += 1.0;
+static void idle(int ms) {
 
    input->process();
-/*
-   static float tt = 1.0/100.0;
 
-   tt -= delta/1000.0;
+   actor_manager->update(ms/1000.0);
 
-   if(tt <= 0.0) {
-      tt = 1.0/100.0;
-      actor_manager->update(1.0/100.0);
-      do_frame = true;
-   }
-*/
-   actor_manager->update(delta/1000.0);
-
-   console->process(delta/1000.0);
+   console->process(ms/1000.0);
 }
 
 /* new window size or exposure */
@@ -726,35 +642,61 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
 
 
   reshape(screen->w, screen->h);
-  done = 0;
-  while ( ! done ) {
-    SDL_Event event;
 
-    idle();
+   done = 0;
 
-    done = input->quit;
-/*
-    while ( SDL_PollEvent(&event) ) {
-      switch(event.type) {
-        case SDL_QUIT:
-          done = 1;
-          break;
+   int frames = 0;
+   int last = 0;
 
+   while ( ! done ) {
+
+      int now = SDL_GetTicks();
+
+      if(now - last > 100)
+         last = now - 100;
+      else
+         if(now - last < 1)
+            last = now - 1;
+
+      int delta = now - last;
+
+      last = now;
+
+
+      SDL_Event event;
+
+      idle(delta);
+
+      done = input->quit;
+
+      draw(delta);
+
+      char fs[1000];
+      sprintf(fs, "ms %7.3f fps %3d", avg_delta, (int)fps);
+      glColor4f(1.0, 1.0, 1.0, 1.0);
+      TextManager::getInstance()->draw(800-strlen(fs)*16, 600-16, fs);
+
+      SDL_GL_SwapBuffers();
+
+      frames++;
+
+      avg_delta = (avg_delta*5 + delta) / 6.0;
+
+      fps = (1000.0/delta + fps*5)/6;
+
+      static int out = 0;
+
+      if(now - out >= 4000) {
+         out = now;
+         printf("ms %f fps %f\n", avg_delta, fps);
       }
-    }
-
-*/
 
 /*
-  keys = SDL_GetKeyState(NULL);
-
-    if ( keys[SDLK_ESCAPE] ) {
-      done = 1;
-    }
+   int ww = 1000/50 - (SDL_GetTicks() - now);
+   if(ww > 0)
+      SDL_Delay(ww);
 */
-
-    draw();
-  }
+   }
 
    SDL_RemoveTimer(tid);
 

@@ -1,5 +1,5 @@
 
-// $Id: actor.cpp,v 1.20 2003-08-25 23:08:31 bernard Exp $
+// $Id: actor.cpp,v 1.21 2003-08-26 05:41:23 bernard Exp $
 
 #include <iostream>
 #include <sstream>
@@ -162,6 +162,41 @@ void ActorManager::insert_new_actors() {
    assert(new_actor_list.empty());
 }
 
+
+// checks for collision between this actor and p.
+// sets the ACT_COLLISON flag and the various hit_* variables.
+bool Actor::collide(Actor *p) {
+
+   const vector3 delta = p->next_position - next_position;
+   const float rest_length = p->radius + radius;
+
+   const float delta_squared = delta*delta;
+
+   if(delta_squared - rest_length*rest_length > 0.0f)
+      return false;
+
+   //float length = delta.length();
+   // approx sqrt above
+   const float length = 0.5f * (rest_length + delta_squared/rest_length);
+
+   const float diff = (length - rest_length) / (length * (p->inv_mass + inv_mass) + 0.0001);
+
+   if(diff > 0.0f)
+      return false;
+
+   next_position += diff * inv_mass * delta;
+   p->next_position -= diff * p->inv_mass * delta;
+
+   flags |= ACT_COLLISION;
+   hit_actor = p;
+
+   p->flags |= ACT_COLLISION;
+   p->hit_actor = this;
+
+   return true;
+}
+
+ 
 void ActorManager::collision_test(ActorList& al) {
 
    for(int i=0; i<al.size()-1; ++i) {
@@ -377,8 +412,8 @@ void ActorManager::update(float dt) {
 
    static float now = 0.0;
    static float last = 0.0;
-
-   static float rate = 1.0/100.0;
+   static int physics = 0;
+   static float rate = 0.02; //1.0/60.0;
 
    now += dt;
 
@@ -386,12 +421,9 @@ void ActorManager::update(float dt) {
 
 //   printf("now %f delta %f\n", now, delta);
 
-   // TODO 1/100 should be a parameter
-   if(delta >= rate) {
+   while(delta >= rate) {
 
       last = now;
-
-//      printf("update!\n");
 
       delta -= rate;
 
@@ -443,9 +475,17 @@ void ActorManager::update(float dt) {
    
          // calc speed
          (*k)->speed = (*k)->velocity.length();
+
+         if((*k)->speed > 0.0) {
+            (*k)->forward_axis = !(*k)->velocity;
+            (*k)->right_axis = (*k)->forward_axis % (*k)->up_axis;
+            (*k)->up_axis = (*k)->forward_axis % (*k)->right_axis;
+         }
    
          ++k;
       }
+
+      physics++;
    }
 
 
@@ -457,6 +497,16 @@ void ActorManager::update(float dt) {
       (*k)->position = (*k)->prev_position + (*k)->velocity * t;
       ++k;
    }
+
+
+   static float out = 0.0;
+
+   if(now - out >= 5) {
+      printf("physics %f\n", 1.0/(physics/5000.0));
+      physics = 0;
+      out = now;
+   }
+
 }
 
 

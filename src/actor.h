@@ -1,5 +1,5 @@
 
-// $Id: actor.h,v 1.20 2003-08-25 23:08:31 bernard Exp $
+// $Id: actor.h,v 1.21 2003-08-26 05:41:23 bernard Exp $
 
 #ifndef __ACTOR_H__
 #define __ACTOR_H__
@@ -123,37 +123,7 @@ class Actor {
 
       // checks for collision between this actor and p.
       // sets the ACT_COLLISON flag and the various hit_* variables.
-      inline bool collide(Actor *p) {
-
-         const vector3 delta = p->next_position - next_position;
-         const float rest_length = p->radius + radius;
-
-         const float delta_squared = delta*delta;
-
-         if(delta_squared - rest_length*rest_length > 0.0f)
-            return false;
-
-         //float length = delta.length();
-         // approx sqrt above
-         const float length = 0.5f * (rest_length + delta_squared/rest_length);
-
-         const float diff = (length - rest_length) / (length * (p->inv_mass + inv_mass) + 0.0001);
-
-         if(diff > 0.0f)
-            return false;
-
-         next_position += diff * inv_mass * delta;
-         p->next_position -= diff * p->inv_mass * delta;
-
-         flags |= ACT_COLLISION;
-         hit_actor = p;
-
-         p->flags |= ACT_COLLISION;
-         p->hit_actor = this;
-
-         return true;
-      }
-
+      bool collide(Actor *p);
 
       friend class ActorManager;
       friend class Constraint;

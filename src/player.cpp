@@ -635,7 +635,7 @@ void Player::action(float dt) {
 
    if(input->fire && shooting == 0.0) {
       //shooting = 15;
-      shooting = 0.2;
+      shooting = 0.1;
       // recoil
       //vector3 acceleration( -cos(degToRad(z_rotation))/50.0f, -sin(degToRad(z_rotation))/50.0f, 0.0f);
       //velocity += acceleration;
@@ -647,7 +647,7 @@ void Player::action(float dt) {
       //alEnemy.insert(new Enemy(position+pp));
 
       vector3 d( cos(degToRad(z_rotation)), sin(degToRad(z_rotation)), 0.0f);
-      ActorManager::getInstance()->insert(new Bullet(position+d*0.5, position-prev_position, d*700.0));
+      ActorManager::getInstance()->insert(new Bullet(position+d*0.5, velocity, d*700.0));
    }
 
    //printf("shooting = %f\n", shooting);
