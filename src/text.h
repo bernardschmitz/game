@@ -9,7 +9,8 @@ private:
    int tex;
    int base;
 
-   int w, h, cw, ch;
+   int w, h, cw, ch, ca;
+   float ct;
    
    TextManager();
    TextManager::~TextManager() { }
@@ -23,8 +24,8 @@ public:
 
    int screenWidth() { return w; }
    int screenHeight() { return h; }
-   // the -6 is because the character cells overlap
-   int cellWidth() { return cw-6; }
+   // adjusted for the cell advance since chars may overlap
+   int cellWidth() { return cw+(ca-cw); }
    int cellHeight() { return ch; }
 
    void _begin();

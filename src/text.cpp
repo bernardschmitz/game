@@ -12,6 +12,9 @@ TextManager::TextManager() {
    cw = 16;
    ch = 16;   
 
+   ca = 10;
+   ct = 1.0/16.0;
+
    tex = TextureManager::getInstance()->load("font.png");
 
    base = glGenLists(256);
@@ -21,20 +24,20 @@ TextManager::TextManager() {
    // TODO the 16's below should come from the cw,ch above
 
    for(int i=0; i<256; i++) {
-      float cx = (i%16)/16.0f;
-      float cy = (i/16)/16.0f;
+      float cx = (i%cw)/(float)cw;
+      float cy = (i/ch)/(float)ch;
       glNewList(base+i, GL_COMPILE);
        glBegin(GL_QUADS);
-        glTexCoord2f(cx, cy+1.0/16.0);
+        glTexCoord2f(cx, cy+ct);
         glVertex2i(0,0);
-        glTexCoord2f(cx+1.0/16.0, cy+1.0/16.0);
-        glVertex2i(16,0);
-        glTexCoord2f(cx+1.0/16.0, cy);
-        glVertex2i(16,16);
+        glTexCoord2f(cx+ct, cy+ct);
+        glVertex2i(cw,0);
+        glTexCoord2f(cx+ct, cy);
+        glVertex2i(cw,ch);
         glTexCoord2f(cx, cy);
-        glVertex2i(0,16);
+        glVertex2i(0,ch);
        glEnd();
-       glTranslated(10,0,0);
+       glTranslatef((float)ca,0,0);
       glEndList();
    }
 
