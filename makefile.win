@@ -1,5 +1,5 @@
 
-# $Id: makefile.win,v 1.6 2003-08-05 23:31:51 bernard Exp $
+# $Id: makefile.win,v 1.7 2003-08-11 23:25:25 bernard Exp $
 
 
 ifdef OPTIMIZE
@@ -18,7 +18,7 @@ else
 endif
   
 CPPFLAGS = $(CPPF) -Wall -DHAVE_OPENGL -DWIN32 -Dmain=SDL_main -Imingw.3.0.0.rc3/include/SDL
-LFLAGS = $(LF) -Lmingw.3.0.0.rc3/lib -lSDL_image -lmingw32 -lSDLmain -lSDL -mwindows -lopengl32 -lglu32 -ljpeg -lpng -lz -lm
+LFLAGS = $(LF) -Lmingw.3.0.0.rc3/lib -lSDL_image -lmingw32 -lSDLmain -lSDL -mwindows -lopengl32 -lglu32 -ljpeg -lpng -lz -lm -llua -llualib
 
 CC=g++
 LD=$(CC)
