@@ -1,8 +1,12 @@
 
+
+colors in console
 wrap long lines in console
 page up and down in console
 
 maybe execute lua in a thread...?
+   investigate lua_resume, yield etc...
+
 
 
 
@@ -21,22 +25,6 @@ have a rendertarget that maintains a list of polygon.
 draws transparent triangles correctly.
 
 
-
-lua error handler is _ALERT.  redefine like this:
-
-static int LuaError( lua_State *L ) {
-
-  const char *errormsg = lua_tostring( L, -1 );
-  // ...do whatever U wanna do with errormsg...
-  return 0;
-}
-
-// (..)
-    lua_State *state = lua_open();
-    lua_register( state, "_ALERT", LuaError );
-// (..)
-
-
 =====
 
 polygon counter...
@@ -44,4 +32,4 @@ polygon counter...
 export from blender in a format for glDrawElements.
 
 
-$Id: todo.txt,v 1.15 2003-08-07 01:26:19 bernard Exp $
+$Id: todo.txt,v 1.16 2003-08-07 01:41:18 bernard Exp $
