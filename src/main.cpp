@@ -18,6 +18,7 @@
 #include "interpolate.h"
 #include "image.h"
 #include "texture.h"
+#include "text.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265
@@ -128,12 +129,18 @@ static void draw(void) {
 
    actor_manager.render();
 
+   glColor4f(1.0, 1.0, 1.0, 1.0);
+
+   char fs[80];
+   sprintf(fs, "fps: %4d", (int)fps);
+   TextManager::getInstance()->draw(16, 16, fs);
+
+
    GLint player_time = SDL_GetTicks() - st;
 
    st = SDL_GetTicks();
    SDL_GL_SwapBuffers();
    GLint bg_time = SDL_GetTicks() - st;
-
    Frames++;
 
    GLint t = SDL_GetTicks();
@@ -149,7 +156,7 @@ static void draw(void) {
 
 
    // pause a little...
-   int ww = 1000/48 - (SDL_GetTicks() - st0);
+   int ww = 1000/60 - (SDL_GetTicks() - st0);
 
    if(ww > 1)
       SDL_Delay(ww);
@@ -400,7 +407,7 @@ init(int argc, char *argv[])
    //glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
 
 
-   blurry_spot = texture_manager.load("red_yellow_spot.png");
+   blurry_spot = TextureManager::getInstance()->load("red_yellow_spot.png");
 //   blurry_spot = texture_manager.load("purple_star.png");
 
  //  printf("blurry %d %d\n", texture_manager.width(blurry_spot), texture_manager.height(blurry_spot));

@@ -1,12 +1,22 @@
 
 #include "texture.h"
 
-TextureManager texture_manager;
+TextureManager *TextureManager::instance = 0;
 
+TextureManager::TextureManager() {
+   // TODO
+}
 
 TextureManager::~TextureManager() {
-
    // TODO
+}
+
+TextureManager *TextureManager::getInstance() { 
+
+   if(instance == 0)
+      instance = new TextureManager();
+
+   return instance;
 }
 
 
@@ -53,10 +63,10 @@ int TextureManager::create(Image *img, const char *name) {
 int TextureManager::find(const char *s) {
 
    for(int i=0; i<textures.size(); i++) {
-      if(textures[i] != 0)
-         printf("%d %s %s\n", i, textures[i]->name, s);
+      //if(textures[i] != 0)
+         //printf("%d %s %s\n", i, textures[i]->name, s);
       if(textures[i] != 0 && strcmp(textures[i]->name, s) == 0) {
-         printf("found!\n");
+         //printf("found!\n");
          return i;
       }
    }

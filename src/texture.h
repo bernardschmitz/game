@@ -25,9 +25,13 @@ private:
 
    int find(const char *name);
    int create(Image *img, const char *name);
-public: 
-   TextureManager() { }
+   TextureManager();
    ~TextureManager();
+
+   static TextureManager *instance; 
+public: 
+
+   static TextureManager *getInstance();
 
    //int load(Image& img);
    int load(const char *fn);
@@ -43,8 +47,6 @@ public:
    int gl_id(const int id);
 };
 
-
-extern TextureManager texture_manager;
 
 #endif
 

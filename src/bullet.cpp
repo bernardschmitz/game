@@ -23,8 +23,8 @@ Bullet::Bullet(vector3 p, vector3 v, int e) : Actor(ACT_BULLET, p, v, vector3(0.
          dis[i] = uniform_random_float(1.5, 4.5);
    }
 
-   tex = texture_manager.load("bullet.png");
-   tex2 = texture_manager.load("red_yellow_spot.png");
+   tex = TextureManager::getInstance()->load("bullet.png");
+   tex2 = TextureManager::getInstance()->load("red_yellow_spot.png");
 
 }
 
@@ -169,7 +169,7 @@ void Bullet::render() {
 */
 
    //glBindTexture(GL_TEXTURE_2D, tex);
-   texture_manager.bind(tex);
+   TextureManager::getInstance()->bind(tex);
    glEnable(GL_TEXTURE_2D);
 
    glEnable(GL_BLEND);
@@ -238,7 +238,7 @@ void Bullet::render() {
 
    if(squid) {
 
-   texture_manager.bind(tex2);
+   TextureManager::getInstance()->bind(tex2);
    glBegin(GL_QUADS);
   for(int j=0; j<3; j++) {
 

@@ -6,19 +6,20 @@
 
 class TextManager {
 private:
-   int w, h;
-
-   GLuint id;
-
-public:
+   int tex;
+   int base;
+   
    TextManager();
    TextManager::~TextManager() { }
 
-   static void draw(char *s);
+   static TextManager *instance;
+public:
+
+   static TextManager *getInstance();
+
+   void draw(const int x, const int y, const char *s);
 };
 
-
-extern TextManager text;
 
 #endif
 
