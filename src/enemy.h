@@ -14,6 +14,8 @@ class Enemy : public Actor {
 
       vector3 angular_vel;
       float w_spd;
+      float v_spd;
+      float v_acc;
 
       GLuint dl_enemy;
 

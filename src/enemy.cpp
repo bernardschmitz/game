@@ -18,6 +18,11 @@ Enemy::Enemy(vector3 p) : Actor() {
    angular_vel.set(0.0, 0.0, degToRad(90.0/50.0));
 
    w_spd = 180.0/50.0;
+   v_spd = 0.25;
+   v_acc = 0.25;
+
+   dir.set(1.0, 0.0, 0.0);
+   rot.set(0.0, 0.0, 0.0, 1.0);
 
    pos = p;
 
@@ -861,11 +866,11 @@ Enemy::~Enemy() {
 void Enemy::action() {
 
 quaternion Q;
+vector3 ax;
 
    switch(state) {
 
       case MOVING:
-         pos += vel;
          delay--;
          if(delay == 0) {
             delay = 1;
@@ -883,16 +888,23 @@ quaternion Q;
             //dst.setAxisToAxis(dir, target_dir);
 
             float angle = dir*target_dir;  
-
             angle = radToDeg(acos((angle>=one)?one:(angle<=-one)?-one:angle)) ;
             
 //  float f = sgScalarProductVec3 ( v1, v2 ) ;
 //  return (float)(acos((f>=1.0f)?1.0f:(f<=-1.0f)?-1.0f:f)*SG_RADIANS_TO_DEGREES) ;
 
-//            printf("%p angle %f\n", (void*)this, angle);
+            float ca = dir*vector3(1.0,0.0,0.0);
+            ca = radToDeg(acos((ca>=one)?one:(ca<=-one)?-one:ca)) ;
 
+
+           if(fabs(angle) > 2.0f) {
             angular_vel = !(dir % target_dir);
             angular_vel.scale(degToRad(w_spd));
+            }
+            else
+                 angular_vel.set(0,0,0);
+
+            printf("%p ca %f angle %f  avel %f %f %f\n", (void*)this, ca, angle, angular_vel.x, angular_vel.y, angular_vel.z);
 
 //            float angle = target_hpr[0];
             //float angle = sgAngleBetweenNormalizedVec3(dir, target);  
@@ -920,29 +932,13 @@ quaternion Q;
          dir = Q.getVector();
 
 
-            vel += dir * 0.05f;
-{
-   // friction
-   float vmag = vel.lengthSquared();
-   if(vmag > 0.0f) {
-      vector3 friction(vel);
-      friction.normalize();
-      vel += friction * (-0.001f-0.05f*vmag/(0.25*0.25));
-   }
+            vel += dir * v_acc;
+        //sgSlerpQuat(rot, src, dst, (15.0-delay)/15.0);
 
-   // clamp velocity
-   if(vel.lengthSquared() > 0.25*0.25) {
-      vector3 n(vel);
-      n.normalize();
-
-      vel= n * 0.25f;
-   }
-}
-         pos += vel;
-         //sgSlerpQuat(rot, src, dst, (15.0-delay)/15.0);
+         ax = rot.getAxis();
 
          delay--;
-//printf("%p %d dir %f %f %f qangle %f rot %f %f %f %f\n", (void*)this, delay, dir.x, dir.y, dir.z, rot.getAngle(), rot.v.x, rot.v.y, rot.v.z, rot.a);
+printf("%p %d dir %f %f %f qangle %f axis %f %f %f\n", (void*)this, delay, dir.x, dir.y, dir.z, rot.getAngle(), ax.x, ax.y, ax.z);
          if(delay == 0) {
 
            //rot = dst;
@@ -953,7 +949,7 @@ quaternion Q;
             //vel += dir * 0.025f;
 
    
-            delay = 1;
+            delay = 50;
             state = TARGET;
          }
          break;
@@ -963,6 +959,23 @@ quaternion Q;
          break;
    } 
 
+   // friction
+   float vmag = vel.lengthSquared();
+   if(vmag > 0.0f) {
+      vector3 friction(vel);
+      friction.normalize();
+      vel += friction * (-0.001f-0.05f*vmag/(v_spd*v_spd));
+   }
+
+   // clamp velocity
+   if(vel.lengthSquared() > v_spd*v_spd) {
+      vector3 n(vel);
+      n.normalize();
+
+      vel= n * v_spd;
+   }
+         pos += vel;
+ 
 }
 
 
@@ -982,7 +995,7 @@ void Enemy::render() {
     glVertex3f(dir.x, dir.y, dir.z);
     glColor4f(1.0, 1.0, 0.0, 1.0);
     glVertex3f(0.0, 0.0, 0.0);
-    glVertex3f(vel.x*5, vel.y*5, vel.z*5);
+    glVertex3f(vel.x, vel.y, vel.z);
     glEnd();
    glEnable(GL_LIGHTING);
 

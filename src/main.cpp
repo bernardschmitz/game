@@ -257,13 +257,16 @@ init(int argc, char *argv[])
 
   bg = new Background();
 
+/*
    vector3 p( -20.0, 20.0, -10.0 );
   
    for(int i=0; i<20; i++) {
       p.x += 4.0;
       alEnemy.insert(new Enemy(p));
    }
+*/
 
+   alEnemy.insert(new Enemy(vector3(10, 10, -10)));
 
    alParticles.insert(new ParticleSystem());
 

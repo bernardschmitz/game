@@ -5,6 +5,7 @@
 #include "settings.h"
 #include "enemy.h"
 #include "particle.h"
+#include "random.h"
 
 Player *player = NULL;
 
@@ -587,7 +588,12 @@ int Player::action() {
       //vector3 acceleration( -cos(degToRad(z_rotation))/50.0f, -sin(degToRad(z_rotation))/50.0f, 0.0f);
       //velocity += acceleration;
 
-      alEnemy.insert(new Enemy(position));
+      vector3 pp(uniform_random_float(-1.0, 1.0), uniform_random_float(-1.0, 1.0), 0.0);
+
+      pp.normalize();
+      pp.scale(10.0);
+
+      alEnemy.insert(new Enemy(position+pp));
 
       alParticles.first()->init();
    }
