@@ -16,10 +16,17 @@ class Background : public Actor {
 
       float u, ux, uy, uz;
 
-      unsigned char *strips;
       float *cols;
 
       int hex_tex;
+
+      struct vert {
+         unsigned char r,g,b,a;
+         float x, y, z;
+      } *strips;
+
+      int max_w, max_h, max_v, idx;
+
    public:
       Background();
       ~Background();

@@ -279,26 +279,38 @@ static void draw(void) {
 
    vector3 vel(player->getVelocity());
 
+   static float max_spd = 0.0;
+
+   if(vel.length() > max_spd) {
+      max_spd = vel.length(); 
+      printf("max speed %f\n", max_spd);
+   }
+
    float pa = degToRad(player->getZRot());
    vector3 dir(cos(pa), sin(pa), 0.0);
 
    static float mag = 0.0;
 
-   //mag = -vel.length();
-   mag = (mag*100 + -vel.length()*1.5)/101;
+   // 30.01 is the max speed
+   float zoom = vel.length()/30.01 * -45.0;
+
 
    if(input->lock_cam)
-      mag = -60.0;
+      zoom = -45.0;
+
+   // wieghted average
+   mag = (mag*100.0 + zoom)/101.0;
+//   mag = (mag*100 + -vel.length()*1.5)/101;
 
    //printf("mag = %f\n", mag);
 
-   glTranslatef(-pos.x, -pos.y, mag*0.75);
+   glTranslatef(-pos.x, -pos.y, mag);
 
 
    actor_manager->render();
 
    //bg->setCenter(vector3(pos.x, pos.y, 0.0));
-   bg->setCenter(vector3(pos.x, pos.y, mag*0.75));
+   bg->setCenter(vector3(pos.x, pos.y, mag));
 
 
    char fs[100];
@@ -318,7 +330,7 @@ static void draw(void) {
 
    if(now - out >= 1000) {
       char fs[100];
-      sprintf(fs, "delta %d ms fps %f", delta, fps);
+      sprintf(fs, "fps %f", fps);
       out = now;
       glColor4f(1.0, 1.0, 1.0, 1.0);
       printf("%s\n", fs);

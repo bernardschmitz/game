@@ -27,8 +27,9 @@ Player::Player() : Actor(ACT_PLAYER, vector3(0.0, 0.0, -10.0), vector3(0.0, 0.0,
 
    mass = 100.0;
    drag = 5;
-   max_speed = 30;
    friction = 500;
+   // the 5000 is the max thrust
+   max_speed = sqrt((5000 - friction)/drag);
 
    dl_cockpit = glGenLists(5);
 

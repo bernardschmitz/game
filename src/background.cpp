@@ -102,20 +102,24 @@ Background::Background() : Actor(ACT_BACKGROUND, vector3(0.0, 0.0, 0.0), vector3
    glColorPointer(4, GL_FLOAT, 0, cols);
 */
 
-   strips = new unsigned char[w*n_verts*sizeof(float)*4 + w*n_verts*sizeof(unsigned char)*4];
-   //cols   = new float[n_verts*4 * w];
+   //strips = new unsigned char[w*n_verts*sizeof(float)*4 + w*n_verts*sizeof(unsigned char)*4];
+   strips = new vert[n_verts*w];
 
-   glInterleavedArrays(GL_C4UB_V3F, sizeof(unsigned char)*4+sizeof(float)*4, strips);
 
-/*
+   //glInterleavedArrays(GL_C4UB_V3F, 0, strips);
+
+
    glEnableClientState(GL_VERTEX_ARRAY);
-   glVertexPointer(4, GL_FLOAT, sizeof(float)*4, strips+sizeof(float)*4);
+   //glVertexPointer(3, GL_FLOAT, sizeof(vert), (unsigned char *)strips+sizeof(unsigned char)*4);
+   glVertexPointer(3, GL_FLOAT, sizeof(vert), &strips[0].x);
    glEnableClientState(GL_COLOR_ARRAY);
-   glColorPointer(4, GL_FLOAT, sizeof(float)*4, strips);
-*/
+   glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(vert), strips);
 
-   unsigned char *v = strips;
+
+   vert *v = strips;
    //float *c = cols;
+
+   int k = 0;
 
    float x = -sx;
   // for(float x=-sx; x<sx; x+=s) {
@@ -127,37 +131,38 @@ Background::Background() : Actor(ACT_BACKGROUND, vector3(0.0, 0.0, 0.0), vector3
          //glColor4f(0.5, 0.5, 0.0, 1.0);
          //vector4 cc = palette[plasma(cx+ux+x, cy+uy+y, uz+z)&0xff] * 0.5;
 
-         v+=sizeof(unsigned char)*4;
-
          //glVertex3f(x, y, 0.0);
-         *((float *)v) = x;
-         v += sizeof(float);
-         *((float *)v) = y;
-         v += sizeof(float);
-         *((float *)v) = 0.0;
-         v += sizeof(float);
-         v += sizeof(float);
+
+         v->x = x;
+         v->y = y;
+         v->z = 0.0;
+
+         ++v;
 
          //glColor4f(0.0, 0.5, 0.5, 1.0);
          //cc = palette[plasma(cx+ux+x+s, cy+uy+y, uz+z)&0xff] * 0.5;
 
-         v+=sizeof(unsigned char)*4;
-
          //glVertex3f(x+s, y, 0.0);
-         *((float *)v) = x+s;
-         v += sizeof(float);
-         *((float *)v) = y;
-         v += sizeof(float);
-         *((float *)v) = 0.0;
-         v += sizeof(float);
-         v += sizeof(float);
+         v->x = x+s;
+         v->y = y;
+         v->z = 0.0;
+
+         ++v;
 
          y += s;
+
+         k+=2;
       }
+      //printf("i, k = %d, %d\n", i, k);
       //glEnd();
       x += s;
    }
 
+   max_w = w;
+   max_h = h;
+   max_v = n_verts;
+
+   printf("max w %d h %d v %d\n", max_w, max_h, max_v);
 }
 
 
@@ -379,7 +384,6 @@ void Background::action(float dt) {
 
    int buf_l = 2 * (int)(2*sy/s);
 
-//   printf("cx %f cy %f cz %f w %d h %d sx %f sy %f isx %d isy %d n_verts %d buf_o %d buf_l %d\n", cx, cy, cz, w, h, sx, sy, isx, isy, n_verts, buf_o, buf_l);
 
 
 
@@ -398,55 +402,61 @@ void Background::action(float dt) {
 
    n_verts = (h+1)*2;
 
+   int ow = (max_w - w) / 2;
+   int oh = (max_h - h) / 2;
+
+   idx = ow*max_v+oh*2;
+
+   //printf("cx %f cy %f cz %f w %d h %d sx %f sy %f isx %d isy %d n_verts %d buf_o %d buf_l %d\n", cx, cy, cz, w, h, sx, sy, isx, isy, n_verts, buf_o, buf_l);
+   //printf("ow %d oy %d idx %d\n", ow, oh, idx);
 
 
-
-   unsigned char *v = strips;
    //float *c = cols;
 
    float x = -sx;
-  // for(float x=-sx; x<sx; x+=s) {
    for(int i=0; i<w; i++) {
       //glBegin(GL_TRIANGLE_STRIP);
       float y = -sy;
+      //printf("color start %d\n", idx+i*max_v);
+      vert *v = &strips[idx+i*max_v];
+
       for(int j=0; j<=h; j++) {
-//float y=-sy; y<=sy; y+=s) {
          //glColor4f(0.5, 0.5, 0.0, 1.0);
          //vector4 cc = palette[plasma(cx+ux+x, cy+uy+y, uz+z)&0xff] * 0.5;
 
-         int cc = plasma(cx+ux+x, cy+uy+y, uz+z)&0xff;
-         unsigned char *k = half_palette + cc*4;
-         *v++ = *k++;
-         *v++ = *k++;
-         *v++ = *k++;
-         *v++ = 0xff;
+         int cc = plasma(cx+ux+v->x, cy+uy+v->y, uz+z)&0xff;
+
+         v->r = half_palette[cc*4+0];
+         v->g = half_palette[cc*4+1];
+         v->b = half_palette[cc*4+2];
+         v->a = 0xff;
 
          //glVertex3f(x, y, 0.0);
-         *((float *)v) = x;
-         v += sizeof(float);
-         *((float *)v) = y;
-         v += sizeof(float);
-         *((float *)v) = 0.0;
-         v += sizeof(float);
-         v += sizeof(float);
+/*
+         v->x = x;
+         v->y = y;
+         v->z = 0.0;
+*/
+         ++v;
 
          //glColor4f(0.0, 0.5, 0.5, 1.0);
          //cc = palette[plasma(cx+ux+x+s, cy+uy+y, uz+z)&0xff] * 0.5;
-         cc = plasma(cx+ux+x+s, cy+uy+y, uz+z)&0xff;
-         k = half_palette + cc*4;
-         *v++ = *k++;
-         *v++ = *k++;
-         *v++ = *k++;
-         *v++ = 0xff;
+         cc = plasma(cx+ux+v->x, cy+uy+v->y, uz+z)&0xff;
+
+         v->r = half_palette[cc*4+0];
+         v->g = half_palette[cc*4+1];
+         v->b = half_palette[cc*4+2];
+         v->a = 0xff;
+
+         //glVertex3f(x, y, 0.0);
+/*
+         v->x = x+s;
+         v->y = y;
+         v->z = 0.0;
+*/
+         ++v;
 
          //glVertex3f(x+s, y, 0.0);
-         *((float *)v) = x+s;
-         v += sizeof(float);
-         *((float *)v) = y;
-         v += sizeof(float);
-         *((float *)v) = 0.0;
-         v += sizeof(float);
-         v += sizeof(float);
 
          y += s;
       }
@@ -811,13 +821,33 @@ if(i==2){
 
    int n_verts = (h+1)*2;
 
+   //printf("idx %d n_Verts %d\n", idx, n_verts);
 
-//   glClear(GL_COLOR_BUFFER_BIT);
-
+   glClear(GL_COLOR_BUFFER_BIT);
 
    for(int i=0; i<w; i++) {
-      glDrawArrays(GL_TRIANGLE_STRIP, i*n_verts, n_verts);
+      //glDrawArrays(GL_TRIANGLE_STRIP, i*n_verts, n_verts);
+      int l = idx+i*max_v;
+//      printf("x %f y %f\n", strips[l].x, strips[l].y);
+      glDrawArrays(GL_TRIANGLE_STRIP, l, n_verts); //n_verts);
    }
+
+/*
+      int l = 15*max_v+2*10;
+      printf("l %d x %f y %f r %d\n", l, strips[l].x, strips[l].y, strips[l].r);
+      glDrawArrays(GL_TRIANGLE_STRIP, l, 8); //n_verts);
+
+      l = 16*max_v+2*10;
+      printf("l %d x %f y %f r %d\n", l, strips[l].x, strips[l].y, strips[l].r);
+      glDrawArrays(GL_TRIANGLE_STRIP, l, 8); //n_verts);
+
+      l = 17*max_v+2*11;
+      printf("l %d x %f y %f r %d\n", l, strips[l].x, strips[l].y, strips[l].r);
+      glDrawArrays(GL_TRIANGLE_STRIP, l, 8); //n_verts);
+*/
+
+
+
 
    glPopMatrix();
 
