@@ -91,34 +91,12 @@ public:
       }
    }
 
-   // operators
-
-   // negate
-   quaternion operator-(const quaternion& v) { quaternion tmp(v); tmp.negate(); return tmp; }
-
-   // addition
-   quaternion& operator+=(const quaternion& v) { add(v); return *this; }
-   quaternion& operator-=(const quaternion& v) { sub(v); return *this; }
-
-   // scale
-   quaternion& operator*=(const float f) { scale(f); return *this; }
-   quaternion& operator/=(const float f) { scale(one/f); return *this; }
-
-
-   // get vector component
-   vector3 getVector() { return v; }
-
-   // get scalar component
-   float getScalar() { return a; }
 
    // get angle
    float getAngle() { return radToDeg(acos(a)*2.0f); }
 
    // get axis
    vector3 getAxis() { vector3 tmp(v); tmp.normalize(); return tmp; }
-
-//friend inline quaternion operator*(const quaternion& a, const quaternion& b);
-//friend inline quaternion operator*(const quaternion& q, const vector3& v);
 
    // TODO
 /*
@@ -135,81 +113,70 @@ public:
       return t.getVector();
    }
 */
+   // operators
+
+   // negate
+   friend quaternion operator-(const quaternion& v) { quaternion tmp(v); tmp.negate(); return tmp; }
+
+   // addition
+   quaternion& operator+=(const quaternion& v) { add(v); return *this; }
+   quaternion& operator-=(const quaternion& v) { sub(v); return *this; }
+
+   // scale
+   quaternion& operator*=(const float f) { scale(f); return *this; }
+   quaternion& operator/=(const float f) { scale(one/f); return *this; }
+
+   // scale
+   friend quaternion operator*(const quaternion& q, const float f) { return quaternion(q.v*f, q.a*f); }
+   friend quaternion operator*(const float f, const quaternion& q) { return q * f; }
+   friend quaternion operator/(const quaternion& q, const float f) { return quaternion(q.v/f, q.a/f); }
+
+   // multiply by vector
+   friend quaternion operator*(const quaternion& q, const vector3& v);
+   friend quaternion operator*(const vector3& v, const quaternion& q);
+
+   // multiplication
+   friend quaternion operator*(const quaternion& a, const quaternion& b);
+
+   // addition
+   friend quaternion operator+(const quaternion& vA, const quaternion& vB) { return quaternion(vA.v+vB.v, vA.a+vB.a); }
+   friend quaternion operator-(const quaternion& vA, const quaternion& vB) { return quaternion(vA.v-vB.v, vA.a-vB.a); }
+   // normalize
+   friend quaternion operator!(const quaternion& q) { quaternion tmp(q); tmp.normalize(); return tmp; }
+   // conjugate
+   friend quaternion operator~(const quaternion& q) { quaternion tmp(q); tmp.conjugate(); return tmp; }
+
 };
 
 
+// multiply by vector
+inline quaternion operator*(const quaternion& q, const vector3& V) {
 
-inline quaternion operator*(const quaternion& q, const float f) { 
-
-   return quaternion(q.v*f, q.a*f);
+   return quaternion(   q.a*V.x + q.v.y*V.z - q.v.z*V.y,
+                        q.a*V.y + q.v.z*V.x - q.v.x*V.z,
+                        q.a*V.z + q.v.x*V.y - q.v.y*V.x,
+                    -(q.v.x*V.x + q.v.y*V.y + q.v.z*V.z)  );
 }
 
-inline quaternion operator*(const float f, const quaternion& q) { 
+inline quaternion operator*(const vector3& V, const quaternion& q) {
 
-   return q * f;
+   return quaternion(   q.a*V.x + q.v.z*V.y - q.v.y*V.z,
+                        q.a*V.y + q.v.x*V.z - q.v.z*V.x,
+                        q.a*V.z + q.v.y*V.x - q.v.x*V.y,
+                    -(q.v.x*V.x + q.v.y*V.y + q.v.z*V.z)  );
 }
-
-inline quaternion operator/(const quaternion& q, const float f) {
-
-   return quaternion(q.v/f, q.a/f);
-}
-
-// vector product
-/*
-inline quaternion operator*(const quaternion& q, const vector3& v) {
-
-   return quaternion( -(q.x*v.x + q.y*v.y + q.z*v.z),
-                        q.w*v.x + q.y*v.z - q.z*v.y,
-                        q.w*v.y + q.z*v.x - q.x*v.z,
-                        q.w*v.z + q.x*v.y - q.y*v.x );
-}
-
-inline quaternion operator*(const vector3& v, const quaternion& q) {
-   return quaternion( -(q.x*v.x + q.y*v.y + q.z*v.z),
-                        q.w*v.x + q.z*v.y - q.y*v.z,
-                        q.w*v.y + q.x*v.z - q.z*v.x,
-                        q.w*v.z + q.y*v.x - q.x*v.y );
-}
-*/
 
 // quaternion product
 inline quaternion operator*(const quaternion& a, const quaternion& b) { 
 
 //   return quaternion(  (a.v%b.v)+(a.v*b.a)+(b.v*a.a) , (a.a*b.a)-(a.v*b.v) );
-
    return quaternion( a.a*b.v.x + a.v.x*b.a + a.v.y*b.v.z - a.v.z*b.v.y,
                       a.a*b.v.y + a.v.y*b.a + a.v.z*b.v.x - a.v.x*b.v.z,
                       a.a*b.v.z + a.v.z*b.a + a.v.x*b.v.y - a.v.y*b.v.x, 
                       a.a*b.a - a.v.x*b.v.x - a.v.y*b.v.y - a.v.z*b.v.z );
-
 }
 
 
-// quaternion addition
-inline quaternion operator+(const quaternion& vA, const quaternion& vB) { 
-
-   return quaternion(vA.v+vB.v, vA.a+vB.a);
-}
-
-inline quaternion operator-(const quaternion& vA, const quaternion& vB) { 
-
-   return quaternion(vA.v-vB.v, vA.a-vB.a);
-}
-
-
-inline quaternion operator!(const quaternion& q) {
-
-   quaternion tmp(q);
-   tmp.normalize();
-   return tmp;
-}
-
-inline quaternion operator~(const quaternion& q) {
-
-   quaternion tmp(q);
-   tmp.conjugate();
-   return tmp;
-}
 
 #endif
 

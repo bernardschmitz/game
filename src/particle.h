@@ -11,14 +11,35 @@ struct Particle {
    float size;
    int energy;
    int max_energy;
+   bool dead;
 };
 
 struct ParticleDesc {
-   int n;                        // total number
-   vector3 pos, vel;              // position and velocity of actor
+   int n;                                         // total number
+   int spawn_init;                                // number spawned initially
+   int spawn_rate;                                // number spawned each time step
 
-   vector3 gen_pos;               // position of generated particles relative to actor pos
-//   sgVec3 
+   // initially particles spawn in a sphere
+   // TODO have different spawn shapes
+   vector3 spawn_pos;                             // particles are spawned here, relative to actor_pos
+   float spawn_radius;
+
+   int min_energy, max_energy;                    // particle energy range
+   float min_size, max_size;                      // particle size range
+
+   // TODO should be a bitfield
+   bool energy_in_alpha;                           // puts energy in alpha so particles appear to fade
+   bool size_from_velocity;                       // scales particle size based on velocity, faster = longer
+   bool respawn_on_death;                         // indicates that a particle should respawn when dead
+
+   vector4 color;
+   GLuint texture_id;
+
+   Particle *p;                                   // optional initial positions
+
+
+//   vector3 gen_pos;               // position of generated particles relative to actor pos
+
    // dir and vel of parts
    // uniform or gaussian rand?
    // pos of generated parts
@@ -45,18 +66,25 @@ class ParticleSystem : public Actor {
 
       GLuint texture_id;                 // particles texture
 
+      ParticleDesc desc;
+
+      int find_dead_particle();
    public:
-      ParticleSystem();
+      ParticleSystem(const vector3& p, const vector3& v, const ParticleDesc& pd);
       virtual ~ParticleSystem();
 
-      //virtual void init(int n, sgVec3 pos, sgVec3 vel, GLuint tex);
-      virtual void init();
+      //virtual void init();
+
+      // spawns min(k,n-alive)) particles
+      void spawn(int k);
+
+      // kills min(k,alive) particles
+      void kill(int k);
 
       virtual void action();
       virtual void render();
 };
 
-extern ActorList<ParticleSystem> alParticles;
 
 #endif
 

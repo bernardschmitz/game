@@ -1,5 +1,5 @@
 
-// $Id: vector.h,v 1.2 2003-07-29 22:44:11 bernard Exp $
+// $Id: vector.h,v 1.3 2003-07-31 19:06:08 bernard Exp $
 
 #ifndef __VECTOR_H__
 #define __VECTOR_H__
@@ -48,19 +48,9 @@ public:
       if(f > zero)
          scale(one/f);
    }
-
-   // operators
- 
-   // negate
-   vector2 operator-(const vector2& v) { return vector2(-x, -y); }
-
-   // addition
-   vector2& operator+=(const vector2& v) { add(v); return *this; }
-   vector2& operator-=(const vector2& v) { sub(v); return *this; }
-
-   // scale
-   vector2& operator*=(const float f) { scale(f); return *this; }
-   vector2& operator/=(const float f) { scale(one/f); return *this; }
+   
+   // scalar product
+   float dot(const vector2& vB) { return x*vB.x + y*vB.y; }
 
    // equality
    bool isEqual(const vector2& v, const float tol) const {
@@ -72,56 +62,44 @@ public:
       else
          return true;
    }
+
+   // operators
+ 
+   // negate
+   friend vector2 operator-(const vector2& v) { vector2 t(v); t.negate(); return t; }
+
+   // addition
+   vector2& operator+=(const vector2& v) { add(v); return *this; }
+   vector2& operator-=(const vector2& v) { sub(v); return *this; }
+
+   // scale
+   vector2& operator*=(const float f) { scale(f); return *this; }
+   vector2& operator/=(const float f) { scale(one/f); return *this; }
+ 
+   // dot (scalar) product
+   friend float operator*(const vector2& A, const vector2& B) { vector2 t(A); return t.dot(B); }
+   
+   // vector addition
+   friend vector2 operator+(const vector2& A, const vector2& B) { vector2 t(A); t.add(B); return t; }
+   
+   // vector subtraction
+   friend vector2 operator-(const vector2& A, const vector2& B) { vector2 t(A); t.sub(B); return t; }
+   
+   // scale
+   friend vector2 operator*(const vector2& v, const float f) { vector2 t(v); t.scale(f); return t; }
+   
+   friend vector2 operator*(const float f, const vector2& v) { return v*f; }
+   
+   friend vector2 operator/(const vector2& v, const float f) { return v * (one/f); }
+   
+   // norm
+   friend vector2 operator!(const vector2& v) { vector2 t(v); t.normalize(); return t; }
+
+
+   friend class vector3;
+   friend class vector4;
 };
    
-
-// dot (scalar) product
-inline float operator*(const vector2& vA, const vector2& vB) { 
-
-   return vA.x*vB.x + vA.y*vB.y; 
-}
-
-// vector addition
-inline vector2 operator+(const vector2& vA, const vector2& vB) { 
-
-   return vector2(vA.x+vB.x, vA.y+vB.y);
-}
-
-// vector subtraction
-inline vector2 operator-(const vector2& vA, const vector2& vB) { 
-
-   return vector2(vA.x-vB.x, vA.y-vB.y); 
-}
-
-// scale
-inline vector2 operator*(const vector2& v, const float f) { 
-
-   vector2 tmp(v);
-   tmp.scale(f);
-   return tmp;
-}
-
-inline vector2 operator*(const float f, const vector2& v) { 
-
-   return v*f;
-}
-
-inline vector2 operator/(const vector2& v, const float f) { 
-
-   return v * (one/f);
-}
-
-
-// norm
-
-inline vector2 operator!(const vector2& v) {
-
-   vector2 tmp(v);
-   tmp.normalize();
-   return tmp;
-}
-
-
 
 
 class vector3 {
@@ -155,18 +133,6 @@ public:
          scale(one/f);
    }
 
-   // operators
- 
-   // negate
-   vector3 operator-() { return vector3(-x, -y, -z); }
-
-   // addition
-   vector3& operator+=(const vector3& v) { add(v); return *this; }
-   vector3& operator-=(const vector3& v) { sub(v); return *this; }
-
-   // scale
-   vector3& operator*=(const float f) { scale(f); return *this; }
-   vector3& operator/=(const float f) { scale(one/f); return *this; }
 
    // equality
    bool isEqual(const vector3& v, const float tol) const {
@@ -181,63 +147,87 @@ public:
          return true;
    }
 
+   void linear_interpolate(const vector3& a, const vector3& b, const float t) {
+      vector3 d(b - a);
+      x = a.x + d.x*t;
+      y = a.y + d.y*t;
+      z = a.z + d.z*t;
+   }
+
+   void cosine_interpolate(const vector2& a, const vector2& b, const float t) {
+      linear_interpolate(a, b, (1.0-cos(t*M_PI))*0.5);
+   }
+
+   void quadratic_interpolate(const vector3& p0, const vector3& p1, const vector3& p2, const float t) {
+
+      x = p0.x + t*(2.0*(p1.x-p0.x) + t*(p2.x-2.0*p1.x+p0.x));
+      y = p0.y + t*(2.0*(p1.y-p0.y) + t*(p2.y-2.0*p1.y+p0.y));
+      z = p0.z + t*(2.0*(p1.z-p0.z) + t*(p2.z-2.0*p1.z+p0.z));
+   }
+
+   void cubic_interpolate(const vector3& p0, const vector3& p1, const vector3& p2, const vector3& p3, const float t) {
+
+      float t2 = t*t*3.0;
+      float t3 = t*t*t;
+
+      x = p0.x + (3.0*t)*(p1.x-p0.x) + (t2)*(p2.x-2.0*p1.x+p0.x) + (t3)*(p3.x-3.0*p2.x+3.0*p1.x-p0.x);
+      y = p0.y + (3.0*t)*(p1.y-p0.y) + (t2)*(p2.y-2.0*p1.y+p0.y) + (t3)*(p3.y-3.0*p2.y+3.0*p1.y-p0.y);
+      z = p0.z + (3.0*t)*(p1.z-p0.z) + (t2)*(p2.z-2.0*p1.z+p0.z) + (t3)*(p3.z-3.0*p2.z+3.0*p1.z-p0.z);
+   }    
+
+ 
+   // scalar product
+   float dot(const vector3& v) const { return x*v.x + y*v.y + z*v.z; }
+
+
+   // vector product
+   friend vector3 cross(const vector3& A, const vector3& B) {
+
+      return vector3( A.y*B.z - A.z*B.y,
+                      A.z*B.x - A.x*B.z,
+                      A.x*B.y - A.y*B.x );
+   }
+
+
+   // operators
+
+   // vector (cross) product
+   friend vector3 operator%(const vector3& A, const vector3& B) { return cross(A, B); }
+ 
+   // negate
+   friend vector3 operator-(const vector3& v) { vector3 t(v); t.negate(); return t; }
+
+   // addition
+   vector3& operator+=(const vector3& v) { add(v); return *this; }
+   vector3& operator-=(const vector3& v) { sub(v); return *this; }
+
+   // scale
+   vector3& operator*=(const float f) { scale(f); return *this; }
+   vector3& operator/=(const float f) { scale(one/f); return *this; }
+ 
+   // scalar (dot) product
+   friend float operator*(const vector3& A, const vector3& B) { vector3 t(A); return t.dot(B); }
+   
+   // vector addition
+   friend vector3 operator+(const vector3& A, const vector3& B) { vector3 t(A); t.add(B); return t; }
+   
+   // vector subtraction
+   friend vector3 operator-(const vector3& A, const vector3& B) { vector3 t(A); t.sub(B); return t; }
+   
+   // scale
+   friend vector3 operator*(const vector3& v, const float f) { vector3 t(v); t.scale(f); return t; }
+   
+   friend vector3 operator*(const float f, const vector3& v) { return v*f; }
+   
+   friend vector3 operator/(const vector3& v, const float f) { return v * (one/f); }
+   
+   // norm
+   friend vector3 operator!(const vector3& v) { vector3 t(v); t.normalize(); return t; }
+
+   friend class vector4;
+   friend class quaternion;
 };
    
-
-// dot (scalar) product
-inline float operator*(const vector3& vA, const vector3& vB) { 
-
-   return vA.x*vB.x + vA.y*vB.y + vA.z*vB.z; 
-}
-
-// vector addition
-inline vector3 operator+(const vector3& vA, const vector3& vB) { 
-
-   return vector3(vA.x+vB.x, vA.y+vB.y, vA.z+vB.z);
-}
-
-// vector subtraction
-inline vector3 operator-(const vector3& vA, const vector3& vB) { 
-
-   return vector3(vA.x-vB.x, vA.y-vB.y, vA.z-vB.z); 
-}
-
-// cross (vector) product
-inline vector3 operator%(const vector3& vA, const vector3& vB) {
-
-   return vector3(vA.y*vB.z - vA.z*vB.y,
-                  vA.z*vB.x - vA.x*vB.z,
-                  vA.x*vB.y - vA.y*vB.x);
-}
-
-// scale
-inline vector3 operator*(const vector3& v, const float f) { 
-
-   vector3 tmp(v);
-   tmp.scale(f);
-   return tmp;
-}
-
-inline vector3 operator*(const float f, const vector3& v) { 
-
-   return v*f;
-}
-
-inline vector3 operator/(const vector3& v, const float f) { 
-
-   return v * (one/f);
-}
-
-// norm
-inline vector3 operator!(const vector3& v) {
-
-   vector3 tmp(v);
- 
-   tmp.normalize();
-   return tmp;
-}
-
-
 
 
 class vector4 {
@@ -271,19 +261,6 @@ public:
          scale(one/f);
    }
 
-   // operators
- 
-   // negate
-   vector4 operator-(const vector4& v) { return vector4(-x, -y, -z, -w); }
-
-   // addition
-   vector4& operator+=(const vector4& v) { add(v); return *this; }
-   vector4& operator-=(const vector4& v) { sub(v); return *this; }
-
-   // scale
-   vector4& operator*=(const float f) { scale(f); return *this; }
-   vector4& operator/=(const float f) { scale(one/f); return *this; }
-
    // equality
    bool isEqual(const vector4& v, const float tol) const {
       
@@ -299,55 +276,44 @@ public:
          return true;
    }
 
+ 
+   // scalar product
+   float dot(const vector4& v) const { return x*v.x + y*v.y + z*v.z + w*v.w; }
+
+   // operators
+
+   // negate
+   friend vector4 operator-(const vector4& v) { vector4 t(v); t.negate(); return t; }
+
+   // addition
+   vector4& operator+=(const vector4& v) { add(v); return *this; }
+   vector4& operator-=(const vector4& v) { sub(v); return *this; }
+
+   // scale
+   vector4& operator*=(const float f) { scale(f); return *this; }
+   vector4& operator/=(const float f) { scale(one/f); return *this; }
+ 
+   // scalar (dot) product
+   friend float operator*(const vector4& A, const vector4& B) { vector4 t(A); return t.dot(B); }
+   
+   // vector addition
+   friend vector4 operator+(const vector4& A, const vector4& B) { vector4 t(A); t.add(B); return t; }
+   
+   // vector subtraction
+   friend vector4 operator-(const vector4& A, const vector4& B) { vector4 t(A); t.sub(B); return t; }
+   
+   // scale
+   friend vector4 operator*(const vector4& v, const float f) { vector4 t(v); t.scale(f); return t; }
+   
+   friend vector4 operator*(const float f, const vector4& v) { return v*f; }
+   
+   friend vector4 operator/(const vector4& v, const float f) { return v * (one/f); }
+   
+   // norm
+   friend vector4 operator!(const vector4& v) { vector4 t(v); t.normalize(); return t; }
+
 };
    
-
-// dot (scalar) product
-inline float operator*(const vector4& vA, const vector4& vB) { 
-
-   return vA.x*vB.x + vA.y*vB.y + vA.z*vB.z + vA.w*vB.w; 
-}
-
-// vector addition
-inline vector4 operator+(const vector4& vA, const vector4& vB) { 
-
-   return vector4(vA.x+vB.x, vA.y+vB.y, vA.z+vB.z, vA.w+vB.w);
-}
-
-// vector subtraction
-inline vector4 operator-(const vector4& vA, const vector4& vB) { 
-
-   return vector4(vA.x-vB.x, vA.y-vB.y, vA.z-vB.z, vA.w-vB.w); 
-}
-
-
-// scale
-inline vector4 operator*(const vector4& v, const float f) { 
-
-   vector4 tmp(v);
-   tmp.scale(f);
-   return tmp;
-}
-
-inline vector4 operator*(const float f, const vector4& v) { 
-
-   return v*f;
-}
-
-inline vector4 operator/(const vector4& v, const float f) { 
-
-   float ff = one/f; 
-   return v * ff;
-}
-
-// norm
-inline vector4 operator!(const vector4& v) {
-
-   vector4 tmp(v);
- 
-   tmp.normalize();
-   return tmp;
-}
 
 
 #endif

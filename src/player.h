@@ -4,11 +4,9 @@
 
 #include "main.h"
 
-class Player {
+class Player : public Actor {
 
    private:
-      vector3 position;
-      vector3 velocity;
 
       float z_rotation;
       int thrusting;
@@ -25,13 +23,10 @@ class Player {
       Player();
       ~Player();
 
-      vector3 getPosition() { return position; }
-      vector3 getVelocity() { return velocity; }
-
       float getZRot() { return z_rotation; }
 
-      int action();
-      int render();
+      void action();
+      void render();
 };
 
 

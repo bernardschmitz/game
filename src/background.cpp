@@ -3,9 +3,7 @@
 #include "settings.h"
 #include "player.h"
 
-Background::Background() {
-
-
+Background::Background() : Actor(ACT_BACKGROUND, vector3(0.0, 0.0, 0.0), vector3(0.0, 0.0, 0.0), vector3(0.0, 0.0, 1.0)) {
 
 
    // default
@@ -20,6 +18,8 @@ Background::Background() {
                              vector4( 0.0, 0.0, 0.0, 0.1  )  };
 */
 
+/*
+   // nice
    static vector4 map[8] = { vector4( 0.5, 0.0, 0.0, 0.0   ), 
                              vector4( 0.5, 0.3, 0.0, 0.1   ),
                              vector4( 0.5, 0.5, 0.5, 0.0   ),
@@ -29,58 +29,18 @@ Background::Background() {
                              vector4( 0.5, 0.4, 0.0, 0.0   ),
                              vector4( 0.5, 0.6, 0.0, 0.1  )  };
 
-
-   // blue yellow
-/*
-   static sgVec4 map[8] = { { 0.0, 0.0, 0.3, 0.1 },
-                            { 0.3, 0.3, 0.0, 0.2 },
-                            { 0.3, 0.0, 0.0, 0.1 },
-                            { 0.3, 0.3, 0.0, 0.3 },
-                            { 0.0, 0.3, 0.3, 0.1 },
-                            { 0.3, 0.3, 0.0, 0.2 },
-                            { 0.0, 0.0, 0.0, 0.0 },
-                            { 0.0, 0.0, 0.3, 0.1 }  };
-
-*/
-/*
-
-   // blah
-   static sgVec4 map[9] = { { 0.7, 0.0, 0.5, 0.1 },
-                            { 0.1, 0.5, 0.0, 0.1 },
-                            { 0.2, 0.0, 0.0, 0.1 },
-                            { 0.3, 0.3, 0.0, 0.1 },
-                            { 0.9, 0.5, 0.5, 0.1 },
-                            { 0.3, 0.0, 0.0, 0.1 },
-                            { 0.2, 0.0, 0.0, 0.1 },
-                            { 0.1, 0.1, 0.5, 0.1 },
-                            { 0.7, 0.0, 0.5, 0.1 }  };
-
 */
 
-/*
-   // dark
-   static sgVec4 map[9] = { { 0.3, 0.0, 0.0, 0.5 },
-                            { 0.0, 0.0, 0.4, 0.25 },
-                            { 0.0, 0.0, 0.0, 0.25 },
-                            { 0.0, 0.2, 0.0, 0.125 },
-                            { 0.5, 0.8, 0.0, 0.5 },
-                            { 0.0, 0.0, 0.3, 0.25 },
-                            { 0.2, 0.0, 0.7, 0.125 },
-                            { 0.0, 0.4, 0.2, 0.25 },
-                            { 0.3, 0.0, 0.0, 0.5 }  };
-*/
+   static vector4 map[8] = { vector4( 0.0, 0.0, 0.5, 0.0   ), 
+                             vector4( 0.0, 0.0, 0.3, 0.1   ),
+                             vector4( 0.0, 0.3, 0.1, 0.0   ),
+                             vector4( 0.5, 0.2, 0.0, 0.1   ),
+                             vector4( 0.5, 0.3, 0.0, 0.0   ),
+                             vector4( 0.0, 0.4, 0.1, 0.1   ),
+                             vector4( 0.0, 0.0, 0.3, 0.0   ),
+                             vector4( 0.0, 0.0, 0.5, 0.1  )  };
 
-/*
-   // reds
-   static sgVec4 map[8] = { { 1.0, 0.0, 0.0, 0.125 },
-                            { 1.0, 1.0, 0.0, 0.25 },
-                            { 1.0, 0.0, 0.0, 0.125 },
-                            { 1.0, 1.0, 0.0, 0.125 },
-                            { 1.0, 1.0, 1.0, 0.25 },
-                            { 1.0, 1.0, 0.0, 0.125 },
-                            { 1.0, 0.0, 0.0, 0.25 },
-                            { 1.0, 1.0, 0.0, 0.125 }  };
-*/
+
 
    palette = new vector4[256];
 
@@ -102,12 +62,14 @@ Background::~Background() {
    delete [] palette;
 }
 
-int plasma(float x, float y, float z) {
+inline int plasma(float x, float y, float z) {
 
    // this is the best one so far
    //float k = 0.25*(sin(x/60)+sin(y/30)+sin(z/23)+sin(x*y*z)/100);
 
-   float k = (sin(sqrt(x*x+y*y)/16.0) + cos(sqrt(x*x+z*z)/-23.0)) / 2.0;
+   float k = (sin(sqrt(x*x+y*y)/16.0) * cos(sqrt(x*x+z*z)/-23.0)) / 1.0;
+//   float k = (sin(sqrt(x*x+y*y)/16.0) + cos(sqrt(x*x+z*z)/-23.0)) / 2.0;
+
    //float k = sin(sqrt(x*x+y*y)/20)*sin(z/60); //+sin(y/100)+sin(z/80);
 
 
@@ -269,10 +231,11 @@ void Background::render(vector3 center, int flags) {
 }
 #endif
 
+void Background::action() {
 
+}
 
-void Background::render(vector3 center, int flags) {
-
+void Background::render() {
 
    glDisable(GL_LIGHTING);
    glDisable(GL_DEPTH_TEST);
@@ -340,9 +303,7 @@ void Background::render(vector3 center, int flags) {
    glEnable(GL_BLEND);
    glBlendFunc(GL_SRC_ALPHA,GL_ONE);
 
-   flags = 0;
 
-   if(!flags) {
 
 
 //   glBegin(GL_QUADS);
@@ -376,7 +337,6 @@ void Background::render(vector3 center, int flags) {
    }
    glEnd();
 
-}
 
 
 //   sgVec3 vel;

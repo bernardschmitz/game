@@ -10,7 +10,7 @@
 
 Player *player = NULL;
 
-Player::Player() {
+Player::Player() : Actor(ACT_PLAYER, vector3(0.0, 0.0, -10.0), vector3(0.0, 0.0, 0.0), vector3(0.0, 0.0, 1.0) ) {
 
    position.set(0.0f, 0.0f, -10.0f);
    velocity.set(0.0f, 0.0f, 0.0f);
@@ -552,7 +552,7 @@ Player::~Player() {
    // do nothing
 }
 
-int Player::action() {
+void Player::action() {
 
    // rotate player
    if(input.rotate_left) {
@@ -585,7 +585,8 @@ int Player::action() {
 
    // shoot
    if(input.fire && shooting == 0) {
-      shooting = 15;
+      //shooting = 15;
+      shooting = 5;
       // recoil
       //vector3 acceleration( -cos(degToRad(z_rotation))/50.0f, -sin(degToRad(z_rotation))/50.0f, 0.0f);
       //velocity += acceleration;
@@ -596,11 +597,33 @@ int Player::action() {
       //pp.scale(10.0);
       //alEnemy.insert(new Enemy(position+pp));
 
-      vector3 vv( cos(degToRad(z_rotation))*1.5f, sin(degToRad(z_rotation))*1.5f, 0.0f);
-      alBullet.insert(new Bullet(position, velocity+vv));
+      vector3 vv( cos(degToRad(z_rotation)), sin(degToRad(z_rotation)), 0.0f);
+      actor_manager.insert(new Bullet(position+velocity+vv/5.0, velocity+vv*1.5));
 
-      // spawn exp
-      //alParticles.first()->init();
+
+/*
+   ParticleDesc pd;
+   memset((void*)&pd, 0, sizeof(pd));
+
+   pd.n = 20;
+   pd.spawn_init = 10;
+   pd.spawn_rate = 5;
+   pd.texture_id = blurry_spot;
+   pd.spawn_pos.set(0.0, 0.0, 0.0);
+   pd.spawn_radius = 0.05;
+   pd.min_energy = 5;
+   pd.max_energy = 20;
+   pd.min_size = 0.02;
+   pd.max_size = 0.1;
+   pd.respawn_on_death = true;
+   pd.energy_in_alpha = true;
+   pd.size_from_velocity = true;
+
+   actor_manager.insert(new ParticleSystem(position+velocity+vv/5.0, velocity+vv*1.4, pd));
+*/
+
+
+
    }
    else {
       if(shooting > 0)
@@ -642,10 +665,9 @@ int Player::action() {
 */
 
 
-   return 0;
 }
 
-int Player::render() {
+void Player::render() {
 
    float  green[] = { 1.0, 1.0, 1.0, 1.0 };
    float  yellow[] = { 1.0, 1.0, 0.0, 1.0 };
@@ -713,8 +735,7 @@ int Player::render() {
     glShadeModel(GL_FLAT);
 
    glEnable(GL_BLEND);
-   glBlendFunc(GL_SRC_ALPHA,GL_ONE);
-   //glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+   glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
 
     glPushMatrix();
@@ -740,7 +761,7 @@ int Player::render() {
    glShadeModel(GL_SMOOTH);
    glDisable(GL_BLEND);
 
-/*
+
 
    // target indicator
    vector3 target(0.0f, 0.0f, -10.0f);
@@ -751,7 +772,12 @@ int Player::render() {
 
    target.normalize();
 
-   float angle = radToDeg(acos(target * vector3(0.0f, 1.0f, 0.0f)));
+   float angle = target * vector3(1.0f, 0.0f, 0.0f);
+
+   angle = radToDeg(acos((angle>=one)?one:(angle<=-one)?-one:angle)) ;
+
+   if(target.y < 0)
+      angle = -angle;
 
    static int dir_finder_delay = 15;
    static int dir_finder_on = 0;
@@ -774,6 +800,7 @@ int Player::render() {
    glPushMatrix();
   
    glTranslatef(position.x, position.y, position.z);
+   glRotatef(-90.0, 0.0, 0.0, 1.0);
    glRotatef(angle, 0.0, 0.0, 1.0);
    glTranslatef(0.0, 3.0, 0.0); 
 
@@ -804,70 +831,6 @@ int Player::render() {
    glEnable(GL_DEPTH_TEST);
 
    }
-*/
-
-
-
-/*
-   glDisable(GL_DEPTH_TEST);
-   glDisable(GL_LIGHTING);
-
-
-   glEnable(GL_BLEND);
-   glBlendFunc(GL_SRC_ALPHA,GL_ONE);
-
-   float scale = 50.0;
-
-   glPushMatrix();
-   glTranslatef(position[0], position[1], position[2]);
-   glTranslatef(-7.0, 4.5, 0.0); 
-   glBegin(GL_QUADS);
-    glColor4f(0.5, 0.5, 1.0, 0.1);
-    glVertex3f( 2.5,  2.5, 0.0);
-    glVertex3f(-2.5,  2.5, 0.0);
-    glVertex3f(-2.5, -2.5, 0.0);
-    glVertex3f( 2.5, -2.5, 0.0);
-
-    glVertex3f( 10.0*2.5/scale,  7.5*2.5/scale, 0.0);
-    glVertex3f(-10.0*2.5/scale,  7.5*2.5/scale, 0.0);
-    glVertex3f(-10.0*2.5/scale, -7.5*2.5/scale, 0.0);
-    glVertex3f( 10.0*2.5/scale, -7.5*2.5/scale, 0.0);
-   glEnd();
-   
-   glEnable(GL_POINT_SMOOTH);
-   glPointSize(3);
-   glBegin(GL_POINTS);
-     glVertex3f(0.0, 0.0, 0.0);
-
-   Actor *pact = alEnemy.first();
-
-   while(pact != alEnemy.head()) {
-                sgVec3 p;
-                pact->position(p);
- 
-                sgSubVec3(p, position);
-
-                p[0] *= 2.5/scale;
-                p[1] *= 2.5/scale;
-                p[2] *= 0.0;
-
-     if(p[0] > -2.5 && p[0] < 2.5 && p[1] > -2.5 && p[1] < 2.5)
-        glVertex3f(p[0], p[1], p[2]);
-
-                pact = alEnemy.next();
-      }
-      
-     
-   glEnd();
-
-   glPopMatrix();
-
-   glEnable(GL_DEPTH_TEST);
-   glEnable(GL_LIGHTING);
-
-   glDisable(GL_BLEND);
-
-*/
 
 
 
@@ -876,8 +839,6 @@ int Player::render() {
 
 
 
-
-   return 0;
 }
 
 

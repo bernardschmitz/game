@@ -4,18 +4,23 @@
 
 #include "main.h"
 
-class Background {
+class Background : public Actor {
 
    private:
       GLuint texture_id[4];
 
       vector4 *palette;
 
+      vector3 center;
+
    public:
       Background();
       ~Background();
 
-      void render(vector3 center, int flags);
+      void setCenter(vector3 v) { center = v; }
+
+      void render();
+      void action();
 };
 
 #endif

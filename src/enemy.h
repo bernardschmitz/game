@@ -10,7 +10,7 @@ class Enemy : public Actor {
 
       vector3 target_pos, target_dir, target_hpr;
 
-      quaternion src, dst;
+      quaternion src, dst, rot;
 
       vector3 angular_vel;
       float w_spd;
@@ -27,7 +27,6 @@ class Enemy : public Actor {
       void action();   
 };
 
-extern ActorList<Enemy> alEnemy;
 
 #endif
 

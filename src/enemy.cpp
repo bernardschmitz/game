@@ -9,11 +9,8 @@
 #define TARGET      2
 
 
-ActorList<Enemy> alEnemy;
 
-
-
-Enemy::Enemy(vector3 p) : Actor() { 
+Enemy::Enemy(vector3 p) : Actor(ACT_ENEMY, p, vector3(0.0, 0.0, 0.0), vector3(0.0, 0.0, 1.0)) { 
 
    //can turn once a frame
    angular_vel.set(0.0, 0.0, degToRad(90.0/50.0));
@@ -22,10 +19,10 @@ Enemy::Enemy(vector3 p) : Actor() {
    v_spd = 0.5;
    v_acc = 0.5;
 
-   dir.set(1.0, 0.0, 0.0);
+   direction.set(1.0, 0.0, 0.0);
    rot.set(0.0, 0.0, 0.0, 1.0);
 
-   pos = p;
+   position = p;
 
    //sgMakeIdentQuat(rot);
 
@@ -886,22 +883,22 @@ vector3 ax;
             float pd = degToRad(uniform_random_float(0.0, 360.0));
             target_pos = player->getPosition()+vector3(cos(pd), sin(pd), 0.0) * 2.0;
 
-            target_dir = !(target_pos - pos);
+            target_dir = !(target_pos - position);
 
-            //dst.setAxisToAxis(dir, target_dir);
+            //dst.setAxisToAxis(direction, target_dir);
 
-            float angle = dir*target_dir;  
+            float angle = direction*target_dir;  
             angle = radToDeg(acos((angle>=one)?one:(angle<=-one)?-one:angle)) ;
             
 //  float f = sgScalarProductVec3 ( v1, v2 ) ;
 //  return (float)(acos((f>=1.0f)?1.0f:(f<=-1.0f)?-1.0f:f)*SG_RADIANS_TO_DEGREES) ;
 
-            float ca = dir*vector3(1.0,0.0,0.0);
+            float ca = direction*vector3(1.0,0.0,0.0);
             ca = radToDeg(acos((ca>=one)?one:(ca<=-one)?-one:ca)) ;
 
 
            if(fabs(angle) > 2.0f) {
-            angular_vel = !(dir % target_dir);
+            angular_vel = !(direction % target_dir);
             angular_vel.scale(degToRad(w_spd));
             }
             else
@@ -910,7 +907,7 @@ vector3 ax;
             //printf("%p ca %f angle %f  avel %f %f %f\n", (void*)this, ca, angle, angular_vel.x, angular_vel.y, angular_vel.z);
 
 //            float angle = target_hpr[0];
-            //float angle = sgAngleBetweenNormalizedVec3(dir, target);  
+            //float angle = sgAngleBetweenNormalizedVec3(direction, target);  
 
             //dst.setAxisAngle(vector3(0.0, 0.0, -1.0), angle); 
             //sgAngleAxisToQuat(dst, angle, 0.0, 0.0, -1.0);
@@ -932,26 +929,26 @@ vector3 ax;
          rot.normalize();
 
          Q = rot * vector3(1.0, 0.0, 0.0) * ~rot;
-         dir = Q.getVector();
+         direction = Q.v;
 
 
-//            vel += dir * v_acc;
+//            vel += direction * v_acc;
         //sgSlerpQuat(rot, src, dst, (15.0-delay)/15.0);
 
          ax = rot.getAxis();
 
          delay--;
-//printf("%p %d dir %f %f %f qangle %f axis %f %f %f\n", (void*)this, delay, dir.x, dir.y, dir.z, rot.getAngle(), ax.x, ax.y, ax.z);
+//printf("%p %d direction %f %f %f qangle %f axis %f %f %f\n", (void*)this, delay, direction.x, direction.y, direction.z, rot.getAngle(), ax.x, ax.y, ax.z);
          if(delay == 0) {
 
            //rot = dst;
 
-         //dir = target_dir;
+         //direction = target_dir;
 
             // acceleration
-            //vel += dir * 0.025f;
+            //vel += direction * 0.025f;
 
-            vel += dir * v_acc;
+            velocity += direction * v_acc;
    
             delay = 25;
             state = MOVING;
@@ -964,21 +961,21 @@ vector3 ax;
    } 
 
    // friction
-   float vmag = vel.lengthSquared();
+   float vmag = velocity.lengthSquared();
    if(vmag > 0.0f) {
-      vector3 friction(vel);
+      vector3 friction(velocity);
       friction.normalize();
-      vel += friction * (-0.001f-0.05f*vmag/(v_spd*v_spd));
+      velocity += friction * (-0.001f-0.05f*vmag/(v_spd*v_spd));
    }
 
    // clamp velocity
-   if(vel.lengthSquared() > v_spd*v_spd) {
-      vector3 n(vel);
+   if(velocity.lengthSquared() > v_spd*v_spd) {
+      vector3 n(velocity);
       n.normalize();
 
-      vel= n * v_spd;
+      velocity= n * v_spd;
    }
-         pos += vel;
+         position += velocity;
  
 }
 
@@ -990,47 +987,20 @@ void Enemy::render() {
    float white[] = { 1.0, 1.0, 1.0, 1.0 };
 
    glPushMatrix();
-   glTranslatef(pos.x, pos.y, pos.z);
+   glTranslatef(position.x, position.y, position.z);
 
+/*
    glDisable(GL_LIGHTING);
    glBegin(GL_LINES);
     glColor4f(1.0, 1.0, 1.0, 1.0);
     glVertex3f(0.0, 0.0, 0.0);
-    glVertex3f(dir.x, dir.y, dir.z);
+    glVertex3f(direction.x, direction.y, direction.z);
     glColor4f(1.0, 1.0, 0.0, 1.0);
     glVertex3f(0.0, 0.0, 0.0);
-    glVertex3f(vel.x, vel.y, vel.z);
+    glVertex3f(velocity.x, velocity.y, velocity.z);
     glEnd();
    glEnable(GL_LIGHTING);
-
-/*
-   glBegin(GL_QUADS);
-    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, red);
-    glNormal3f( 0.0, 0.0, -1);
-    glVertex3f( 0.0, 0.25, 0.0);
-    glVertex3f(-0.2,  0.0, 0.0);
-    glVertex3f( 0.0, -0.2, 0.0);
-    glVertex3f( 0.2, 0.0, 0.0);
-   glEnd();
- 
-   glPushMatrix();
-   sgVec3 axis;
-   float angle;
-
-   sgQuatToAngleAxis(&angle, axis, rot);
-
-   glRotatef(angle, axis[0], axis[1], axis[2]);
-
-   glBegin(GL_QUADS);
-    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, green);
-    glNormal3f( 0.0, 0.0, -1);
-    glVertex3f( 0.0, 1.0, 0.0);
-    glVertex3f(-0.5,  0.0, 0.0);
-    glVertex3f( 0.0, -0.5, 0.0);
-    glVertex3f( 0.5, 0.0, 0.0);
-   glEnd();
-   glPopMatrix();
-*/ 
+*/
 
 
    glPushMatrix();

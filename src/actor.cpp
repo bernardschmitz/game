@@ -1,22 +1,124 @@
 
-// $Id: actor.cpp,v 1.2 2003-07-29 08:12:39 bernard Exp $
+// $Id: actor.cpp,v 1.3 2003-07-31 19:06:08 bernard Exp $
 
 #include "actor.h"
 
+
+int Actor::id_seq = 1;
+
+
+ActorManager actor_manager;
+
+
 // creates a blank actor
 
-Actor::Actor() {
+Actor::Actor(int type, vector3 p, vector3 v, vector3 d) {
 
-   dir.set(0.0, 1.0, 0.0);
+   actor_id = id_seq++;
+   actor_type = type;
 
-  // sgHPRfromVec3(hpr, dir);
+   position = p;
+   velocity = v;
+   
+   direction = d;
 
-   //sgMakeIdentQuat(rot);
+   // TODO
+   // orientation
 
    delay = state = flags = 0;
-
-   pactNext = pactPrev = NULL;
 }
+
+void Actor::update(float dt) {
+
+   action();
+
+}
+
+ActorList ActorManager::get_actor_type_list(int type) {
+
+   ActorList al;
+
+   ActorList::iterator k = master_actor_list.begin();
+
+   while(k != master_actor_list.end()) {
+      if((*k)->actor_type == type)
+         al.push_back((*k));
+      k++;
+   }
+
+   return al;
+}
+
+void ActorManager::insert_new_actors() { 
+
+
+   ActorList::iterator k = new_actor_list.begin();
+
+   while(k != new_actor_list.end()) {
+      master_actor_list.push_back((*k));
+      k = new_actor_list.erase(k);
+   }
+
+   assert(new_actor_list.empty());
+}
+
+
+
+// updates the actor.
+// checks current and future collisions, setting flags.
+// calls user function
+// performs movement step based on dt
+// deletes old actors.
+
+void ActorManager::update(float dt) {
+
+
+   insert_new_actors();
+
+   // TODO
+   // check collisions here
+
+   // now call user function
+   ActorList::iterator k = master_actor_list.begin();
+   while(k != master_actor_list.end()) {
+      //printf("calling update for %p %d %d\n", (void *)(*k), (*k)->actor_type, (*k)->actor_id);
+      (*k)->update(dt);
+      k++;
+   }
+
+   // remove old actors
+
+   k = master_actor_list.begin();
+   while(k != master_actor_list.end()) {
+      if((*k)->flags & ACT_REMOVE)
+         // TODO fix leak here, need to delete the actor itself...  or perhaps flag it for reuse?
+         k = master_actor_list.erase(k);
+      else
+         k++;
+   }
+
+}
+
+
+void ActorManager::render() {
+
+
+   ActorList::iterator k = master_actor_list.begin();
+   while(k != master_actor_list.end()) {
+      //printf("calling render for %p %d %d\n", (void *)(*k), (*k)->actor_type, (*k)->actor_id);
+      (*k)->render();
+      k++;
+   }
+}
+
+
+
+
+
+
+
+
+
 
 /*
 int Actor::Overlap(Actor *pact) {
@@ -86,7 +188,7 @@ void ActorListBase::Collision(ActorListBase &al1) {
 }
 */
 
-
+/*
 void ActorListBase::insert(Actor *pact) {
 
    pact->pactNext = actHead.pactNext;
@@ -145,6 +247,7 @@ void ActorListBase::render() {
       pact = pact->pactNext;
    }
 }
+*/
 
 /*
 void ActorListBase::Erase(int nPage) {
@@ -170,6 +273,7 @@ void ActorListBase::Erase(int nPage) {
 }
 */
 
+/*
 void ActorListBase::clear() {
 
    Actor *pact = actHead.pactNext;
@@ -182,3 +286,4 @@ void ActorListBase::clear() {
    }
 }
 
+*/

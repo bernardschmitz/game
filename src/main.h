@@ -8,6 +8,8 @@
 #define M_PI 3.14159265
 #endif
 
+#include <assert.h>
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -22,6 +24,8 @@
 #include "quaternion.h"
 #include "actor.h"
 
+// TODO remove
+extern GLuint blurry_spot;
 
 #endif
 

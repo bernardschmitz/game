@@ -38,6 +38,7 @@
 static Background *bg;
 static Enemy *enemy;
 
+GLuint blurry_spot;
 
 static GLint T0 = 0;
 static GLint Frames = 0;
@@ -119,58 +120,21 @@ static void draw(void) {
       glTranslatef(-pos.x, -pos.y, -100.0);
 
 
+   //GLint st = SDL_GetTicks();
+   //bg->render(vector3(pos.x, pos.y, mag), flags);
+   //GLint bg_time = SDL_GetTicks() - st;
+
    GLint st = SDL_GetTicks();
 
-   bg->render(vector3(pos.x, pos.y, mag), flags);
+   bg->setCenter(vector3(pos.x, pos.y, mag));
 
-   GLint bg_time = SDL_GetTicks() - st;
-
-   st = SDL_GetTicks();
-
-   alEnemy.render();
-   alBullet.render();
-
-   player->render();
-
-   alParticles.render();
-
-/*
-   sgVec3 A, B, C, D;
-
-   sgCopyVec3(A, pos);
-   //sgSetVec3(A, -5.0, 0.0, -8.0);
-   sgSetVec3(B,  1.0, -2.0, -8.0);
-   sgSetVec3(C,  2.0, 2.0, -8.0);
-   sgSetVec3(D,  -2.0, 3.0, -8.0);
-
-   glBegin(GL_LINE_STRIP);
-        glVertex3f(A[0], A[1], A[2]);
-        glVertex3f(B[0], B[1], B[2]);
-        glVertex3f(C[0], C[1], C[2]);
-        glVertex3f(D[0], D[1], D[2]);
-   glEnd();
-
-   glBegin(GL_LINE_STRIP);
-     for(int i=0; i<=10; i++) {
-        sgVec3 p;
-        quadratic_interpolate(p, A, B, C, i/10.0);
-        glVertex3f(p[0], p[1], p[2]);
-     }
-   glEnd();
-
-   glBegin(GL_LINE_STRIP);
-     for(int i=0; i<=10; i++) {
-        sgVec3 p;
-        cubic_interpolate(p, A, B, C, D, i/10.0);
-        glVertex3f(p[0], p[1], p[2]);
-     }
-   glEnd();
-
-*/
+   actor_manager.render();
 
    GLint player_time = SDL_GetTicks() - st;
 
+   st = SDL_GetTicks();
    SDL_GL_SwapBuffers();
+   GLint bg_time = SDL_GetTicks() - st;
 
    Frames++;
 
@@ -182,7 +146,7 @@ static void draw(void) {
       T0 = t;
       Frames = 0;
 
-      printf("%d %d %d\n", clear_time, bg_time, player_time);
+      printf("\tclear time %d  render time %d swap time %d\n", clear_time, player_time, bg_time);
    }
 
 
@@ -191,6 +155,8 @@ static void draw(void) {
 
    if(ww > 1)
       SDL_Delay(ww);
+
+//   SDL_Delay(100);
 }
 
 static void
@@ -200,10 +166,7 @@ idle(void)
 
    input.process();
 
-   player->action();
-   alEnemy.action();
-   alBullet.action();
-   alParticles.action();
+   actor_manager.update(1.0/50.0);
 }
 
 /* new window size or exposure */
@@ -267,7 +230,8 @@ init(int argc, char *argv[])
   glEnable(GL_NORMALIZE);
 
 
-  bg = new Background();
+   bg = new Background();
+   actor_manager.insert(bg);
 
 /*
    vector3 p( -20.0, 20.0, -10.0 );
@@ -278,16 +242,34 @@ init(int argc, char *argv[])
    }
 */
 
-   alEnemy.insert(new Enemy(vector3(10, 10, -10)));
-   alEnemy.insert(new Enemy(vector3(20, 10, -10)));
-   alEnemy.insert(new Enemy(vector3(-50, -25, -10)));
-   alEnemy.insert(new Enemy(vector3(10, -10, -10)));
 
-   alParticles.insert(new ParticleSystem());
+   actor_manager.insert(new Enemy(vector3(10, 10, -10)));
+   actor_manager.insert(new Enemy(vector3(20, 10, -10)));
+   actor_manager.insert(new Enemy(vector3(-50, -25, -10)));
+   actor_manager.insert(new Enemy(vector3(10, -10, -10)));
 
+
+   ParticleDesc pd;
+   memset((void*)&pd, 0, sizeof(pd));
+
+   pd.n = 1000; 
+   pd.spawn_init = pd.n-100;
+   pd.spawn_rate = 50;
+   pd.texture_id = blurry_spot;
+   pd.spawn_pos.set(0.0, 0.0, 0.0);
+   pd.spawn_radius = 0.1;
+   pd.min_energy = 10;
+   pd.max_energy = 50;
+   pd.min_size = 0.1;
+   pd.max_size = 0.3;
+   pd.respawn_on_death = false;
+   pd.energy_in_alpha = true;
+   pd.size_from_velocity = true;
+
+//   actor_manager.insert(new ParticleSystem(vector3(0.0,0.0,-10.0), vector3(0.0,0.0,0.0), pd));
 
    player = new Player();
-
+   actor_manager.insert(player);
 
    box = glGenLists(1);
    glNewList(box, GL_COMPILE);
@@ -348,6 +330,73 @@ init(int argc, char *argv[])
    delete [] data;
 */
 
+   GLuint gluerr;
+   GLubyte tex[128][128][4];
+   int x,y,t;
+   int hole_size = 63*63; //3300; // ~ == 57.45 ^ 2.
+
+   // Generate a texture index, then bind it for future operations.
+   // Iterate across the texture array.
+
+   for(y=0;y<128;y++) {
+      for(x=0;x<128;x++) {
+
+        // Make a round dot in the texture's alpha-channel.
+
+         // Calculate distance to center (squared).
+         t = (x-64)*(x-64) + (y-64)*(y-64) ;
+
+         if ( t < hole_size) {// Don't take square root; compare squared.
+            //tex[x][y]= 240 - (240 * t) / hole_size + ourRand(15);
+            tex[x][y][0]=0;   // Outside of the dot, it's transparent.
+            tex[x][y][1]=0;   // Outside of the dot, it's transparent.
+            tex[x][y][2]=0;   // Outside of the dot, it's transparent.
+            tex[x][y][3]=0;   // Outside of the dot, it's transparent.
+
+            tex[x][y][0]= 240 - (240 * t) / hole_size + uniform_random_int(0, 15);
+            tex[x][y][1]= 240 - (240 * t) / hole_size + uniform_random_int(0, 15);
+         //   tex[x][y][2]= 240 - (240 * t) / hole_size + uniform_random_int(0, 15);
+            tex[x][y][3]= 240 - (240 * t) / hole_size + uniform_random_int(0, 15);
+         }
+         else {
+            tex[x][y][0]=0;   // Outside of the dot, it's transparent.
+            tex[x][y][1]=0;   // Outside of the dot, it's transparent.
+            tex[x][y][2]=0;   // Outside of the dot, it's transparent.
+            tex[x][y][3]=0;   // Outside of the dot, it's transparent.
+         }
+
+
+
+      }
+   }
+
+
+   glGenTextures(1, &blurry_spot);
+   glBindTexture(GL_TEXTURE_2D, blurry_spot);
+
+   // The GLU library helps us build MipMaps for our texture.
+
+   if ((gluerr=gluBuild2DMipmaps(GL_TEXTURE_2D, 4, 128, 128, GL_RGBA, GL_UNSIGNED_BYTE, (void *)tex))) {
+
+      fprintf(stderr,"GLULib%s\n",gluErrorString(gluerr));
+   }
+
+   // Some pretty standard settings for wrapping and filtering.
+   glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+   glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+
+
+   // Some pretty standard settings for wrapping and filtering.
+   glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+   glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+
+   glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+   //glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+   glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+
+   // We start with GL_MODULATE mode.
+   glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+   //glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
 
 
 
