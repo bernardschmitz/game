@@ -15,6 +15,10 @@ class Background : public Actor {
 
       float u, ux, uy, uz;
 
+      unsigned char *strips;
+      float *cols;
+
+      int hex_tex;
    public:
       Background();
       ~Background();

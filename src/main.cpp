@@ -166,7 +166,8 @@ static void draw(void) {
    //printf("delta %d %f\n", delta, delta/1000.0);
 
 
-   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+   //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+   glClear(GL_DEPTH_BUFFER_BIT);
 
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
@@ -194,10 +195,11 @@ static void draw(void) {
       glTranslatef(-pos.x, -pos.y, -100.0);
 
 
+   actor_manager->render();
+
    //bg->setCenter(vector3(pos.x, pos.y, 0.0));
    bg->setCenter(vector3(pos.x, pos.y, mag));
 
-   actor_manager->render();
 
    char fs[100];
    sprintf(fs, "fps %3d", (int)fps);
