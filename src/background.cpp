@@ -431,7 +431,7 @@ void Background::render() {
    for(int i=0; i<p; i++) {
       dd = (fabs(z)-cz)*1.0;
 
-      printf("dd = %f\n", dd);
+      //printf("dd = %f\n", dd);
 
       dd = fabs(z)-cz;
       for(float y=cy-dd; y<cy+dd+s; y+=s) {
@@ -472,7 +472,7 @@ void Background::render() {
    for(int i=0; i<p; i++) {
       dd = (fabs(z)-cz)*1.0;
 
-      printf("dd = %f\n", dd);
+      //printf("dd = %f\n", dd);
 
 if(i==2){
    s = s/2.0;
@@ -520,7 +520,7 @@ if(i==2){
       z += zs;
    }
 
-printf("%d triangles fans\n", tf);
+//printf("%d triangles fans\n", tf);
 
 
 */
@@ -535,7 +535,7 @@ printf("%d triangles fans\n", tf);
    for(int i=0; i<p-1; i++) {
       dd = (fabs(z)-cz)*1.0;
 
-      printf("dd = %f\n", dd);
+      //printf("dd = %f\n", dd);
 
       float offset = 0.0;
       for(float y=cy-dd; y<cy+dd+s; y+=s) {
@@ -593,7 +593,7 @@ printf("%d triangles fans\n", tf);
 
       dd = (fabs(z)-cz)*1.0;
 
-      printf("dd = %f\n", dd);
+      //printf("dd = %f\n", dd);
 
       float offset = 0.0;
       for(float y=cy-dd; y<cy+dd+s; y+=s) {
@@ -625,7 +625,7 @@ printf("%d triangles fans\n", tf);
          }
       }
  
-printf("%d triangles fans\n", tf);
+//printf("%d triangles fans\n", tf);
 
 
 
@@ -667,7 +667,7 @@ printf("%d triangles fans\n", tf);
 #endif
 
  
-   glClear(GL_COLOR_BUFFER_BIT);
+//   glClear(GL_COLOR_BUFFER_BIT);
 
    glDisable(GL_LIGHTING);
    glDisable(GL_DEPTH_TEST);
@@ -686,7 +686,7 @@ printf("%d triangles fans\n", tf);
    cy = rint(center.y/s)*s;
    cz = rint(center.z/s)*s;
 
-   printf("c %f %f %f cx %f cy %f cz %f\n", center.x, center.y, center.z, cx, cy, cz);
+   //printf("c %f %f %f cx %f cy %f cz %f\n", center.x, center.y, center.z, cx, cy, cz);
 
    glPushMatrix();
    glTranslatef(cx,cy,-40.0);
@@ -697,7 +697,7 @@ printf("%d triangles fans\n", tf);
    sx = floor((d)/s)*s;
    sy = s+floor((d*0.75)/s)*s;
 
-   printf("0 z %f d %f sx %f sy %f\n", z, d, sx, sy);
+   ////printf("0 z %f d %f sx %f sy %f\n", z, d, sx, sy);
 
 /*
    glBegin(GL_LINES);
@@ -737,21 +737,28 @@ printf("%d triangles fans\n", tf);
 
 
    glPopMatrix();
-/*
+
 
    glPushMatrix();
    glTranslatef(cx,cy,-10.0);
 
+   
+
    z = -10.0;
-   d = 1.0+fabs(cz) + fabs(z);
+   d = s+fabs(cz) + fabs(z);
+
+   s = s/ 2;
 
    sx = floor((d)/s)*s;
    sy = floor((d*0.75)/s)*s;
 
-   printf("1 z %f d %f sx %f sy %f\n", z, d, sx, sy);
+   //printf("1 z %f d %f sx %f sy %f\n", z, d, sx, sy);
+
+   glEnable(GL_BLEND);
+   glBlendFunc(GL_SRC_ALPHA,GL_ONE);
 
    glBegin(GL_LINES);
-   glColor4f(0.0, 0.5, 0.0, 1.0);
+   glColor4f(0.75, 0.75, 0.75, 0.1);
    for(float y=-sy; y<=sy; y+=s) {
       glVertex3f(-sx, y, 0.0);         
       glVertex3f(sx, y, 0.0);         
@@ -762,7 +769,7 @@ printf("%d triangles fans\n", tf);
    }
    glEnd();
 
-
+/*
    glBegin(GL_LINES);
     glColor4f(1.0, 0.0, 0.0, 1.0);
     glVertex3f(0.0, 5.0, 0.0);
@@ -770,11 +777,11 @@ printf("%d triangles fans\n", tf);
     glVertex3f(-5.0, 0.0, 0.0);
     glVertex3f(5.0, 0.0, 0.0);
    glEnd();
-
+*/
 
    glPopMatrix();
 
-*/
+
 
 
 
