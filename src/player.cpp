@@ -13,7 +13,7 @@
 Player *player = NULL;
 
 
-Player::Player() : Actor(ACT_PLAYER, vector3(0.0, 0.0, -10.0), vector3(0.0, 0.0, 0.0), vector3(0.0, 0.0, 1.0) ) {
+Player::Player() : Actor(ACT_PLAYER, vector3(0.0, 0.0, -10.0)) {
 
    dot = TextureManager::getInstance()->load("white_spot.png");
 
@@ -26,10 +26,9 @@ Player::Player() : Actor(ACT_PLAYER, vector3(0.0, 0.0, -10.0), vector3(0.0, 0.0,
    shooting = 0;
 
    mass = 100.0;
-   drag = 5;
-   friction = 500;
    // the 5000 is the max thrust
-   max_speed = sqrt((5000 - friction)/drag);
+   max_speed = 30.0;
+   max_force = 5000.0;
 
    dl_cockpit = glGenLists(5);
 
@@ -589,8 +588,8 @@ void Player::action(float dt) {
 //      if(thrusting < 30)
 //         thrusting++;
 
-      vector3 thrust( cos(degToRad(z_rotation)), sin(degToRad(z_rotation)), 0.0f);
-      force += thrust * 5000.0;
+      vector3 thrust_dir( cos(degToRad(z_rotation)), sin(degToRad(z_rotation)), 0.0f);
+      force = thrust_dir * max_force;
 
 
 

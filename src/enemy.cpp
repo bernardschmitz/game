@@ -1,4 +1,5 @@
 
+#include <iostream>
 
 #include "enemy.h"
 #include "player.h"
@@ -10,7 +11,7 @@
 
 
 
-Enemy::Enemy(vector3 p) : Actor(ACT_ENEMY, p, vector3(0.0, 0.0, 0.0), vector3(0.0, 0.0, 1.0)) { 
+Enemy::Enemy(vector3 p) : Actor(ACT_ENEMY, p) { 
 
    //can turn once a frame
    angular_vel.set(0.0, 0.0, degToRad(90.0/50.0));
@@ -19,21 +20,32 @@ Enemy::Enemy(vector3 p) : Actor(ACT_ENEMY, p, vector3(0.0, 0.0, 0.0), vector3(0.
    v_spd = 0.5;
    v_acc = 750 + uniform_random_float(-50.0, 50.0);
 
-   mass = 10.0;
+   mass = 10.0 + uniform_random_float(-4.0, 10.0);;
 
-   drag = 2;
-   friction = 500;
+   max_speed = 25.0 + uniform_random_float(-15.0, 10.0);
+   max_force = 150.0+ uniform_random_float(50, 200.0);
 
-   direction.set(1.0, 0.0, 0.0);
+
+   velocity.x = uniform_random_float(-1.0f, 1.0f);
+   velocity.y = uniform_random_float(-1.0f, 1.0f);
+   velocity.z = 0.0f;
+
+   velocity = (!velocity) * max_speed/10;
+
    rot.set(0.0, 0.0, 0.0, 1.0);
 
    position = p;
+
+   look_ahead = max_speed*0.15;
+
+   target_pos = vector3( uniform_random_float(-40.0, 40.0), uniform_random_float(-40.0, 40.0), -10.0 );
 
    //sgMakeIdentQuat(rot);
 
    delay = 1;
    state = TARGET;
 
+   pain = !(target_pos + vector3(40, 40, 10+uniform_random_float(0.0, 40.0)));
 
    dl_enemy = glGenLists(1);
 
@@ -866,125 +878,325 @@ Enemy::~Enemy() {
 }
 
 
+
+
+float
+Enemy::NearestApproachTime(Enemy *other)
+{
+    // imagine we are at the origin with no velocity,
+    // compute the relative velocity of the other vehicle
+    const vector3 myVelocity = velocity;
+    const vector3 otherVelocity = other->getVelocity();
+    const vector3 relVelocity = otherVelocity - myVelocity;
+    const float relSpeed = relVelocity.length();
+
+    // Now consider the path of the other vehicle in this relative
+    // space, a line defined by the relative position and velocity.
+    // The distance from the origin (our vehicle) to that line is
+    // the nearest approach.
+
+    // Take the unit tangent along the other vehicle's path
+    const vector3 relTangent = relVelocity / relSpeed;
+
+    // find distance from its path to origin (compute offset from
+    // other to us, find length of projection onto path)
+    const vector3 relPosition = position - other->getPosition();
+    const float projection = relTangent * (relPosition);
+
+    return projection / relSpeed;
+}
+
+
+// Given the time until nearest approach (predictNearestApproachTime)
+// determine position of each vehicle at that time, and the distance
+// between them
+
+
+float
+Enemy::NearestApproachPositions (Enemy *other, float time) {
+
+    const vector3    myTravel =       velocity * time;
+    const vector3 otherTravel = other->getVelocity() * time;
+
+    const vector3    myFinal =       position  +    myTravel;
+    const vector3 otherFinal = other->getPosition () + otherTravel;
+
+    const vector3 distance = myFinal - otherFinal;
+
+    return distance.length();
+}
+
+
+
+
+
+
+
+
+
+
+
+
 void Enemy::action(float dt) {
 
-quaternion Q;
-vector3 ax;
+   static int total_collisions = 0;
 
-   switch(state) {
+   tt = dt;
 
-      case MOVING:
-          //force.set(0.0, 0.0, 0.0);
-         if(delay < 0.0) {
-            delay = 0.1;
-            state = TARGET;
-         }
-         break;
+   //float pd = degToRad(uniform_random_float(0.0, 360.0));
+   //target_pos = player->getPosition()+vector3(cos(pd), sin(pd), 0.0) * 2.0;
 
-      case TARGET:
-         if(delay < 0.0) {
+   if(delay <= 0.0) {
 
-            float pd = degToRad(uniform_random_float(0.0, 360.0));
-            target_pos = player->getPosition()+vector3(cos(pd), sin(pd), 0.0) * 2.0;
 
-            target_dir = !(target_pos - position);
+    steering = vector3(0,0,0);
 
+    // otherwise, go on to consider potential future collisions
+    float steer = 0;
+    Enemy* threat = 0;
+
+    // Time (in seconds) until the most immediate collision threat found
+    // so far.  Initial value is a threshold: don't look more than this
+    // many frames into the future.
+    float minTime = look_ahead;
+
+    // for each of the other vehicles, determine which (if any)
+    // pose the most immediate threat of collision.
+    ActorList al = ActorManager::getInstance()->get_actor_type_list(ACT_ENEMY);
+
+    int hit = 0;
+
+    for(int i=0; i<al.size(); i++) {
+
+       Enemy *other = (Enemy *)al[i];
+       if(other != this) {
+
+          vector3 dist = position - other->getPosition();
+
+          float d = dist.length();
+
+          if(d <= 1.0*2) {
+
+             float proj =  !velocity * dist;
+             vector3 st = proj * !velocity;
+
+             if(velocity.length() <= tiny)
+                st = !dist;
+
+             steering += st;
+
+             hit++;
+          
+             std::cout << "me p " << position << " him p " << other->getPosition() << 
+                  "me v " << velocity << " him v " << other->getVelocity() <<
+                  "dir " << dist << " dist " << d << " steer " << steering << std::endl;
 /*
-            float angle = direction*target_dir;  
-            angle = radToDeg(acos((angle>=one)?one:(angle<=-one)?-one:angle)) ;
-            
-            float ca = direction*vector3(1.0,0.0,0.0);
-            ca = radToDeg(acos((ca>=one)?one:(ca<=-one)?-one:ca)) ;
+             pain.z -= (1.0f/255.0f);
+
+             if(pain.z < 0.0f) {
+                pain.z = 0.0f;
+                pain.y -= (1.0f/255.0f);
+                if(pain.y < 0.0f) {
+                   pain.y = 0.0f;
+                   pain.x -= (1.0f/255.0f);
+                   if(pain.x < 0.0f) {
+                      pain.set(1.0f,1.0f,1.0f);
+                   }
+                }
+             } 
+*/
+             break;
 
 
-           if(fabs(angle) > 2.0f) {
-            angular_vel = !(direction % target_dir);
-            angular_vel.scale(degToRad(w_spd*dt));
+          }
+       }
+    }
+
+total_collisions += hit;
+
+
+
+if(hit==0) {
+
+   float t = 0.0;
+
+   vector3 dist = position - target_pos;
+
+   t = dist.length();
+
+   if(t <= 1.0)
+      target_pos = vector3( uniform_random_float(-40.0, 20.0), uniform_random_float(-20.0, 20.0), -10.0 );
+   //target_pos = player->getPosition() + player->getVelocity() * dt * t;
+ 
+   //std::cout << "target = " << target_pos << std::endl;
+
+   target_dir = !(target_pos - position);
+
+   vector3 dv = target_dir * max_speed;
+
+   steering = dv - velocity;
+
+
+    //al = ActorManager::getInstance()->get_actor_type_list(ACT_ENEMY);
+
+    for(int i=0; i<al.size(); i++) {
+
+        Enemy *other = (Enemy *)al[i];
+        if (other != this)
+        {	
+            // avoid when future positions are this close (or less)
+            const float collisionDangerThreshold = 1.0 * 2;
+
+            // predicted time until nearest approach of "this" and "other"
+            const float time = NearestApproachTime (other);
+
+            // If the time is in the future, sooner than any other
+            // threatened collision...
+            if ((time >= 0) && (time < minTime))
+            {
+                // if the two will be close enough to collide,
+                // make a note of it
+                if (NearestApproachPositions (other, time)
+                    < collisionDangerThreshold)
+                {
+                    minTime = time;
+                    threat = other;
+                }
+            }
+        }
+    }
+
+    // if a potential collision was found, compute steering to avoid
+    if (threat != 0)
+    {
+
+       vector3 up(0,0,-1);
+       vector3 forward = !velocity;
+       vector3 side = forward % up;
+       up = forward % side;  
+
+float brake = 0;
+float accel = 0;
+
+        // parallel: +1, perpendicular: 0, anti-parallel: -1
+        float parallelness = (!velocity) * (!threat->getVelocity());
+        float angle = 0.707f;
+
+        if (parallelness < -angle)
+        {
+            // anti-parallel "head on" paths:
+            // steer away from future threat position
+            vector3 threat_pos = threat->getPosition() + threat->getVelocity() * minTime;
+            vector3 offset = threat_pos - position;
+            float sideDot = offset * (side);
+            steer = (sideDot > 0) ? -1 : 1;
+            //brake = 1;
+            // scale steer by inverse distance...
+            //steer *= 10/(offset.length()+0.1);
+        }
+        else
+        {
+            if (parallelness > angle)
+            {
+                // parallel paths: steer away from threat
+                vector3 offset = threat->getPosition() - position;
+                float sideDot = offset * side;
+                steer = (sideDot > 0) ? -1 : 1;
+                //accel = 1.0;
             }
             else
-                 angular_vel.set(0,0,0);
+            {
+                // perpendicular paths: steer behind threat
+                // (only the slower of the two does this)
 
-            //printf("%p ca %f angle %f  avel %f %f %f\n", (void*)this, ca, angle, angular_vel.x, angular_vel.y, angular_vel.z);
+                if ((threat->getVelocity()).length() <= velocity.length())
+                {
+                    float sideDot = side * threat->getVelocity();
+                    steer = (sideDot > 0) ? -1 : 1;
+                }
+            }
+        }
 
-//            float angle = target_hpr[0];
-            //float angle = sgAngleBetweenNormalizedVec3(direction, target);  
+    steering = side * steer + -forward * brake + forward*accel;
+    }
 
-            //dst.setAxisAngle(vector3(0.0, 0.0, -1.0), angle); 
-            //sgAngleAxisToQuat(dst, angle, 0.0, 0.0, -1.0);
+}
 
-            //src = rot;
 
-            delay = 0.1+angle/(w_spd*dt);
-*/
-            delay = 0.1;
-            state = TRACKING;
-         }
-         break;
-
-      case TRACKING:
 
 
 /*
-         rot += (angular_vel*rot)*0.5;
-
-         rot.normalize();
-
-         Q = rot * vector3(1.0, 0.0, 0.0) * ~rot;
-         direction = Q.v;
 
 
-//            vel += direction * v_acc;
-        //sgSlerpQuat(rot, src, dst, (15.0-delay)/15.0);
+    ActorList al = ActorManager::getInstance()->get_actor_type_list(ACT_ENEMY);
 
-         ax = rot.getAxis();
+    bool hit = false;
+   float min_coll = look_ahead;
 
-//printf("%p %d direction %f %f %f qangle %f axis %f %f %f\n", (void*)this, delay, direction.x, direction.y, direction.z, rot.getAngle(), ax.x, ax.y, ax.z);
-         if(delay < 0.0) {
+    for(int i=0; i<al.size(); i++) {
+ 
+       if(al[i]->getId() != actor_id) {
 
-           //rot = dst;
 
-         //direction = target_dir;
+   vector3 A, B;
+   float a, b;
 
-            // acceleration
 
-            //velocity += direction * v_acc;
-*/
-            if(delay < 0.0) {
-               force = target_dir * v_acc;
-   
-               delay = 1.0;
-               state = MOVING;
+   if(LineLineIntersect(al[i]->getPosition(), al[i]->getPosition()+al[i]->getVelocity()*look_ahead,
+                        position, position+velocity*look_ahead,
+                        A, B, a, b)) {
+
+      if( (a >= zero && a <= one) && (b >= zero && b <= one)) {
+         vector3 dist = B-A;
+         float d = dist.length();
+
+         if(d <= 2.0 && b < min_coll) {
+            // collision will happen in look_ahead seconds.
+            target_pos = A;
+            if(d < tiny)
+               target_dir = !(position - al[i]->getPosition());
+            else 
+               target_dir = B-A;
+            min_coll = b;
+              hit = true;
          }
-         break;
+      }
 
-      default: 
-         delay = 0.1;
-         state = TARGET;
-         break;
-   } 
+    }
 
-/*
-   // friction
-   float vmag = velocity.lengthSquared();
-   if(vmag > 0.0f) {
-      vector3 friction(velocity);
-      friction.normalize();
-      velocity += friction * (-0.001f-0.05f*vmag/(v_spd*v_spd));
+   vector3 d = al[i]->getPosition() - position;
+     if(d.length() <= 2.0) {
+      hit = true;
+      target_pos = al[i]->getPosition();
    }
 
-   // clamp velocity
-   if(velocity.lengthSquared() > v_spd*v_spd) {
-      vector3 n(velocity);
-      n.normalize();
+} 
 
-      velocity= n * v_spd;
+  }
+
+   if(hit) {
+ 
+   //std::cout << "target = " << target_pos << std::endl;
+            std::cout << "may hit!\n";
+
+   //target_dir = !(position - target_pos);
+
+   vector3 dv = target_dir * max_speed;
+
+   steering = dv - velocity;
+}
+*/
+
+
+   force = mass * (steering / dt);
+
+   delay = 0.0; //0.25;
    }
-         //position += velocity;
-*/ 
 }
 
 
 void Enemy::render() {
+
 
    float green[] = { 0.5, 0.8, 1.0, 1.0 };
    float red[] = { 0.9, 0.3, 0.4, 1.0 };
@@ -993,36 +1205,76 @@ void Enemy::render() {
    glPushMatrix();
    glTranslatef(position.x, position.y, position.z);
 
-/*
    glDisable(GL_LIGHTING);
    glBegin(GL_LINES);
-    glColor4f(1.0, 1.0, 1.0, 1.0);
+    glColor4f(0.0, 1.0, 1.0, 1.0);
     glVertex3f(0.0, 0.0, 0.0);
-    glVertex3f(direction.x, direction.y, direction.z);
-    glColor4f(1.0, 1.0, 0.0, 1.0);
+    vector3 ss = velocity * look_ahead;
+    glVertex3f(ss.x, ss.y, ss.z);
+//    glColor4f(1.0, 1.0, 0.0, 1.0);
+//    glVertex3f(0.0, 0.0, 0.0);
+//    glVertex3f(velocity.x, velocity.y, velocity.z);
+    glColor4f(0.0, 1.0, 0.0, 1.0);
     glVertex3f(0.0, 0.0, 0.0);
-    glVertex3f(velocity.x, velocity.y, velocity.z);
+    glVertex3f(steering.x, steering.y, steering.z);
+
     glEnd();
-   glEnable(GL_LIGHTING);
-*/
+
+   glColor4f(pain.x, pain.y, pain.z, 1.0);
+   glBegin(GL_TRIANGLE_FAN);
+    for(int i=0; i<12; i++) {
+       float x = cos(i/12.0*2.0*M_PI);
+       float y = sin(i/12.0*2.0*M_PI);
+       glVertex3f(x, y, 0.0);
+    }
+   glEnd();
+
+   vector3 A, B;
+   float a, b;
+
+  glPopMatrix();
 
 
    glPushMatrix();
-   vector3 axis = rot.getAxis();
-   float angle = rot.getAngle();
+   glTranslatef(target_pos.x, target_pos.y, target_pos.z);
+   glBegin(GL_TRIANGLE_FAN);
+    for(int i=0; i<12; i++) {
+       float x = 0.5*cos(i/12.0*2.0*M_PI);
+       float y = 0.5*sin(i/12.0*2.0*M_PI);
+       glVertex3f(x, y, 0.0);
+    }
+   glEnd();
+   glPopMatrix();
+
+
+   glBegin(GL_LINES);
+    glColor4f(0.0, 0.0, 1.0, 1.0);
+    glVertex3f(position.x, position.y, position.z);
+    glVertex3f(target_pos.x, target_pos.y, target_pos.z);
+   glEnd();
+
+   glEnable(GL_LIGHTING);
+
+
+/*
+   glPushMatrix();
+   glTranslatef(position.x, position.y, position.z);
+//   glPushMatrix();
+//   vector3 axis = rot.getAxis();
+//   float angle = rot.getAngle();
 
    //sgQuatToAngleAxis(&angle, axis, rot);
-   
-   glScalef(0.2, 0.2, 0.2);
+   //glScalef(0.2, 0.2, 0.2);
+   glScalef(0.5, 0.5, 0.5);
+//   glRotatef(-90, 0.0, 0.0, 1.0);
+   float f = vector3(0.0, 1.0, 0.0) * !velocity;
+ f = (float)(acos((f>=1.0f)?1.0f:(f<=-1.0f)?-1.0f:f)) ;
 
-   glRotatef(-90, 0.0, 0.0, 1.0);
-   glRotatef(angle, axis.x, axis.y, axis.z);
+   glRotatef(f*180.0/M_PI, 0.0, 0.0, 1.0);
 
    glCallList(dl_enemy);
 
-
   glPopMatrix();
-  glPopMatrix();
-
+*/
 }
 

@@ -1,14 +1,15 @@
 
-// $Id: actor.h,v 1.9 2003-08-07 02:51:33 bernard Exp $
+// $Id: actor.h,v 1.10 2003-08-15 20:38:54 bernard Exp $
 
 #ifndef __ACTOR_H__
 #define __ACTOR_H__
 
-#include "main.h"
-
 #include <iostream>
 #include <vector>
 
+#include "vector.h"
+
+// TODO change to enum elsewhere...
 #define ACT_CONSOLE      1
 #define ACT_BACKGROUND   2
 #define ACT_PLAYER       3
@@ -18,7 +19,7 @@
 
 
 // actor class, much like a sprite
-
+// TODO change to enum?
 #define ACT_COLLISION      0x01
 #define ACT_REMOVE         0x02
 
@@ -28,17 +29,21 @@ class Actor {
       vector3 position;
       vector3 velocity;
       vector3 acceleration;
+      vector3 force;
 
-      vector3 direction;
-      quaternion orientation;
+      vector3 forward_axis;
+      vector3 right_axis;
+      vector3 up_axis;
 
       float mass;
+      float speed;
+
+      float max_force;
+      float max_thrust_force;
+      float max_steering_force;
+      float max_braking_force;
 
       float max_speed;
-      float drag;
-      float friction;
-      
-      vector3 force;
 
       int actor_id;             // unique actor id
       int actor_type;           // type
@@ -50,32 +55,28 @@ class Actor {
 
       static int id_seq;       
 
-      //sgBox bound_box;
-      //sgSphere bound_sphere;
-
-//      Actor *pactNext;           // next actor
-//      Actor *pactPrev;           // prev actor
-
-      void init(int type, vector3 p, vector3 v, vector3 d);
+      float bound_radius;
 
    public:
-      Actor(int type);
-      Actor(int type, vector3 p, vector3 v, vector3 d);
+      Actor(int type, vector3 pos=vector3(0.0f, 0.0f, 0.0f), vector3 vel=vector3(0.0f, 0.0f, 0.0f),  
+            float m=1.0f, float ms=1.0f, float br=1.0f, 
+            float mtf=1.0f, float msf=1.0f, float mbf=1.0f, 
+            vector3 dir=vector3(0.0f, 1.0f, 0.0f), vector3 up=vector3(0.0f, 0.0f, 1.0f));
+
       virtual ~Actor() { }
 
-      //int XPos(void) { return(nXPos); }
-      //int YPos(void) { return(nYPos); }
-      //int Width(void) { return(nWidth); }
-      //int Height(void) { return(nHeight); }
-   
+
+      int getType() { return actor_type; }
+      int getId() { return actor_id; }
+
       vector3 getPosition() { return position; }
       vector3 getVelocity() { return velocity; }
       vector3 getAcceleration() { return acceleration; }
-      vector3 getDirection() { return direction; }
-      quaternion getOrientation() { return orientation; }
 
-      //int Overlap(Actor *);   // returns true if this actor overlaps (collides)
-                              // with the actor pointed to
+      vector3 getForwardAxis() { return forward_axis; }
+      vector3 getRightAxis() { return right_axis; }
+      vector3 getUpAxis() { return up_axis; }
+
 
       virtual void update(float dt);  // update, calls action, move etc...
 

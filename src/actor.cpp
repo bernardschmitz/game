@@ -1,6 +1,9 @@
 
-// $Id: actor.cpp,v 1.9 2003-08-07 02:51:33 bernard Exp $
+// $Id: actor.cpp,v 1.10 2003-08-15 20:38:54 bernard Exp $
 
+#include <iostream>
+
+#include "vector.h"
 #include "actor.h"
 
 
@@ -18,21 +21,7 @@ ActorManager *ActorManager::getInstance() {
 }
 
 
-// creates a blank actor
-
-Actor::Actor(int type) {
-
-   init(type, vector3(0.0, 0.0, 0.0), vector3(0.0, 0.0, 0.0), vector3(0.0, 0.0, 0.0));
-}
-
-
-Actor::Actor(int type, vector3 p, vector3 v, vector3 d) {
-
-   init(type, p, v, d);
-}
-
-
-inline void Actor::init(int type, vector3 p, vector3 v, vector3 d) {
+Actor::Actor(int type, vector3 p, vector3 v, float m, float ms, float br, float mtf, float msf, float mbf, vector3 d, vector3 u) {
 
    actor_id = id_seq++;
    actor_type = type;
@@ -40,21 +29,32 @@ inline void Actor::init(int type, vector3 p, vector3 v, vector3 d) {
    position = p;
    velocity = v;
 
-   acceleration = vector3(0,0,0);
-   force = vector3(0,0,0);
+   acceleration.set(0.0f,0.0f,0.0f);
+   force.set(0.0f,0.0f,0.0f);
 
-   mass = 1.0;
+   speed = velocity.length();
 
-   drag = 0.0;
-   friction = 0.0;
+   mass = m;
+
+   max_speed = ms;
+
+   max_thrust_force = mtf;
+   max_steering_force = msf;
+   max_braking_force = mbf;
    
-   direction = d;
+   if(speed <= tiny)
+      forward_axis = !d;
+   else
+      forward_axis = !velocity;
 
-   // TODO
-   // orientation
+   right_axis = forward_axis % u;
+   up_axis = forward_axis % right_axis;
 
-   delay = state = flags = 0;
+
+   delay = 0.0f;
+   state = flags = 0;
 }
+
 
 void Actor::update(float dt) {
 
@@ -64,28 +64,35 @@ void Actor::update(float dt) {
 
    action(dt);
 
-   float speed2 = velocity.lengthSquared();
+   if(force.lengthSquared() > max_force*max_force)
+      force = (!force) * max_force;
 
-   if(speed2 < tiny) {
-      speed2 = 0.0;
-      velocity.set(0.0, 0.0, 0.0);
-   }
+   //acceleration = (acceleration*2.0 + force / mass) / 3.0;
+   acceleration = force / mass;
 
-   vector3 sum_force = force;
-
-   vector3 negv = -(!velocity);
-
-   if(drag > 0.0)
-      sum_force += negv*(drag*speed2);
-
-   if(speed2 > 0.0 && friction > 0.0)
-      sum_force += negv*friction;
-
-   acceleration = sum_force / mass;
    velocity += acceleration * dt;
+
+   if(velocity.lengthSquared() > max_speed*max_speed)
+      velocity = (!velocity) * max_speed;
+
+   if(velocity.lengthSquared() < tiny)
+      velocity.set(0.0, 0.0, 0.0);
+
    position += velocity * dt;
 
+   //std::cout << actor_type << " " << actor_id << " " << position << " " << velocity << " " << velocity.length() << " " << force << " " << force.length() << std::endl;
+
+//   force.set(0,0,0);
+
+   speed = velocity.length();
+
+   if(speed > tiny) {
+      forward_axis = !velocity;
+      right_axis = forward_axis % up_axis;
+      up_axis = forward_axis % right_axis;
+   }
 }
+
 
 ActorList ActorManager::get_actor_type_list(int type) {
 
@@ -101,6 +108,7 @@ ActorList ActorManager::get_actor_type_list(int type) {
 
    return al;
 }
+
 
 void ActorManager::insert_new_actors() { 
 

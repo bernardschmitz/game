@@ -1,5 +1,5 @@
 
-// $Id: vector.h,v 1.6 2003-08-11 16:23:31 bernard Exp $
+// $Id: vector.h,v 1.7 2003-08-15 20:38:54 bernard Exp $
 
 #ifndef __VECTOR_H__
 #define __VECTOR_H__
@@ -330,6 +330,11 @@ public:
 
 };
    
+
+extern bool LineLineIntersect(const vector3& p1, const vector3& p2,
+                              const vector3& p3, const vector3& p4,
+                              vector3& pa, vector3& pb,
+                              float& mua, float& mub);
 
 
 #endif

@@ -10,6 +10,8 @@ class Enemy : public Actor {
 
       vector3 target_pos, target_dir, target_hpr;
 
+      vector3 steering;
+
       quaternion src, dst, rot;
 
       vector3 angular_vel;
@@ -17,7 +19,12 @@ class Enemy : public Actor {
       float v_spd;
       float v_acc;
 
+      float tt;
+      float look_ahead;
+
       GLuint dl_enemy;
+
+      vector3 pain;
 
    public:
       Enemy(vector3 p);
@@ -25,8 +32,13 @@ class Enemy : public Actor {
 
       void render();
       void action(float dt);   
-};
 
+
+float NearestApproachTime(Enemy *other);
+
+float NearestApproachPositions(Enemy *other, float time);
+
+};
 
 #endif
 

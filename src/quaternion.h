@@ -176,6 +176,11 @@ inline quaternion operator*(const quaternion& a, const quaternion& b) {
                       a.a*b.a - a.v.x*b.v.x - a.v.y*b.v.y - a.v.z*b.v.z );
 }
 
+inline std::ostream& operator<<(std::ostream& s, const quaternion& q) {
+   s << "[" << q.a << " " << q.v << "]";
+   return s;
+}
+
 
 
 #endif
