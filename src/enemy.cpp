@@ -990,12 +990,14 @@ void Enemy::render() {
 
    glDisable(GL_LIGHTING);
 
+/*
    if(flags & ACT_COLLISION) {
       glPushMatrix();
-      glTranslatef(hit_position.x, hit_position.y, hit_position.z);
+      glTranslatef(position.x, position.y, position.z);
       glBegin(GL_LINES);
        glColor4f(0.0, 1.0, 1.0, 1.0);
        glVertex3f(0.0, 0.0, 0.0);
+       glVertex3f(position.x, position.y, position.z);
        glVertex3f(hit_normal.x, hit_normal.y, hit_normal.z);
       glEnd();
 
@@ -1010,6 +1012,8 @@ void Enemy::render() {
 
       glPopMatrix();
    }
+*/
+
 
    glPushMatrix();
    glTranslatef(position.x, position.y, position.z);

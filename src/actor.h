@@ -1,10 +1,11 @@
 
-// $Id: actor.h,v 1.14 2003-08-22 18:19:31 bernard Exp $
+// $Id: actor.h,v 1.15 2003-08-23 22:15:56 bernard Exp $
 
 #ifndef __ACTOR_H__
 #define __ACTOR_H__
 
 #include <iostream>
+#include <list>
 #include <vector>
 #include <string>
 
@@ -30,16 +31,15 @@ class Actor {
 
       vector3 position;
       vector3 prev_position;
-      vector3 delta_position;
-      vector3 velocity;
-      vector3 acceleration;
       vector3 force;
+
+      vector3 velocity;
 
       vector3 forward_axis;
       vector3 right_axis;
       vector3 up_axis;
 
-      float mass;
+      float mass, inv_mass;
       float speed;
 
       float max_force;
@@ -83,7 +83,6 @@ class Actor {
 
       vector3 getPosition() { return position; }
       vector3 getVelocity() { return velocity; }
-      vector3 getAcceleration() { return acceleration; }
 
       vector3 getForwardAxis() { return forward_axis; }
       vector3 getRightAxis() { return right_axis; }
@@ -106,11 +105,29 @@ class Actor {
 
 
       friend class ActorManager;
+      friend class Constraint;
 };
 
+class Constraint {
+public:
+   Actor *p1, *p2;
+   float rest_length;
+   Constraint() { p1 = p2 = 0; rest_length = 0.0f; }
+   Constraint(Actor *a, Actor *b, float rl=-1.0f) {
+      p1 = a;
+      p2 = b;
+      rest_length = rl;
+      if(rest_length < 0.0f) {
+         rest_length = p1->radius + p2->radius;
+      }
+   }
+   bool satisfy();
+};
 
+// TODO change to list
+typedef std::vector<Constraint *> ConstraintList;
 
-
+// TODO change to list
 typedef std::vector<Actor *> ActorList;
 
 class ActorManager {
@@ -119,13 +136,15 @@ class ActorManager {
       // may need a set of actor_types
       ActorList master_actor_list;
 
+      ConstraintList constraint_list;
+
       ActorList new_actor_list;
 
       void insert_new_actors();
 
       static ActorManager *instance;
 
-      void collide(float dt);
+      void collide(int iter, float dt);
 
       ActorManager() { }
       // TODO
@@ -148,6 +167,13 @@ class ActorManager {
 
       void check_collision(float dt);
 
+      void add_all_constraints(Actor *p);
+      void remove_all_constraints(Actor *p);
+
+      bool constrain_collision(Actor *p1, Actor *p2);
+      void relax(float dt);
+
+      void remove_dead_actors();
 };
 
 

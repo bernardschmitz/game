@@ -296,8 +296,8 @@ static void draw(void) {
 
    static float mag = 0.0;
 
-   // 30.01 is the max speed
-   float zoom = vel.length()/30.01 * -45.0;
+   // 10.01 is the max speed
+   float zoom = vel.length()/2.01 * -45.0;
 
 
    if(input->lock_cam)
@@ -307,16 +307,15 @@ static void draw(void) {
    mag = (mag*100.0 + zoom)/101.0;
 //   mag = (mag*100 + -vel.length()*1.5)/101;
 
-   //printf("mag = %f\n", mag);
+//   std::cout << "mag " << mag << " vel " << vel << " speed " << vel.length() << std::endl;
 
    glTranslatef(-pos.x, -pos.y, mag);
 
 
    actor_manager->render();
 
-   //bg->setCenter(vector3(pos.x, pos.y, 0.0));
-   //std::cout << vector3(pos.x, pos.y, mag) << vel << std::endl;
    bg->setCenter(vector3(pos.x, pos.y, mag));
+   //bg->setCenter(vector3(pos.x, pos.y, -40.0));
 
 
    char fs[100];
@@ -359,7 +358,14 @@ idle(void)
 
    input->process();
 
-   actor_manager->update(delta/1000.0);
+   static float tt = 1.0/100.0;
+
+   tt -= delta/1000.0;
+
+   if(tt <= 0.0) {
+      tt = 1.0/100.0;
+      actor_manager->update(1.0/100.0);
+   }
 
    console->process(delta/1000.0);
 }

@@ -1,5 +1,5 @@
 
-# $Id: Makefile,v 1.23 2003-08-22 18:19:31 bernard Exp $
+# $Id: Makefile,v 1.24 2003-08-23 22:15:56 bernard Exp $
 
 
 ifdef OPTIMIZE
@@ -9,7 +9,7 @@ ifdef OPTIMIZE
    LF = -s
 else
 	ifdef PROFILE
-      CPPF=-pg -O3 -mcpu=pentiumpro -march=pentiumpro -ffast-math
+      CPPF=-pg -O3 -DNDEBUG -mcpu=pentiumpro -march=pentiumpro -ffast-math
       LF=-pg
    else
       CPPF=-g
@@ -198,6 +198,8 @@ src/main.o: ../cross-tools/include/c++/3.2.3/typeinfo
 src/main.o: ../cross-tools/include/c++/3.2.3/istream
 src/main.o: ../cross-tools/include/c++/3.2.3/bits/istream.tcc
 src/main.o: src/quaternion.h src/actor.h
+src/main.o: ../cross-tools/include/c++/3.2.3/list
+src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_list.h
 src/main.o: ../cross-tools/include/c++/3.2.3/vector
 src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_vector.h
 src/main.o: ../cross-tools/include/c++/3.2.3/bits/stl_bvector.h
@@ -342,6 +344,8 @@ src/background.o: ../cross-tools/include/c++/3.2.3/typeinfo
 src/background.o: ../cross-tools/include/c++/3.2.3/istream
 src/background.o: ../cross-tools/include/c++/3.2.3/bits/istream.tcc
 src/background.o: src/quaternion.h src/actor.h
+src/background.o: ../cross-tools/include/c++/3.2.3/list
+src/background.o: ../cross-tools/include/c++/3.2.3/bits/stl_list.h
 src/background.o: ../cross-tools/include/c++/3.2.3/vector
 src/background.o: ../cross-tools/include/c++/3.2.3/bits/stl_vector.h
 src/background.o: ../cross-tools/include/c++/3.2.3/bits/stl_bvector.h
@@ -478,6 +482,8 @@ src/player.o: ../cross-tools/include/c++/3.2.3/typeinfo
 src/player.o: ../cross-tools/include/c++/3.2.3/istream
 src/player.o: ../cross-tools/include/c++/3.2.3/bits/istream.tcc
 src/player.o: src/quaternion.h src/actor.h
+src/player.o: ../cross-tools/include/c++/3.2.3/list
+src/player.o: ../cross-tools/include/c++/3.2.3/bits/stl_list.h
 src/player.o: ../cross-tools/include/c++/3.2.3/vector
 src/player.o: ../cross-tools/include/c++/3.2.3/bits/stl_vector.h
 src/player.o: ../cross-tools/include/c++/3.2.3/bits/stl_bvector.h src/input.h
@@ -695,7 +701,9 @@ src/enemy.o: ../cross-tools/i386-mingw32msvc/include/GL/gl.h
 src/enemy.o: ../cross-tools/i386-mingw32msvc/include/GL/glu.h
 src/enemy.o: ../cross-tools/include/SDL/SDL_image.h
 src/enemy.o: ../cross-tools/include/SDL/SDL.h src/vector.h src/quaternion.h
-src/enemy.o: src/actor.h ../cross-tools/include/c++/3.2.3/vector
+src/enemy.o: src/actor.h ../cross-tools/include/c++/3.2.3/list
+src/enemy.o: ../cross-tools/include/c++/3.2.3/bits/stl_list.h
+src/enemy.o: ../cross-tools/include/c++/3.2.3/vector
 src/enemy.o: ../cross-tools/include/c++/3.2.3/bits/stl_vector.h
 src/enemy.o: ../cross-tools/include/c++/3.2.3/bits/stl_bvector.h src/player.h
 src/enemy.o: src/random.h
@@ -788,7 +796,9 @@ src/actor.o: ../cross-tools/include/c++/3.2.3/istream
 src/actor.o: ../cross-tools/include/c++/3.2.3/bits/istream.tcc
 src/actor.o: ../cross-tools/include/c++/3.2.3/sstream
 src/actor.o: ../cross-tools/include/c++/3.2.3/bits/sstream.tcc src/vector.h
-src/actor.o: src/actor.h ../cross-tools/include/c++/3.2.3/vector
+src/actor.o: src/actor.h ../cross-tools/include/c++/3.2.3/list
+src/actor.o: ../cross-tools/include/c++/3.2.3/bits/stl_list.h
+src/actor.o: ../cross-tools/include/c++/3.2.3/vector
 src/actor.o: ../cross-tools/include/c++/3.2.3/bits/stl_vector.h
 src/actor.o: ../cross-tools/include/c++/3.2.3/bits/stl_bvector.h
 src/particle.o: src/particle.h src/main.h
@@ -923,6 +933,8 @@ src/particle.o: ../cross-tools/include/c++/3.2.3/typeinfo
 src/particle.o: ../cross-tools/include/c++/3.2.3/istream
 src/particle.o: ../cross-tools/include/c++/3.2.3/bits/istream.tcc
 src/particle.o: src/quaternion.h src/actor.h
+src/particle.o: ../cross-tools/include/c++/3.2.3/list
+src/particle.o: ../cross-tools/include/c++/3.2.3/bits/stl_list.h
 src/particle.o: ../cross-tools/include/c++/3.2.3/vector
 src/particle.o: ../cross-tools/include/c++/3.2.3/bits/stl_vector.h
 src/particle.o: ../cross-tools/include/c++/3.2.3/bits/stl_bvector.h
@@ -1064,6 +1076,8 @@ src/interpolate.o: ../cross-tools/include/c++/3.2.3/typeinfo
 src/interpolate.o: ../cross-tools/include/c++/3.2.3/istream
 src/interpolate.o: ../cross-tools/include/c++/3.2.3/bits/istream.tcc
 src/interpolate.o: src/quaternion.h src/actor.h
+src/interpolate.o: ../cross-tools/include/c++/3.2.3/list
+src/interpolate.o: ../cross-tools/include/c++/3.2.3/bits/stl_list.h
 src/interpolate.o: ../cross-tools/include/c++/3.2.3/vector
 src/interpolate.o: ../cross-tools/include/c++/3.2.3/bits/stl_vector.h
 src/interpolate.o: ../cross-tools/include/c++/3.2.3/bits/stl_bvector.h
@@ -1199,6 +1213,8 @@ src/bullet.o: ../cross-tools/include/c++/3.2.3/typeinfo
 src/bullet.o: ../cross-tools/include/c++/3.2.3/istream
 src/bullet.o: ../cross-tools/include/c++/3.2.3/bits/istream.tcc
 src/bullet.o: src/quaternion.h src/actor.h
+src/bullet.o: ../cross-tools/include/c++/3.2.3/list
+src/bullet.o: ../cross-tools/include/c++/3.2.3/bits/stl_list.h
 src/bullet.o: ../cross-tools/include/c++/3.2.3/vector
 src/bullet.o: ../cross-tools/include/c++/3.2.3/bits/stl_vector.h
 src/bullet.o: ../cross-tools/include/c++/3.2.3/bits/stl_bvector.h
@@ -1336,8 +1352,10 @@ src/texture.o: ../cross-tools/include/c++/3.2.3/i386-mingw32msvc/bits/cpu_limits
 src/texture.o: ../cross-tools/include/c++/3.2.3/typeinfo
 src/texture.o: ../cross-tools/include/c++/3.2.3/istream
 src/texture.o: ../cross-tools/include/c++/3.2.3/bits/istream.tcc
-src/texture.o: src/quaternion.h src/actor.h src/image.h src/console.h
-src/texture.o: ../cross-tools/include/c++/3.2.3/deque
+src/texture.o: src/quaternion.h src/actor.h
+src/texture.o: ../cross-tools/include/c++/3.2.3/list
+src/texture.o: ../cross-tools/include/c++/3.2.3/bits/stl_list.h src/image.h
+src/texture.o: src/console.h ../cross-tools/include/c++/3.2.3/deque
 src/texture.o: ../cross-tools/include/c++/3.2.3/bits/stl_deque.h
 src/image.o: ../cross-tools/i386-mingw32msvc/include/string.h
 src/image.o: ../cross-tools/i386-mingw32msvc/include/_mingw.h
@@ -1502,6 +1520,8 @@ src/text.o: ../cross-tools/include/c++/3.2.3/typeinfo
 src/text.o: ../cross-tools/include/c++/3.2.3/istream
 src/text.o: ../cross-tools/include/c++/3.2.3/bits/istream.tcc
 src/text.o: src/quaternion.h src/actor.h
+src/text.o: ../cross-tools/include/c++/3.2.3/list
+src/text.o: ../cross-tools/include/c++/3.2.3/bits/stl_list.h
 src/text.o: ../cross-tools/include/c++/3.2.3/vector
 src/text.o: ../cross-tools/include/c++/3.2.3/bits/stl_vector.h
 src/text.o: ../cross-tools/include/c++/3.2.3/bits/stl_bvector.h src/texture.h
@@ -1640,6 +1660,8 @@ src/console.o: ../cross-tools/include/c++/3.2.3/typeinfo
 src/console.o: ../cross-tools/include/c++/3.2.3/istream
 src/console.o: ../cross-tools/include/c++/3.2.3/bits/istream.tcc
 src/console.o: src/quaternion.h src/actor.h
+src/console.o: ../cross-tools/include/c++/3.2.3/list
+src/console.o: ../cross-tools/include/c++/3.2.3/bits/stl_list.h
 src/console.o: ../cross-tools/include/c++/3.2.3/vector
 src/console.o: ../cross-tools/include/c++/3.2.3/bits/stl_vector.h
 src/console.o: ../cross-tools/include/c++/3.2.3/bits/stl_bvector.h

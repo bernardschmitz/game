@@ -24,7 +24,7 @@ class Bullet : public Actor {
       int tex2;
 
    public:
-      Bullet(vector3 p, vector3 v, vector3 f, float l=0.5);
+      Bullet(vector3 p, vector3 v, vector3 f, float l=2.5);
       ~Bullet();
 
       void render();

@@ -19,13 +19,14 @@ Bullet::Bullet(vector3 p, vector3 v, vector3 f, float l) : Actor(ACT_BULLET, "Bu
 
    collision_flags = ACT_ENEMY;
 
-   force = f;
+   max_force = 5000.0f;
+
+   force = !f * max_force;
 
    mass = 10.0;
 
    radius = 0.1;
 
-   max_force = f.length();
 
 
    for(int i=0; i<4; i++) {

@@ -18,7 +18,7 @@ Player::Player() : Actor(ACT_PLAYER, "Player", vector3(0.0, 0.0, -10.0)) {
    dot = TextureManager::getInstance()->load("white_spot.png");
 
    position.set(0.0f, 0.0f, -10.0f);
-   velocity.set(0.0f, 0.0f, 0.0f);
+   //velocity.set(0.0f, 0.0f, 0.0f);
 
    radius = 0.5;
 
@@ -31,8 +31,8 @@ Player::Player() : Actor(ACT_PLAYER, "Player", vector3(0.0, 0.0, -10.0)) {
 
    mass = 100.0;
    // the 5000 is the max thrust
-   max_speed = 30.0;
-   max_force = 5000.0;
+   max_speed = 2.0;
+   max_force = 50.0;
 
    dl_cockpit = glGenLists(5);
 
@@ -596,7 +596,7 @@ void Player::action(float dt) {
       force = thrust_dir * max_force;
 
 
-
+/*
       ParticleDesc pd;
       memset((void*)&pd, 0, sizeof(pd));
    
@@ -613,7 +613,7 @@ void Player::action(float dt) {
       pd.respawn_on_death = false;
       pd.energy_in_alpha = true;
       pd.size_from_velocity = true;
-   
+ */  
       //actor_manager.insert(new ParticleSystem(vector3(0.0,0.0,-10.0), vector3(0.0,0.0,0.0), pd));
    
    
@@ -645,7 +645,7 @@ void Player::action(float dt) {
       //alEnemy.insert(new Enemy(position+pp));
 
       vector3 d( cos(degToRad(z_rotation)), sin(degToRad(z_rotation)), 0.0f);
-      ActorManager::getInstance()->insert(new Bullet(position+d*0.5, velocity, d*50000.0));
+      ActorManager::getInstance()->insert(new Bullet(position+d*0.5, position-prev_position, d*700.0));
    }
 
    //printf("shooting = %f\n", shooting);

@@ -1,5 +1,5 @@
 
-// $Id: actor.cpp,v 1.14 2003-08-22 18:19:31 bernard Exp $
+// $Id: actor.cpp,v 1.15 2003-08-23 22:15:56 bernard Exp $
 
 #include <iostream>
 #include <sstream>
@@ -34,7 +34,7 @@ Actor::Actor(int t, std::string s, const vector3& p, const vector3& v, float m, 
    position = p;
    velocity = v;
 
-   prev_position = position - v;
+   prev_position = position - velocity;
 
 //   acceleration.set(0.0f,0.0f,0.0f);
    force.set(0.0f,0.0f,0.0f);
@@ -42,6 +42,11 @@ Actor::Actor(int t, std::string s, const vector3& p, const vector3& v, float m, 
    speed = velocity.length();
 
    mass = m;
+
+   if(mass > 0.0f)
+      inv_mass = 1.0f/mass;
+   else 
+      inv_mass = 0.0f;
 
    radius = r;
 
@@ -133,31 +138,17 @@ void Actor::update(float dt) {
    if(force.lengthSquared() > max_force*max_force)
       force = (!force) * max_force;
 
-   //acceleration = (acceleration*2.0 + force / mass) / 3.0;
-   acceleration = force / mass;
+   vector3 acceleration = force * inv_mass;
 
-   velocity += acceleration * dt;
 
+   vector3 new_position = 2.0f * position - prev_position + acceleration * dt * dt;
    prev_position = position;
+   position = new_position;
 
-//   position += velocity * dt;
 
-   delta_position = velocity * dt;
+//   std::cout << name << " " << position << " " << prev_position << std::endl;
 
    //std::cout << actor_type << " " << actor_id << " " << position << " " << velocity << " " << velocity.length() << " " << force << " " << force.length() << std::endl;
-
-//   force.set(0,0,0);
-
-/*
-   speed = velocity.length();
-
-   if(speed > tiny) {
-      forward_axis = !velocity;
-      right_axis = forward_axis % up_axis;
-      up_axis = forward_axis % right_axis;
-   }
-*/
-
 }
 
 void ActorManager::insert(Actor *p) { 
@@ -181,6 +172,34 @@ ActorList ActorManager::get_actor_type_list(int type) {
    return al;
 }
 
+// adds a constraint from this actor to every other actor in the system
+void ActorManager::add_all_constraints(Actor *p) {
+
+   ActorList::iterator k = master_actor_list.begin();
+   while(k != master_actor_list.end()) {
+      // only add a constraint if we want to detect collisions
+      if((*k != p) && ((*k)->type & p->collision_flags))
+         constraint_list.push_back(new Constraint(p, *k));
+      ++k;
+   }
+}
+
+// removes all constraints this actor is a part of
+void ActorManager::remove_all_constraints(Actor *p) {
+
+   ConstraintList::iterator k = constraint_list.begin();
+   while(k != constraint_list.end()) {
+      if((*k)->p1 == p || (*k)->p2 == p) {
+         // destroy the constraint
+         delete (*k);
+         // remove it from the list
+         k = constraint_list.erase(k);
+      }
+      else
+         ++k;
+   }
+}
+
 
 void ActorManager::insert_new_actors() { 
 
@@ -189,7 +208,7 @@ void ActorManager::insert_new_actors() {
 
    while(k != new_actor_list.end()) {
       // insert the new actor
-      master_actor_list.push_back((*k));
+      master_actor_list.push_back(*k);
       // remove it from the new list and get the next one
       k = new_actor_list.erase(k);
    }
@@ -198,82 +217,109 @@ void ActorManager::insert_new_actors() {
 }
 
 
-/*
-bool collide_with_all(Actor *p) {
+inline bool ActorManager::constrain_collision(Actor *p1, Actor *p2) {
 
-   ActorList::iterator k = master_actor_list.begin();
+   vector3 delta = p2->position - p1->position;
 
-   while(k != master_actor_list.end()) {
-      if(*k != p) {
+   float rest_length = p1->radius + p2->radius;
 
-         
+   //float length = delta.length();
+   // approx sqrt above
+   float delta_squared = delta*delta;
+   float length = 0.5f * (rest_length + delta_squared/rest_length);
 
-      }
-      ++k;
+   float diff = (length - rest_length) / (length * (p1->inv_mass + p2->inv_mass) + 0.0001);
+
+   if(diff < 0.0f) {
+      p1->position += diff * p1->inv_mass * delta;
+      p2->position -= diff * p2->inv_mass * delta;
+      return true;
    }
+
+   return false;
 }
-*/
 
 
-void ActorManager::collide(float dt) {
+void ActorManager::collide(int iter, float dt) {
 
 //   std::cout << "collide\n";
 
-   for(int i=0; i<master_actor_list.size()-1; ++i) {
-
-      if(master_actor_list[i]->collision_flags == 0) 
-         continue;
-
-
-      vector3& Adp = master_actor_list[i]->delta_position;
-
-      //if(Adp.lengthSquared() < 0.001)
-      //   continue;
-
-      vector3 Ap = master_actor_list[i]->position;
-      float Ar = master_actor_list[i]->radius;
-
-//      int coll = 0;
-
-      for(int j=i+1; j<master_actor_list.size(); ++j) {
+   for(int k=0; k<iter; k++) {
+   
+      for(int i=0; i<master_actor_list.size()-1; ++i) {
+   
+         if(master_actor_list[i]->collision_flags == 0) 
+            continue;
+   
+         for(int j=i+1; j<master_actor_list.size(); ++j) {
+         
+            if(master_actor_list[i]->collision_flags & master_actor_list[j]->type) {
+   
+               //std::cout << " check " << i << " against " << j;
+   
+               if(constrain_collision(master_actor_list[i], master_actor_list[j])) {
+   
+                  master_actor_list[i]->flags |= ACT_COLLISION;
+                  master_actor_list[i]->hit_actor = master_actor_list[j];
       
-         if(master_actor_list[i]->collision_flags & master_actor_list[j]->type) {
-
-            vector3& Bdp = master_actor_list[j]->delta_position;
-            vector3 Bp = master_actor_list[j]->position;
-            float Br = master_actor_list[j]->radius;
-   
-            //std::cout << " check " << i << " against " << j;
-
-/*
-            if( (Ap+Adp)*(Ap+Adp) + (Bp+Bdp)*(Bp+Bdp) < Ar*Ar+Br*Br ) {
-               Adp = vector3(0,0,0);
-               Bdp = vector3(0,0,0);
-            }
-*/
-
-            if(sphere_collision(Ap, Adp, Ar, Bp, Bdp, Br)) {
-               // calc collision response
-   
-               master_actor_list[i]->flags |= ACT_COLLISION;
-               master_actor_list[i]->hit_actor = master_actor_list[j];
-               master_actor_list[i]->hit_position = Adp;
-   
-               master_actor_list[j]->flags |= ACT_COLLISION;
-               master_actor_list[j]->hit_actor = master_actor_list[i];
-               master_actor_list[j]->hit_position = Bdp;
-
-//               coll++;
-   
+                  master_actor_list[j]->flags |= ACT_COLLISION;
+                  master_actor_list[j]->hit_actor = master_actor_list[i];
+               }
             }
          }
       }
-
- //     if(coll > 1) 
- //        std::cout << master_actor_list[i]->name << " hit " << coll << " times.\n";
    }
 }
 
+// satisfy constraint
+// return true if position modified
+// this would indicate a collision has occured
+
+
+inline bool Constraint::satisfy() {
+
+   vector3 delta = p2->position - p1->position;
+
+   // TODO optimize this sqrt
+   //float length = delta.length();
+
+   // approx sqrt above
+   float delta_squared = delta*delta;
+   float length = 0.5f * (rest_length + delta_squared/rest_length);
+
+   float diff = (length - rest_length) / (length * (p1->inv_mass + p2->inv_mass) + 0.0001);
+
+   if(diff < 0.0f) {
+      // TODO need info on type of constraint...
+      // currently is a one way rod to avoid spheres overlapping
+
+//      std::cout << p1->name << " " << p2->name << " diff " << diff << " inv_mass " << p1->inv_mass << " " << p2->inv_mass << " delta " << delta << std::endl;
+
+      p1->position += diff * p1->inv_mass * delta;
+      p2->position -= diff * p2->inv_mass * delta;
+      return true;
+   }
+
+   return false;
+}
+
+// satisfies constraints
+// flags collisions too
+
+void ActorManager::relax(float dt) {
+
+   for(int i=0; i<1; i++) {
+
+      ConstraintList::iterator k = constraint_list.begin();
+
+      while(k != constraint_list.end()) {
+
+         (*k)->satisfy();
+   
+         ++k;
+      }
+   }
+}
 
 // updates the actor.
 // checks current and future collisions, setting flags.
@@ -283,6 +329,7 @@ void ActorManager::collide(float dt) {
 
 void ActorManager::update(float dt) {
 
+//   printf("update with %f\n", dt);
 
    insert_new_actors();
 
@@ -297,19 +344,14 @@ void ActorManager::update(float dt) {
       ++k;
    }
 
-   collide(dt);
+   // remove old actors
+   remove_dead_actors();
 
-   // set new position after checking for collisions
-   k = master_actor_list.begin();
-   while(k != master_actor_list.end()) {
+   // hit actors
+   collide(1, dt);
 
-      // move actor
-      (*k)->position += (*k)->delta_position;
-   
-      ++k;
-   }
-
-
+/*
+   // bounce
    k = master_actor_list.begin();
    while(k != master_actor_list.end()) {
 
@@ -320,6 +362,10 @@ void ActorManager::update(float dt) {
          Actor *p = (*k)->hit_actor;
 
          assert(p != 0);
+
+         vector3 N = p->position - (*k)->position;
+
+
 
          vector3& Av = (*k)->velocity;
          vector3& Bv = p->velocity;
@@ -353,14 +399,36 @@ void ActorManager::update(float dt) {
 
       ++k;
    }
-
-
-
-   // remove old actors
+*/
 
    k = master_actor_list.begin();
    while(k != master_actor_list.end()) {
+
+      (*k)->velocity = (*k)->position - (*k)->prev_position;
+
+      // constrain velocity
+      if((*k)->velocity.lengthSquared() > (*k)->max_speed*(*k)->max_speed)
+         (*k)->velocity = (!(*k)->velocity) * (*k)->max_speed;
+
+      if((*k)->velocity.lengthSquared() < tiny)
+         (*k)->velocity.set(0.0, 0.0, 0.0);
+
+      (*k)->speed = (*k)->velocity.length();
+
+      ++k;
+   }
+}
+
+
+
+
+void ActorManager::remove_dead_actors() {
+
+   ActorList::iterator k = master_actor_list.begin();
+   while(k != master_actor_list.end()) {
       if((*k)->flags & ACT_REMOVE) {
+         // first remove all constraints references this actor
+//         remove_all_constraints(*k);
          // TODO fix leak here, need to delete the actor itself...  or perhaps flag it for reuse?
          k = master_actor_list.erase(k);
       }
