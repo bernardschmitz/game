@@ -1,5 +1,5 @@
 
-// $Id: actormanager.h,v 1.1 2003-09-02 01:28:51 bernard Exp $
+// $Id: actormanager.h,v 1.2 2003-11-26 00:03:49 bernard Exp $
 
 #ifndef __ACTOR_H__
 #define __ACTOR_H__
@@ -11,6 +11,7 @@
 #include <ext/hash_map>
 #include <ext/hash_set>
 
+#include "memcheck.h"
 #include "vector.h"
 
 // TODO change to enum elsewhere...

@@ -3,6 +3,7 @@
 #define __IMAGE_H__
 
 // RGBA image
+#include "memcheck.h"
 
 class Image {
 public:

@@ -4,6 +4,7 @@
 
 //#include "console.h"
 
+#include "memcheck.h"
 
 class Input {
 private:

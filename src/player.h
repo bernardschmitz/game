@@ -2,7 +2,11 @@
 #ifndef __PLAYER_H__
 #define __PLAYER_H__
 
-#include "main.h"
+#include <SDL/SDL_opengl.h>
+
+#include "memcheck.h"
+#include "actor.h"
+
 
 class Player : public Actor {
 

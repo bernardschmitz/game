@@ -1,16 +1,15 @@
 
-#ifndef __ENEMY_H__
-#define __ENEMY_H__
+#ifndef __ENEMY2_H__
+#define __ENEMY2_H__
 
 #include <SDL/SDL_opengl.h>
 
-//#include "main.h"
 #include "memcheck.h"
 #include "vector.h"
 #include "quaternion.h"
 #include "actor.h"
 
-class Enemy : public Actor {
+class Enemy2 : public Actor {
 
    private:
 
@@ -35,17 +34,17 @@ class Enemy : public Actor {
       vector3 pain;
 
    public:
-      Enemy(vector3 p);
-      ~Enemy();
+      Enemy2(vector3 p);
+      ~Enemy2();
 
       void render();
       void action(float dt);   
 
       void setPain(vector3 p) { pain = p; }
 
-float NearestApproachTime(Enemy *other);
+float NearestApproachTime(Enemy2 *other);
 
-float NearestApproachPositions(Enemy *other, float time);
+float NearestApproachPositions(Enemy2 *other, float time);
 
 };
 

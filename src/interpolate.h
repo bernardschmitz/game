@@ -2,7 +2,7 @@
 #ifndef __INTERPOLATE_H__
 #define __INTERPOLATE_H__
 
-#include "main.h"
+//#include "main.h"
 
 /*
 inline Vec3 lerp(const Vec3& from, const Vec3& to, float t) {

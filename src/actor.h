@@ -1,5 +1,5 @@
 
-// $Id: actor.h,v 1.26 2003-09-02 01:28:51 bernard Exp $
+// $Id: actor.h,v 1.27 2003-11-26 00:03:49 bernard Exp $
 
 #ifndef __ACTOR_H__
 #define __ACTOR_H__
@@ -7,10 +7,10 @@
 #include <iostream>
 #include <list>
 #include <vector>
-#include <string>
 #include <ext/hash_map>
 #include <ext/hash_set>
 
+#include "memcheck.h"
 #include "vector.h"
 
 // TODO change to enum elsewhere...
@@ -20,6 +20,7 @@
 #define ACT_ENEMY        0x08
 #define ACT_PARTICLE     0x10
 #define ACT_BULLET       0x20
+#define ACT_ENEMY2       0x40
 
 
 // actor class, much like a sprite
@@ -124,7 +125,7 @@ class Actor {
 
       int id;             // unique actor id
       int type;           // type
-      std::string name;
+      char *name;
 
       float delay;                // delay counter
 
@@ -145,17 +146,17 @@ class Actor {
       ConstraintList constraint_list;
 
    public:
-      Actor(int t, std::string s="Actor", const vector3& pos=vector3(0.0f, 0.0f, 0.0f), const vector3& vel=vector3(0.0f, 0.0f, 0.0f),  
+      Actor(int t, char *s="Actor", const vector3& pos=vector3(0.0f, 0.0f, 0.0f), const vector3& vel=vector3(0.0f, 0.0f, 0.0f),  
             float m=1.0f, float ms=10.0f, float r=1.0f, 
             float mtf=100.0f, float msf=1.0f, float mbf=1.0f,
             const vector3& dir=vector3(0.0f, 1.0f, 0.0f), const vector3& up=vector3(0.0f, 0.0f, 1.0f));
 
-      virtual ~Actor() { }
+      virtual ~Actor();
 
 
       int getType() { return type; }
       int getId() { return id; }
-      std::string getName() { return name; }
+      char *getName() { return name; }
 
       vector3 getPosition() { return position; }
       vector3 getVelocity() { return velocity; }
@@ -172,9 +173,9 @@ class Actor {
 
 //      virtual void update(float dt);  // update, calls action, move etc...
 
-      virtual void action(float dt) =0;  // actors user function
+      virtual void action(float dt) { }  // actors user function
 
-      virtual void render() =0;  // draws actor
+      virtual void render() { }  // draws actor
 
 
 

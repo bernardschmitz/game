@@ -1,6 +1,7 @@
 
 #include <ctype.h>
 #include <SDL/SDL.h>
+#include <SDL/SDL_opengl.h>
 
 extern "C" {
    #include <lua.h>

@@ -2,9 +2,10 @@
 #ifndef _TEXTURE_H__
 #define _TEXTURE_H__
 
+#include <SDL/SDL_opengl.h>
 #include <vector>
 
-#include "main.h"
+#include "memcheck.h"
 #include "image.h"
 
 class Texture {

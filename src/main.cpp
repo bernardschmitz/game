@@ -11,20 +11,36 @@ extern "C"
  #include <lualib.h>
  #include <lauxlib.h>
 }
+#include <assert.h>
 
-#include <tolua.h>
-
-#include <SDL/SDL_mixer.h>
+#include <iostream>
+#include <map>
 
 #include <string>
 
-#include "main.h"
+#include <tolua.h>
+
+#include <SDL/SDL.h>
+#include <SDL/SDL_opengl.h>
+
+#include <SDL/SDL_image.h>
+#include <SDL/SDL_mixer.h>
+
+#include "memcheck.h"
+#include "vector.h"
+#include "quaternion.h"
+#include "actor.h"
+
+
+
+//#include "main.h"
 
 #include "background.h"
 #include "player.h"
 #include "input.h"
 #include "settings.h"
 #include "enemy.h"
+#include "enemy2.h"
 #include "bullet.h"
 #include "particle.h"
 #include "random.h"
@@ -34,11 +50,6 @@ extern "C"
 #include "text.h"
 #include "console.h"
 
-#include <assert.h>
-
-#include <iostream>
-#include <map>
-
 
 #ifndef M_PI
 #define M_PI 3.14159265
@@ -47,6 +58,7 @@ extern "C"
 #define FS 0
 #define WIDTH 800
 #define HEIGHT 600
+#define DEPTH 32
 
 /*
 #define FS 1
@@ -56,6 +68,7 @@ extern "C"
 
 
 TOLUA_API int tolua_vector3_open (lua_State* tolua_S);
+TOLUA_API int tolua_Actor_open (lua_State* tolua_S);
 
 lua_State *L = 0;
 
@@ -546,6 +559,12 @@ init(int argc, char *argv[])
    actor_manager->add_constraint(e1, e3);
 
 
+   actor_manager->insert(new Enemy2(vector3(13,10,-10)));
+   actor_manager->insert(new Enemy2(vector3(16,10,-10)));
+   actor_manager->insert(new Enemy2(vector3(19,10,-10)));
+   actor_manager->insert(new Enemy2(vector3(22,10,-10)));
+
+
 /*
    jelly_fish(vector3(-20,0,-10), vector3(0.8,0,0), 10);
    jelly_fish(vector3(20,0,-10), vector3(0,0.8,0), 10);
@@ -751,6 +770,7 @@ int main(int argc, char *argv[])
   int fs = FS;
   int w = WIDTH;
   int h = HEIGHT;
+  int depth = DEPTH;
 
   if(argc > 1) 
      w = atoi(argv[1]);     
@@ -759,13 +779,16 @@ int main(int argc, char *argv[])
      h = atoi(argv[2]);     
 
   if(argc > 3) 
-    fs  = atoi(argv[3]);     
+    depth  = atoi(argv[3]);     
+
+  if(argc > 4) 
+    fs  = atoi(argv[4]);     
 
 
   settings.screen_width = w;
   settings.screen_height = h;
 
-printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
+printf("attempting %dx%dx%d %s\n", w, h, depth, fs==0?"windowed":"fullscreen");
 
 
 
@@ -778,9 +801,9 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
 
 
    if(fs)
-     screen = SDL_SetVideoMode(w, h, 32, SDL_OPENGL|SDL_FULLSCREEN);
+     screen = SDL_SetVideoMode(w, h, depth, SDL_OPENGL|SDL_FULLSCREEN);
    else
-     screen = SDL_SetVideoMode(w, h, 32, SDL_OPENGL);
+     screen = SDL_SetVideoMode(w, h, depth, SDL_OPENGL);
   if ( ! screen ) {
     fprintf(stderr, "Couldn't set 300x300 GL video mode: %s\n", SDL_GetError());
     SDL_Quit();
@@ -812,6 +835,7 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
   luaopen_loadlib(L);
 
   tolua_vector3_open(L);
+  tolua_Actor_open(L);
 
    lua_register(L, "print", luaB_print);
    lua_register(L, "_ALERT", LuaError );
@@ -838,8 +862,11 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
 
    idle(10);
    draw(10);
+
+   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    SDL_GL_SwapBuffers();
 
+   SDL_Delay(1000);
    timer = 0;
 
    while ( ! done ) {
@@ -861,14 +888,14 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
       // catch up if too slow
       int i = 10;
    //   while(timer > 0 && --i > 0) {
-
+// TODO this is not good
          idle(delta);
 
          // simulate slow computer
          //SDL_Delay(15);
 
          timer--;
-   //   }
+    //  }
 
       done = input->quit;
 
@@ -943,10 +970,8 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
      printf("%d : %f %f %f\n", i, p[i][0], p[i][1], p[i][2]);
 
 */
-#if 0
-#ifndef NDEBUG
-   atexit(mem_block::report);
-#endif
+#ifdef TRACK_MEMORY
+   atexit(mem_report);
 #endif
 
    return 0;             /* ANSI C requires main to return int. */

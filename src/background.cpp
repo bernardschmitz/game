@@ -235,7 +235,7 @@ void Background::action(float dt) {
    if(second >= 0)
       return;
 
-   second = 1;
+   second = 4;
 
 
    float s= 5.0;

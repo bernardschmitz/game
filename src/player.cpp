@@ -1,4 +1,5 @@
 
+#include "memcheck.h"
 #include "player.h"
 
 #include "input.h"
@@ -24,7 +25,7 @@ Player::Player() : Actor(ACT_PLAYER, "Player", vector3(0.0, 0.0, -10.0)) {
 
    z_rotation = 0.0;
 
-   collision_flags = ACT_ENEMY;
+   collision_flags = ACT_ENEMY | ACT_ENEMY2;
 
    thrusting = 0;
    shooting = 0;
@@ -34,7 +35,7 @@ Player::Player() : Actor(ACT_PLAYER, "Player", vector3(0.0, 0.0, -10.0)) {
    inv_mass = 1.0 / mass;
    // the 5000 is the max thrust
    max_speed = 2.0;
-   max_force = 5000.0;
+   max_force = 4*5000.0;
 
    dl_cockpit = glGenLists(5);
 
@@ -770,13 +771,13 @@ void Player::render() {
    }
 */
 
-/*
+
    TextManager *tm = TextManager::getInstance();
    char s[100];
    sprintf(s, "p %6.2f %6.2f v %6.2f", position.x, position.y, velocity.length());
    glColor4f(1.0,1.0,1.0,1.0);
    tm->draw(tm->screenWidth()/2, tm->screenHeight()/2, s);
-*/
+
 
 
 

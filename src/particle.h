@@ -2,7 +2,12 @@
 #ifndef __PARTICLE_H__
 #define __PARTICLE_H__
 
-#include "main.h"
+#include <SDL/SDL_opengl.h>
+
+#include "memcheck.h"
+#include "vector.h"
+#include "actor.h"
+
 
 struct Particle {
    vector3 position;

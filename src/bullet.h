@@ -2,7 +2,8 @@
 #ifndef __BULLET_H__
 #define __BULLET_H__
 
-#include "main.h"
+#include "memcheck.h"
+#include "actor.h"
 
 // need a factory
 

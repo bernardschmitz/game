@@ -1,4 +1,11 @@
 
+extern "C" {
+   #include <lua.h>
+   #include <lualib.h>
+   #include <lauxlib.h>
+}
+
+
 #include <iostream>
 
 #include "enemy.h"
@@ -32,7 +39,7 @@ Enemy::Enemy(vector3 p) : Actor(ACT_ENEMY, "Enemy", p) {
 
    life = 20;
 
-   collision_flags = ACT_ENEMY | ACT_BULLET | ACT_PLAYER;
+   collision_flags = ACT_ENEMY | ACT_ENEMY2 | ACT_BULLET | ACT_PLAYER;
 
    max_speed = 5; //30;
    max_force = 5000;
@@ -957,7 +964,7 @@ Enemy::NearestApproachPositions (Enemy *other, float time) {
 }
 
 
-
+extern lua_State *L;
 
 void Enemy::action(float dt) {
 
@@ -974,6 +981,14 @@ void Enemy::action(float dt) {
          flags |= ACT_REMOVE;
    }
  */  
+
+
+
+   lua_pushstring(L, "enemy_action");
+   lua_gettable(L, LUA_GLOBALSINDEX);
+   lua_pushstring(L, name);
+   lua_pushnumber(L, dt);
+   lua_call(L, 2, 0);
 
 
    float size = 200.0;
@@ -995,6 +1010,7 @@ void Enemy::action(float dt) {
    }
 
 //   force += mass * vector3(0, -5.0f, 0);
+
 
 }
 
@@ -1045,9 +1061,9 @@ void Enemy::render() {
     glVertex3f(velocity.x, velocity.y, velocity.z);
    glEnd();
 */
-   //glCallList(dl_enemy);
+      glCallList(dl_enemy);
 
-
+/*
    glBegin(GL_TRIANGLE_FAN);
     for(int i=0; i<12; i++) {
        float x = radius*cos(i/12.0*2.0*M_PI);
@@ -1055,7 +1071,7 @@ void Enemy::render() {
        glVertex3f(x, y, 0.0);
     }
    glEnd();
-
+*/
 
   glPopMatrix();
 

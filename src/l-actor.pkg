@@ -1,0 +1,28 @@
+
+// $Id: l-actor.pkg,v 1.1 2003-11-26 00:03:49 bernard Exp $
+
+$#include "memcheck.h"
+$#include "actor.h"
+
+
+class Actor {
+
+/*
+   Actor(int t, char *s="Actor", const vector3& pos=vector3(0.0f, 0.0f, 0.0f), const vector3& vel=vector3(0.0f, 0.0f, 0.0f),
+            float m=1.0f, float ms=10.0f, float r=1.0f,
+            float mtf=100.0f, float msf=1.0f, float mbf=1.0f,
+            const vector3& dir=vector3(0.0f, 1.0f, 0.0f), const vector3& up=vector3(0.0f, 0.0f, 1.0f));
+*/
+
+   Actor(int t, char *s="Actor", const vector3& pos, const vector3& vel,
+            float m=1.0f, float ms=10.0f, float r=1.0f,
+            float mtf=100.0f, float msf=1.0f, float mbf=1.0f,
+            const vector3& dir, const vector3& up);
+
+    ~Actor();
+
+   int getType();
+   int getId();
+   char *getName();
+};
+

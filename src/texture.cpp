@@ -28,6 +28,8 @@ void TextureManager::free(const int n) {
    if(textures[n]->ref > 0)
       return;
 
+   printf("freeing texture %d\n", n);
+
    if(textures[n]->gl_id != 0)
       glDeleteTextures(1, &textures[n]->gl_id);
 

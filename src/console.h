@@ -6,6 +6,8 @@
 #include <deque>
 #include <string>
 
+#include "memcheck.h"
+
 typedef std::deque<std::string> Buffer;
 
 class Console {

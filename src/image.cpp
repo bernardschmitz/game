@@ -3,6 +3,7 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 
+#include "memcheck.h"
 #include "image.h"
 
 

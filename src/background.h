@@ -2,7 +2,10 @@
 #ifndef __BACKGROUND_H__
 #define __BACKGROUND_H__
 
-#include "main.h"
+#include <SDL/SDL_opengl.h>
+
+#include "memcheck.h"
+#include "actor.h"
 
 struct Vertex {
    unsigned char r, g, b, a;

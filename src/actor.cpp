@@ -1,10 +1,6 @@
 
-// $Id: actor.cpp,v 1.26 2003-09-04 02:35:28 bernard Exp $
-
-#include <iostream>
-#include <sstream>
-#include <iomanip>
-
+// $Id: actor.cpp,v 1.27 2003-11-26 00:03:48 bernard Exp $
+#include "memcheck.h"
 #include "vector.h"
 #include "actor.h"
 
@@ -22,15 +18,23 @@ ActorManager *ActorManager::getInstance() {
    return instance;
 }
 
+Actor::~Actor() {
+   printf("removing dead actor\n");
+   delete [] name;
+   printf("done\n");
+}
 
-Actor::Actor(int t, std::string s, const vector3& p, const vector3& v, float m, float ms, float r, float mtf, float msf, float mbf, const vector3& d, const vector3& u) {
+
+
+Actor::Actor(int t, char *s, const vector3& p, const vector3& v, float m, float ms, float r, float mtf, float msf, float mbf, const vector3& d, const vector3& u) {
 
    id = id_seq++;
    type = t;
 
-   std::stringstream ss;
-   ss << s << id;
-   name = ss.str();
+   char buf[100];
+   sprintf(buf, "%s%d", s, id);
+   name = new char[strlen(buf)+1];
+   strcpy(name, buf);
 
    position = p;
    velocity = v;
@@ -84,7 +88,10 @@ void ActorManager::move_actors() {
 
       vector3 acceleration = (*k)->force * (*k)->inv_mass;
 
-      vector3 new_pos = (*k)->position * 2.0f - (*k)->prev_position + acceleration * time_step * time_step;
+      //vector3 new_pos = (*k)->position * 2.0f - (*k)->prev_position + acceleration * time_step * time_step;
+      // TODO make sure z coord of position etc is alway -10.0 or whatever game play is on
+      // TODO make drag a param
+      vector3 new_pos = (*k)->position * 1.99f - (*k)->prev_position*0.99f + acceleration * time_step * time_step;
       (*k)->prev_position = (*k)->position;
       (*k)->position = new_pos;
 
@@ -172,11 +179,11 @@ bool Actor::collide(Actor *p) {
    if(delta_squared - rest_length*rest_length > 0.0f)
       return false;
 
-   //float length = delta.length();
+   //const float length = delta.length();
    // approx sqrt above
    const float length = 0.5f * (rest_length + delta_squared/rest_length);
 
-   const float diff = (length - rest_length) / (length * (p->inv_mass + inv_mass) + 0.0001);
+   const float diff = (length - rest_length) / (length * (p->inv_mass + inv_mass) + 0.01);
 
    if(diff > 0.0f)
       return false;
@@ -266,7 +273,7 @@ void Constraint::satisfy() {
    float delta_squared = delta*delta;
    float length = 0.5f * (rest_length + delta_squared/rest_length);
 
-   float diff = (length - rest_length) / (length * (p1->inv_mass + p2->inv_mass) + 0.0001);
+   float diff = (length - rest_length) / (length * (p1->inv_mass + p2->inv_mass) + 0.01);
 
    // TODO need info on type of constraint...
    // currently is a rod
@@ -489,7 +496,7 @@ void ActorManager::update(float dt) {
    move_actors();
 
    // hit actors
-   collide(1);
+   collide(2);
 
    k = master_actor_list.begin();
    while(k != master_actor_list.end()) {
@@ -498,14 +505,16 @@ void ActorManager::update(float dt) {
       (*k)->velocity = (*k)->position - (*k)->prev_position;
 
       // constrain velocity
+
       if((*k)->velocity.lengthSquared() > (*k)->max_speed*(*k)->max_speed)
          (*k)->prev_position = (*k)->position - !(*k)->velocity * (*k)->max_speed;
 
       // calc speed
       (*k)->speed = (*k)->velocity.length();
 
-      if((*k)->speed < 0.0001f)
-         (*k)->velocity.set(0.0f, 0.0f, 0.0f);
+      if((*k)->speed < 0.0001f) {
+         (*k)->prev_position = (*k)->position;
+      }
 
       if((*k)->speed > 0.0f) {
          (*k)->forward_axis = !(*k)->velocity;
@@ -540,7 +549,8 @@ void ActorManager::remove_dead_actors() {
          }
 
 //         std::cout << "removing dead " << (*k)->name << std::endl;
-         // TODO fix leak here, need to delete the actor itself...  or perhaps flag it for reuse?
+         // TODO maybe flag actor for reuse instead of deleteing?
+         delete (*k);
          k = master_actor_list.erase(k);
       }
       else
@@ -569,175 +579,3 @@ void ActorManager::render() {
 
 
 
-
-
-
-
-
-/*
-int Actor::Overlap(Actor *pact) {
-
-   if(fFlags & ACT_SPH) {   // use bounding circles?
-
-      int x0 = nXPos+nWidth/2;
-      int y0 = nYPos+nHeight/2;
-
-      int x1 = pact->nXPos+pact->nWidth/2;
-      int y1 = pact->nYPos+pact->nHeight/2;
-
-      int dx = x1 - x0;
-      int dy = y1 - y0;
-
-      int dist = dx*dx + dy*dy;
-
-      if(dist - nRadius*nRadius - pact->nRadius*pact->nRadius < 0)
-         return(1);
-   }
-   else {
-
-      // bounding rectangles
-
-      int w0 = nWidth;
-      int h0 = nHeight;
-
-      int w1 = pact->nWidth;
-      int h1 = pact->nHeight;
-
-      if(nXPos+w0 >= pact->nXPos && pact->nXPos+w1 >= nXPos &&
-         nYPos+h0 >= pact->nYPos && pact->nYPos+h1 >= nYPos) {
-         return(1);
-      }
-   }
-
-   return(0);
-}
-*/
-
-/*
-void ActorListBase::Collision(ActorListBase &al1) {
-
-   Actor *pact0 = First();
-
-   // only check collision if not allready collided
-   while(!(pact0->fFlags & ACT_HIT) && pact0 != Head()) {
-
-      Actor *pact1 = al1.First();
-
-      // only check collision if not allready collided
-      while(!(pact1->fFlags & ACT_HIT) && !(pact0->fFlags & ACT_HIT)
-                        && pact1 != al1.Head()) {
-
-         if(pact0 != pact1) {
-            if(pact0->Overlap(pact1)) {
-               pact1->Collision(pact0);
-               pact0->Collision(pact1);
-            }
-         }
-         pact1 = al1.Next();
-      }
-
-      pact0 = Next();
-   }
-
-}
-*/
-
-/*
-void ActorListBase::insert(Actor *pact) {
-
-   pact->pactNext = actHead.pactNext;
-   pact->pactPrev = &actHead;
-   actHead.pactNext->pactPrev = pact;
-   actHead.pactNext = pact;
-
-   cActors++;
-}
-
-void ActorListBase::remove(Actor *pact) {
-
-   cActors--;
-
-   pact->pactNext->pactPrev = pact->pactPrev;
-   pact->pactPrev->pactNext = pact->pactNext;
-}
-
-ActorListBase::~ActorListBase() {
-
-   Actor *pact = actHead.pactNext;
-
-   while(pact != &actHead) {
-      Actor *pactTmp = pact->pactNext;
-      remove(pact);
-      delete pact;
-      pact = pactTmp;
-   }
-}
-
-void ActorListBase::action() {
-
-   Actor *pact = actHead.pactNext;
-
-   while(pact != &actHead) {
-      // don't call if actor going to be deleted
-//      if(!(pact->fFlags & ACT_DEL))
-         pact->action();
-      pact = pact->pactNext;
-   }
-}
-
-void ActorListBase::render() {
-
-   Actor *pact = actHead.pactNext;
-
-   while(pact != &actHead) {
-      // don't call if actor going to be deleted
-//      if(!(pact->fFlags & ACT_DEL)) {
-//         pact->cErase[nPage]++;
-         pact->render();
-
-//circle(pbmPage[nPage], pact->nXPos+pact->nWidth/2, pact->nYPos+pact->nHeight/2, pact->nRadius-1, nWhite);
-
- //     }
-      pact = pact->pactNext;
-   }
-}
-*/
-
-/*
-void ActorListBase::Erase(int nPage) {
-
-   Actor *pact = actHead.pactNext;
-
-   while(pact != &actHead) {
-      // call erase if needed
-      if(pact->cErase[nPage] > 0) {
-         pact->Erase(nPage);
-         pact->cErase[nPage]--;
-      }
-      // if flags for deletion and no more erasure needed then delete
-      if(pact->fFlags & ACT_DEL && pact->cErase[0] == 0 && pact->cErase[1] == 0) {
-         Actor *pactTmp = pact->pactNext;
-         Remove(pact);
-         delete pact;
-         pact = pactTmp;
-      }
-      else
-         pact = pact->pactNext;
-   }
-}
-*/
-
-/*
-void ActorListBase::clear() {
-
-   Actor *pact = actHead.pactNext;
-
-   while(pact != &actHead) {
-      Actor *pactTmp = pact->pactNext;
-      remove(pact);
-      delete pact;
-      pact = pactTmp;
-   }
-}
-
-*/

@@ -19,7 +19,7 @@ Bullet::Bullet(vector3 p, vector3 v, vector3 f, float r) : Actor(ACT_BULLET, "Bu
 
    squid = false;
 
-   collision_flags = ACT_ENEMY;
+   collision_flags = ACT_ENEMY | ACT_ENEMY2;
 
    max_force = 2000.0f;
 
@@ -43,7 +43,8 @@ Bullet::Bullet(vector3 p, vector3 v, vector3 f, float r) : Actor(ACT_BULLET, "Bu
 }
 
 Bullet::~Bullet() {
-   // do nothing
+//   TextureManager::getInstance()->free(tex);
+//   TextureManager::getInstance()->free(tex2);
 }
 
 
