@@ -22,9 +22,13 @@ Enemy::Enemy(vector3 p) : Actor(ACT_ENEMY, "Enemy", p) {
 
    mass = 10.0 + uniform_random_float(-4.0, 10.0);
 
-   radius = 0.1 + uniform_random_float(0.1, .9);
-   radius = 1.0;
+   radius = 0.1 + uniform_random_float(0.1, 0.9);
+
+   //radius = 1.0;
+
    mass = 1.0 * radius;
+
+   inv_mass = 1.0/mass;
 
    collision_flags = ACT_ENEMY | ACT_BULLET | ACT_PLAYER;
 
@@ -56,6 +60,8 @@ Enemy::Enemy(vector3 p) : Actor(ACT_ENEMY, "Enemy", p) {
    state = TARGET;
 
    pain = !(target_pos + vector3(40, 40, 10+uniform_random_float(0.0, 40.0)));
+
+   pain = vector3(1,1,0);
 
 
    dl_enemy = glGenLists(1);
@@ -948,33 +954,25 @@ void Enemy::action(float dt) {
       std::cout << position << " " << hit_position << " " << hit_normal << " " << hit_time << " " << std::endl;
    }
 */
-   float size = 135.0;
+   float size = 40.0;
 
    force = vector3(0,0,0);
 
    if(position.x-radius < -size) {
-      //position.x = -size+radius;
-      //velocity.x = -velocity.x;
       force += mass*vector3(2, 0, 0) / dt;
    }
    if(position.x+radius > size) {
-      //position.x = size-radius;
-      //velocity.x = -velocity.x;
       force += mass*vector3(-2, 0, 0) / dt;
    }
 
    if(position.y-radius < -size) {
-      //position.y = -size+radius;
-      //velocity.y = -velocity.y;
       force += mass*vector3(0, 2,  0) / dt;
    }
    if(position.y+radius > size) {
-      //position.y = size-radius;
-      //velocity.y = -velocity.y;
       force += mass*vector3(0, -2,  0) / dt;
    }
 
-//   force += mass * vector3(0, -2.0f, 0);
+   force += mass * vector3(0, -2.0f, 0);
 
 }
 
@@ -990,30 +988,20 @@ void Enemy::render() {
 
    glDisable(GL_LIGHTING);
 
-/*
    if(flags & ACT_COLLISION) {
-      glPushMatrix();
-      glTranslatef(position.x, position.y, position.z);
+      assert(hit_actor != 0);
+      vector3 other = hit_actor->getPosition();
+
       glBegin(GL_LINES);
-       glColor4f(0.0, 1.0, 1.0, 1.0);
-       glVertex3f(0.0, 0.0, 0.0);
+       glColor4f(0.0, 1.0, 0.0, 1.0);
+       glVertex3f(other.x, other.y, other.z);
        glVertex3f(position.x, position.y, position.z);
-       glVertex3f(hit_normal.x, hit_normal.y, hit_normal.z);
       glEnd();
 
-      glColor4f(1.0, 1.0, 0.0, 1.0);
-      glBegin(GL_LINE_LOOP);
-       for(int i=0; i<12; i++) {
-          float x = radius*cos(i/12.0*2.0*M_PI);
-          float y = radius*sin(i/12.0*2.0*M_PI);
-          glVertex3f(x, y, 0.0);
-       }
-      glEnd();
-
-      glPopMatrix();
+      glColor4f(1.0, 0.0, 0.0, 1.0);
    }
-*/
-
+   else
+      glColor4f(pain.x, pain.y, pain.z, 1.0);
 
    glPushMatrix();
    glTranslatef(position.x, position.y, position.z);
@@ -1025,7 +1013,6 @@ void Enemy::render() {
    glEnd();
 */
    glBegin(GL_TRIANGLE_FAN);
-   glColor4f(pain.x, pain.y, pain.z, 1.0);
     for(int i=0; i<12; i++) {
        float x = radius*cos(i/12.0*2.0*M_PI);
        float y = radius*sin(i/12.0*2.0*M_PI);

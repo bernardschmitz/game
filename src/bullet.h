@@ -12,7 +12,8 @@ class Bullet : public Actor {
 
       float life;
       bool squid;
-      vector3 A,B,C,D;
+      vector3 A,B,C,D, from;
+      float range;
 
       vector3 oldpos;
       vector3 ff;
@@ -24,7 +25,7 @@ class Bullet : public Actor {
       int tex2;
 
    public:
-      Bullet(vector3 p, vector3 v, vector3 f, float l=2.5);
+      Bullet(vector3 p, vector3 v, vector3 f, float r=100.0);
       ~Bullet();
 
       void render();

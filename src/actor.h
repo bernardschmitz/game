@@ -1,5 +1,5 @@
 
-// $Id: actor.h,v 1.15 2003-08-23 22:15:56 bernard Exp $
+// $Id: actor.h,v 1.16 2003-08-24 04:45:59 bernard Exp $
 
 #ifndef __ACTOR_H__
 #define __ACTOR_H__
@@ -24,6 +24,9 @@
 // TODO change to enum?
 #define ACT_COLLISION      0x01
 #define ACT_REMOVE         0x02
+
+
+  
 
 
 class Actor {
@@ -100,14 +103,66 @@ class Actor {
 
       // checks for collision between this actor and p.
       // sets the ACT_COLLISON flag and the various hit_* variables.
-      bool collide(Actor *p, float dt);
+      bool collide(Actor *p) {
 
+         const vector3 delta = p->position - position;
+         const float rest_length = p->radius + radius;
+
+         const float delta_squared = delta*delta;
+
+         if(delta_squared - rest_length*rest_length > 0.0f)
+            return false;
+
+         //float length = delta.length();
+         // approx sqrt above
+         const float length = 0.5f * (rest_length + delta_squared/rest_length);
+
+         const float diff = (length - rest_length) / (length * (p->inv_mass + inv_mass) + 0.0001);
+
+         if(diff > 0.0f)
+            return false;
+
+         position += diff * inv_mass * delta;
+         p->position -= diff * p->inv_mass * delta;
+
+         flags |= ACT_COLLISION;
+         hit_actor = p;
+
+         p->flags |= ACT_COLLISION;
+         p->hit_actor = this;
+
+         return true;
+      }
 
 
       friend class ActorManager;
       friend class Constraint;
 };
 
+/*
+class Grid {
+private:
+   float x, y, w, h;
+   ActorList actor_list;
+public:
+   Grid(float xx, float yy, float ww, float hh) { x = xx; y = yy; w = ww; h = hh; }
+   ~Grid() { }
+
+   void add_actor(Actor *p) { actor_list.push_back(p); }
+   void remove_actor(Actor *p) { 
+      ActorList::iterator k = actor_list.begin();
+      while(k != actor_list.end()) {
+         if(*k == p) {
+            actor_list.erase(k);
+            return;
+         }
+         ++k;
+      }
+   }
+};
+*/
+
+ 
 class Constraint {
 public:
    Actor *p1, *p2;
@@ -144,7 +199,7 @@ class ActorManager {
 
       static ActorManager *instance;
 
-      void collide(int iter, float dt);
+      void collide(int iter);
 
       ActorManager() { }
       // TODO

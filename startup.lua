@@ -1,7 +1,7 @@
 
 -- This is the main startup code
 --
--- $Id: startup.lua,v 1.8 2003-08-23 22:15:56 bernard Exp $
+-- $Id: startup.lua,v 1.9 2003-08-24 04:45:59 bernard Exp $
 
 copyright = "Sword of Cydonia (c) Bernard Schmitz 2003";
 
@@ -37,8 +37,8 @@ print(copyright)
 -- add some enemies
 --rand_enemy(2)
 
-enemy_grid(0.0, -15.0, 20, 10, 2.5)         
---enemy_grid(0.0, -15.0, 5, 5, 2.5)         
+--enemy_grid(0.0, -15.0, 20, 10, 2.1)         
+--enemy_grid(0.0, -15.0, 40, 10, 2.1)         
 
 print("")
 print("for more enemies call enemy_grid(x, y, w, h, s)")
@@ -49,3 +49,6 @@ print("eg: enemy_grid(0.0, -15.0, 20, 10, 2.5)")
 print("")
 
 --Enemy(5,5)
+
+enemy_grid(0.0, -25.0, 20, 20, 2.1)         
+

@@ -11,9 +11,11 @@
 
 
 
-Bullet::Bullet(vector3 p, vector3 v, vector3 f, float l) : Actor(ACT_BULLET, "Bullet", p, v, 10.0, 60.0) { 
+Bullet::Bullet(vector3 p, vector3 v, vector3 f, float r) : Actor(ACT_BULLET, "Bullet", p, v, 10.0, 60.0) { 
 
-   delay = l;
+   range = r;
+
+   from = position;
 
    squid = false;
 
@@ -24,7 +26,7 @@ Bullet::Bullet(vector3 p, vector3 v, vector3 f, float l) : Actor(ACT_BULLET, "Bu
    force = !f * max_force;
 
    mass = 10.0;
-
+   inv_mass = 1.0/mass;
    radius = 0.1;
 
 
@@ -57,12 +59,12 @@ void Bullet::action(float dt) {
              << " force " << force
              << " mass " << mass << std::endl;
 */
-   if(delay < 0.0)
+   if((position - from).lengthSquared() > range*range)
       flags |= ACT_REMOVE;
 
 
    // get a list of all enemies
-   ActorList al = ActorManager::getInstance()->get_actor_type_list(ACT_ENEMY);
+//   ActorList al = ActorManager::getInstance()->get_actor_type_list(ACT_ENEMY);
 
    squid = false;
 /*

@@ -30,9 +30,11 @@ Player::Player() : Actor(ACT_PLAYER, "Player", vector3(0.0, 0.0, -10.0)) {
    shooting = 0;
 
    mass = 100.0;
+
+   inv_mass = 1.0 / mass;
    // the 5000 is the max thrust
    max_speed = 2.0;
-   max_force = 50.0;
+   max_force = 5000.0;
 
    dl_cockpit = glGenLists(5);
 
