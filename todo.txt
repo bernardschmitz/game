@@ -1,4 +1,11 @@
 
+have functions to get list of actors in a box, circle, along a line etc...
+
+
+use state system in scripts...  also have a mæssage queue between actors.
+
+
+
 put all lua stuff in script.cpp file...
 
 stop bullet accelerating every update!
@@ -99,4 +106,4 @@ polygon counter...
 export from blender in a format for glDrawElements.
 
 
-$Id: todo.txt,v 1.24 2003-09-04 02:35:28 bernard Exp $
+$Id: todo.txt,v 1.25 2003-09-04 23:13:46 bernard Exp $
