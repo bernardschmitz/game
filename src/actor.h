@@ -1,5 +1,5 @@
 
-// $Id: actor.h,v 1.17 2003-08-24 23:59:13 bernard Exp $
+// $Id: actor.h,v 1.18 2003-08-25 05:52:11 bernard Exp $
 
 #ifndef __ACTOR_H__
 #define __ACTOR_H__
@@ -86,7 +86,7 @@ class Actor {
       vector3 hit_normal;
       Actor *hit_actor;
 
-      GridList grids;
+      GridList grid_list;
 
    public:
       Actor(int t, std::string s="Actor", const vector3& pos=vector3(0.0f, 0.0f, 0.0f), const vector3& vel=vector3(0.0f, 0.0f, 0.0f),  
@@ -155,17 +155,18 @@ class Actor {
       friend class ActorManager;
       friend class Constraint;
       friend class CollisionGrid;
+      friend class Grid;
 };
 
 class Grid {
 private:
-   int x, y;
+   int x, y, w, h;
    ActorList actor_list;
 public:
-   Grid(int xx, int yy) { x = xx; yy = y; }
+   Grid(int xx, int yy, int ww, int hh) { x = xx; y = yy; w = ww; h = hh; }
 
-   bool add_actor(Actor *p);
-   bool remove_actor(Actor *p);
+   void add_actor(Actor *p);
+   void remove_actor(Actor *p);
 
    bool empty() { return actor_list.empty(); }
    int size() { return actor_list.size(); }

@@ -265,7 +265,7 @@ static void draw(void) {
 
    delta = now - last;
 
-   avg_delta = (avg_delta*3 + delta) / 4.0;
+   avg_delta = (avg_delta*10 + delta) / 11.0;
 
    last = now;
 

@@ -999,7 +999,7 @@ void Enemy::render() {
    float red[] = { 0.9, 0.3, 0.4, 1.0 };
    float white[] = { 1.0, 1.0, 1.0, 1.0 };
 
-   float n = grids.size()/4.0;
+   float n = grid_list.size()/4.0;
 
    glDisable(GL_LIGHTING);
 /*

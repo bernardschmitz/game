@@ -1,5 +1,5 @@
 
-// $Id: actor.cpp,v 1.17 2003-08-24 23:59:13 bernard Exp $
+// $Id: actor.cpp,v 1.18 2003-08-25 05:52:11 bernard Exp $
 
 #include <iostream>
 #include <sstream>
@@ -248,22 +248,56 @@ void ActorManager::relax(float dt) {
 }
 
 
-bool Grid::add_actor(Actor *p) {
+void Grid::add_actor(Actor *p) {
 
+   assert(p != 0);
+/*
    ActorList::iterator k = actor_list.begin();
    while(k != actor_list.end()) {
       if((*k) == p) {
-         return false;
+         return;
       }
       ++k;
    }
-
    actor_list.push_back(p);
-   return true;
+*/
+
+   // is this actor in this grid?
+   ActorList::iterator k = find(actor_list.begin(), actor_list.end(), p);
+
+   // no so add it
+   if(k == actor_list.end()) {
+      // add actor to grid
+      actor_list.push_back(p);
+      // add grid to actor's list
+      p->grid_list.push_back(this);
+
+//      std::cout << "add actor " << p->name << " to grid " << x << " " << y << std::endl;
+   }
+//   else
+//      std::cout << "actor " << p->name << " already in grid " << x << " " << y << std::endl;
 }
 
-bool Grid::remove_actor(Actor *p) {
+void Grid::remove_actor(Actor *p) {
 
+   assert(p != 0);
+
+   ActorList::iterator k = find(actor_list.begin(), actor_list.end(), p);
+
+   if(k != actor_list.end()) {
+      actor_list.erase(k);
+/*
+      GridList::iterator g = find(p->grid_list.begin(), p->grid_list.end(), this);
+      if(g != p->grid_list.end()) {
+         p->grid_list.erase(g);
+      }
+*/
+
+//      std::cout << "removed actor " << p->name << " from grid " << x << " " << y << std::endl;
+   }
+//   else
+//      std::cout << "actor " << p->name << " not in grid " << x << " " << y << std::endl;
+/*
    ActorList::iterator k = actor_list.begin();
    while(k != actor_list.end()) {
       if((*k) == p) {
@@ -273,6 +307,7 @@ bool Grid::remove_actor(Actor *p) {
       ++k;
    }
    return false;
+*/
 }
 
 void CollisionGrid::insert(float x, float y, Actor *p) {
@@ -288,18 +323,16 @@ void CollisionGrid::insert(float x, float y, Actor *p) {
 
    if(gm == grid_map.end()) {
       // create new grid for this actor
-      Grid *g = new Grid(grid_x, grid_y);
+ //     std::cout << "created new grid\n";
+      Grid *g = new Grid(grid_x, grid_y, w, h);
       // add grid to map of grids
       grid_map[key] = g;
-//      std::cout << "created new grid\n";
-      if(g->add_actor(p))
-         p->grids.push_back(g);
+      g->add_actor(p);
    }
    else {
       // insert actor into this grid
-      if((*gm).second->add_actor(p))
-         p->grids.push_back((*gm).second);
 //      std::cout << "found grid\n";
+      (*gm).second->add_actor(p);
    }
 }
 
@@ -308,13 +341,19 @@ void CollisionGrid::update_position(Actor *p) {
    assert(p != 0);
 
    // remove actor from the grids it is already in
-   if(!p->grids.empty()) {
-      for(GridList::iterator k = p->grids.begin(); k!=p->grids.end(); ++k) {
+   if(!p->grid_list.empty()) {
+      for(GridList::iterator k = p->grid_list.begin(); k!=p->grid_list.end(); ++k) {
          assert((*k) != 0);
          (*k)->remove_actor(p);
+/*
+         ActorList::iterator a = find((*k)->actor_list.begin(), (*k)->actor_list.end(), p);
+         if(a != (*k)->actor_list.end()) {
+            (*k)->actor_list.erase(a);
+         }
+*/
       }
-      p->grids.clear();
-      assert(p->grids.empty());
+      p->grid_list.clear();
+      assert(p->grid_list.empty());
    }
 
    insert(p->position.x+p->radius, p->position.y+p->radius, p);
@@ -323,7 +362,7 @@ void CollisionGrid::update_position(Actor *p) {
    insert(p->position.x-p->radius, p->position.y-p->radius, p);
 
    // only holds if radius is less than grid size
-   assert(p->grids.size() <= 4);
+   assert(p->grid_list.size() <= 4);
 
 }
 
@@ -407,13 +446,13 @@ void ActorManager::remove_dead_actors() {
          // first remove all constraints references this actor
 //         remove_all_constraints(*k);
          // remove this actor from the grids he is in
-         if(!(*k)->grids.empty()) {
-            for(GridList::iterator p = (*k)->grids.begin(); p!=(*k)->grids.end(); ++p) {
+         if(!(*k)->grid_list.empty()) {
+            for(GridList::iterator p = (*k)->grid_list.begin(); p!=(*k)->grid_list.end(); ++p) {
                assert((*p) != 0);
                (*p)->remove_actor(*k);
             }
-            (*k)->grids.clear();
-            assert((*k)->grids.empty());
+            (*k)->grid_list.clear();
+            assert((*k)->grid_list.empty());
          }
 
 //         std::cout << "removing dead " << (*k)->name << std::endl;
