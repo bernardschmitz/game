@@ -28,6 +28,9 @@ void Input::process() {
       bomb         = keys[SDLK_SPACE];
    }
 
+// if the console is up it grabs the keyboard
+
+/*
    SDL_Event event;
 
    while(SDL_PollEvent(&event)) {
@@ -39,14 +42,16 @@ void Input::process() {
          break;
       }
    }
-
+*/
 }
 
 
 void Input::keypress(int code, bool isdown, int unicode) {
 
+/*
    if(isdown && (unicode & 0xff80) == 0) 
       printf(" char %d is [%c]\n", code, unicode & 0x7F);
+*/
 
 /*
    if(isdown && code > SDLK_FIRST && code < SDLK_LAST) {
@@ -56,6 +61,8 @@ void Input::keypress(int code, bool isdown, int unicode) {
 */
 
    // game keys
+
+//   rotate_left = rotate_right = thrust = fire = bomb = 0;
 
    if(code == SDLK_LEFT)
       rotate_left = isdown?1:0;

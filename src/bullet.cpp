@@ -33,10 +33,10 @@ Bullet::~Bullet() {
 }
 
 
-void Bullet::action() {
+void Bullet::action(float dt) {
 
    oldpos = position;
-   position += velocity;
+   //position += velocity;
 
    energy--;
    if(energy < 0)

@@ -24,7 +24,7 @@ class Enemy : public Actor {
       ~Enemy();
 
       void render();
-      void action();   
+      void action(float dt);   
 };
 
 

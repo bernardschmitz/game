@@ -861,7 +861,7 @@ Enemy::~Enemy() {
 }
 
 
-void Enemy::action() {
+void Enemy::action(float dt) {
 
 quaternion Q;
 vector3 ax;
@@ -975,7 +975,7 @@ vector3 ax;
 
       velocity= n * v_spd;
    }
-         position += velocity;
+         //position += velocity;
  
 }
 

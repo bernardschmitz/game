@@ -14,6 +14,8 @@ class Bullet : public Actor {
       bool squid;
       vector3 A,B,C,D;
 
+      vector3 oldpos;
+
       vector3 pts[12];
       float ang[4], dis[4];
 
@@ -25,7 +27,7 @@ class Bullet : public Actor {
       ~Bullet();
 
       void render();
-      void action();   
+      void action(float dt);   
 };
 
 

@@ -27,7 +27,7 @@ class Player : public Actor {
 
       float getZRot() { return z_rotation; }
 
-      void action();
+      void action(float dt);
       void render();
 
 };

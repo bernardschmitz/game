@@ -8,6 +8,7 @@
 #include "random.h"
 #include "bullet.h"
 #include "texture.h"
+#include "text.h"
 
 Player *player = NULL;
 
@@ -24,6 +25,10 @@ Player::Player() : Actor(ACT_PLAYER, vector3(0.0, 0.0, -10.0), vector3(0.0, 0.0,
    thrusting = 0;
    shooting = 0;
 
+   mass = 100.0;
+   drag = 5;
+   max_speed = 30;
+   friction = 500;
 
    dl_cockpit = glGenLists(5);
 
@@ -556,17 +561,19 @@ Player::~Player() {
    // do nothing
 }
 
-void Player::action() {
+void Player::action(float dt) {
+
+   force.set(0.0f, 0.0f, 0.0f);
 
    // rotate player
    Input *input = Input::getInstance();
 
    if(input->rotate_left) {
-      z_rotation += 360.0/60.0;
+      z_rotation += 300.0*dt;
    }
 
    if(input->rotate_right) {
-      z_rotation -= 360.0/60.0;
+      z_rotation -= 300.0*dt;
    }
 
    // clamp rotation
@@ -578,18 +585,20 @@ void Player::action() {
    // thrust
    if(input->thrust) {
 
-      if(thrusting < 30)
-         thrusting++;
+//      if(thrusting < 30)
+//         thrusting++;
 
-      vector3 acceleration( cos(degToRad(z_rotation))/75.0f, sin(degToRad(z_rotation))/75.0f, 0.0f);
-      velocity += acceleration;
+      vector3 thrust( cos(degToRad(z_rotation)), sin(degToRad(z_rotation)), 0.0f);
+      force += thrust * 5000.0;
    }
+/*
    else {
       if(thrusting > 0)
          thrusting--;
    }
-
+*/
    // shoot
+/*
    if(input->fire && shooting == 0) {
       //shooting = 15;
       shooting = 5;
@@ -612,7 +621,11 @@ void Player::action() {
       if(shooting > 0)
          shooting--;
    }
+*/
 
+
+
+/*
    // friction
    float vmag = velocity.lengthSquared();
    if(vmag > 0.0f) {
@@ -628,8 +641,8 @@ void Player::action() {
 
       velocity = n * 1.2f;
    }
-
-   position += velocity;
+*/
+   //position += velocity;
 
 /*
    // wrap pos
@@ -708,6 +721,17 @@ void Player::render() {
          glPopMatrix();
       }
    }
+
+
+
+   TextManager *tm = TextManager::getInstance();
+   char s[100];
+   sprintf(s, "v %.3f", velocity.length());
+   glColor4f(1.0,1.0,1.0,1.0);
+   tm->draw(tm->screenWidth()/2, tm->screenHeight()/2, s);
+
+
+
 
 
 

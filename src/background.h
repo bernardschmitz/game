@@ -13,6 +13,8 @@ class Background : public Actor {
 
       vector3 center;
 
+      float u, ux, uy, uz;
+
    public:
       Background();
       ~Background();
@@ -20,7 +22,7 @@ class Background : public Actor {
       void setCenter(vector3 v) { center = v; }
 
       void render();
-      void action();
+      void action(float dt);
 };
 
 #endif

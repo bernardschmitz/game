@@ -81,7 +81,7 @@ class ParticleSystem : public Actor {
       // kills min(k,alive) particles
       void kill(int k);
 
-      virtual void action();
+      virtual void action(float dt);
       virtual void render();
 };
 

@@ -88,6 +88,8 @@ static GLuint world;
   static GLfloat tgen[4] =
   {0.0, 0.5, 0.0, 0.0};
 
+static int delta = 0;
+
 
 static void draw(void) {
 
@@ -98,15 +100,20 @@ static void draw(void) {
 
    int now = SDL_GetTicks();
 
+   //printf("now %d last %d ", now, last);
+
    if(now - last > 200)
       last = now - 200;
    else
       if(now - last < 1)
          last = now - 1;
 
-   int delta = now - last;
+   delta = now - last;
 
    last = now;
+
+   //printf("delta %d %f\n", delta, delta/1000.0);
+
 
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -120,20 +127,19 @@ static void draw(void) {
    float pa = degToRad(player->getZRot());
    vector3 dir(cos(pa), sin(pa), 0.0);
 
-   //float mag = -15.0*vel.length();
-   float mag = -30.0*vel.length();
+   //float mag = -30.0*vel.length();
+   float mag = -vel.length();
 
    if(follow) {
-      //glTranslatef(-pos.x-30*vel.x, -pos.y-30*vel.y, mag);
-      //glTranslatef(-pos.x-3*dir.x, -pos.y-3*dir.y, mag);
-
-      //glTranslatef(-pos.x-30*vel.x-vel.length()*dir.x, -pos.y-30*vel.y-vel.length()*dir.y, mag);
+       //  want cam to move between 0.0 and -36.0
+//      glTranslatef(-pos.x, -pos.y, 0.0);
       glTranslatef(-pos.x, -pos.y, mag);
    }
    else
       glTranslatef(-pos.x, -pos.y, -100.0);
 
 
+   //bg->setCenter(vector3(pos.x, pos.y, 0.0));
    bg->setCenter(vector3(pos.x, pos.y, mag));
 
    actor_manager.render();
@@ -159,16 +165,17 @@ static void draw(void) {
 
    static int out = 0;
 
-   if(now - out >= 5000) {
+   if(now - out >= 1000) {
       printf("delta %d fps %f\n", delta, fps);
       out = now;
    }
 
    // pause a little...
-
+/*
    int ww = 1000/60 - (SDL_GetTicks() - now);
    if(ww > 1)
       SDL_Delay(ww);
+*/
 }
 
 static void
@@ -178,7 +185,7 @@ idle(void)
 
    input->process();
 
-   actor_manager.update(1.0/50.0);
+   actor_manager.update(delta/1000.0);
 
    console->action();
 }
@@ -253,20 +260,11 @@ init(int argc, char *argv[])
    actor_manager.insert(bg);
 
 /*
-   vector3 p( -20.0, 20.0, -10.0 );
-  
-   for(int i=0; i<20; i++) {
-      p.x += 4.0;
-      alEnemy.insert(new Enemy(p));
-   }
-*/
-
-
    actor_manager.insert(new Enemy(vector3(10, 10, -10)));
    actor_manager.insert(new Enemy(vector3(20, 10, -10)));
    actor_manager.insert(new Enemy(vector3(-50, -25, -10)));
    actor_manager.insert(new Enemy(vector3(10, -10, -10)));
-
+*/
 
 
    ParticleDesc pd;

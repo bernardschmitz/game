@@ -1,5 +1,5 @@
 
-// $Id: actor.h,v 1.6 2003-08-04 23:01:20 bernard Exp $
+// $Id: actor.h,v 1.7 2003-08-05 18:04:46 bernard Exp $
 
 #ifndef __ACTOR_H__
 #define __ACTOR_H__
@@ -25,10 +25,20 @@
 class Actor {
    protected:
 
-      vector3 position, oldpos;
-      vector3 velocity, oldvel;
+      vector3 position;
+      vector3 velocity;
+      vector3 acceleration;
+
       vector3 direction;
       quaternion orientation;
+
+      float mass;
+
+      float max_speed;
+      float drag;
+      float friction;
+      
+      vector3 force;
 
       int actor_id;             // unique actor id
       int actor_type;           // type
@@ -59,6 +69,7 @@ class Actor {
    
       vector3 getPosition() { return position; }
       vector3 getVelocity() { return velocity; }
+      vector3 getAcceleration() { return acceleration; }
       vector3 getDirection() { return direction; }
       quaternion getOrientation() { return orientation; }
 
@@ -67,7 +78,7 @@ class Actor {
 
       void update(float dt);  // update, calls action, move etc...
 
-      virtual void action() =0;  // actors user function
+      virtual void action(float dt) =0;  // actors user function
 
       virtual void render() =0;  // draws actor
 

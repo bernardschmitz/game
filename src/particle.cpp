@@ -109,7 +109,7 @@ ParticleSystem::~ParticleSystem() {
    delete [] p;
 }
 
-void ParticleSystem::action() {
+void ParticleSystem::action(float dt) {
 
    spawn(desc.spawn_rate);
 
@@ -121,7 +121,8 @@ void ParticleSystem::action() {
          p[i].energy--;
          p[i].oldPos = p[i].pos;
 
-         p[i].pos += p[i].vel;
+         // TODO this needs to be calculated properly
+         p[i].pos += p[i].vel * dt;
          p[i].color.w = p[i].energy*1.0/p[i].max_energy;
       }
       else {
@@ -130,6 +131,7 @@ void ParticleSystem::action() {
        }
    }
 }
+
 
 void ParticleSystem::render() {
 

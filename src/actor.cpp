@@ -1,5 +1,5 @@
 
-// $Id: actor.cpp,v 1.5 2003-08-05 01:45:34 bernard Exp $
+// $Id: actor.cpp,v 1.6 2003-08-05 18:04:46 bernard Exp $
 
 #include "actor.h"
 
@@ -31,6 +31,15 @@ inline void Actor::init(int type, vector3 p, vector3 v, vector3 d) {
 
    position = p;
    velocity = v;
+
+   acceleration = vector3(0,0,0);
+   force = vector3(0,0,0);
+
+   mass = 1.0;
+
+   drag = 0.0;
+   max_speed = 10.0;
+   friction = 0.0;
    
    direction = d;
 
@@ -42,9 +51,24 @@ inline void Actor::init(int type, vector3 p, vector3 v, vector3 d) {
 
 void Actor::update(float dt) {
 
-   action();
+   //printf("update with %f\n", dt);
 
-//   pos += vel*dt;
+   action(dt);
+
+   float speed2 = velocity.lengthSquared();
+
+   vector3 negv = -(!velocity);
+
+   if(drag > 0.0)
+      force += negv*(drag*speed2);
+
+   if(speed2 > 0.0 && friction > 0.0)
+      force += negv*friction;
+
+   acceleration = force / mass;
+   velocity += acceleration * dt;
+   position += velocity * dt;
+
 }
 
 ActorList ActorManager::get_actor_type_list(int type) {
@@ -119,7 +143,9 @@ void ActorManager::render() {
    ActorList::iterator k = master_actor_list.begin();
    while(k != master_actor_list.end()) {
       //printf("calling render for %p %d %d\n", (void *)(*k), (*k)->actor_type, (*k)->actor_id);
+      int t = SDL_GetTicks();
       (*k)->render();
+printf("rendering %d %d took %d\n", (*k)->actor_type, (*k)->actor_id, SDL_GetTicks()-t);
       k++;
    }
 }

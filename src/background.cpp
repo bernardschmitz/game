@@ -54,6 +54,10 @@ Background::Background() : Actor(ACT_BACKGROUND, vector3(0.0, 0.0, 0.0), vector3
       }
    }
 
+
+   u = 0.0;
+
+   ux = uy = uz = 0.0;
 }
 
 
@@ -231,11 +235,17 @@ void Background::render(vector3 center, int flags) {
 }
 #endif
 
-void Background::action() {
+void Background::action(float dt) {
 
+   u += M_PI/400.0*50.0*dt;
+
+   ux = 20.0*cos(u);
+   uy = 45.0*sin(u); // + 15.0*cos(u/2.0);
+   uz = 35.0*cos(u); // + 25.0*cos(u/4.0);
 }
 
 void Background::render() {
+ 
 
    glDisable(GL_LIGHTING);
    glDisable(GL_DEPTH_TEST);
@@ -258,15 +268,9 @@ void Background::render() {
    float cz = floor(center.z/s)*s;
 
 
-   static float u = 0.0;
-
-   u += M_PI/400.0;
-
-   float ux = 20.0*cos(u);
-   float uy = 45.0*sin(u); // + 15.0*cos(u/2.0);
-   float uz = 35.0*cos(u); // + 25.0*cos(u/4.0);
-
    float dd;
+
+//#if 0
 
    // use quad strip
    glBegin(GL_QUADS);
@@ -337,7 +341,7 @@ void Background::render() {
    }
    glEnd();
 
-
+//#endif
 
 //   sgVec3 vel;
 //   player->getVelocity(vel);
