@@ -14,6 +14,7 @@ Player::Player() {
    z_rotation = 0.0;
 
    thrusting = 0;
+   shooting = 0;
 
 
 
@@ -330,6 +331,18 @@ int Player::action() {
          thrusting--;
    }
 
+   // shoot
+   if(input.fire) {
+
+      if(shooting < 30)
+         shooting++;
+   }
+   else {
+      if(shooting > 0)
+         shooting--;
+   }
+
+
 
    sgAddVec3(position, velocity);
 
@@ -355,7 +368,9 @@ int Player::render() {
    sgVec4 green  = { 1.0, 1.0, 1.0, 1.0 };
    sgVec4 yellow = { 1.0, 1.0, 0.0, 1.0 };
 
-   float recoil = 30.0*sin((float)thrusting/30.0*M_PI/2.0); 
+   float thrust = 30.0*sin((float)thrusting/30.0*M_PI/2.0); 
+
+   float shoot  = -1*sin((float)shooting/30.0*M_PI/2.0); 
 
    // ship
    glPushMatrix();
@@ -370,17 +385,20 @@ int Player::render() {
    glCallList(dl_cockpit);
 
    glPushMatrix();
-   glRotatef(0.0+recoil, 0.0, 0.0, 1.0);
+   glRotatef(0.0+thrust, 0.0, 0.0, 1.0);
    glCallList(dl_left_wing);
    glPopMatrix();
    
    glPushMatrix();
-   glRotatef(0.0-recoil, 0.0, 0.0, 1.0);
+   glRotatef(0.0-thrust, 0.0, 0.0, 1.0);
    glCallList(dl_right_wing);
    glPopMatrix();
 
+   glPushMatrix();
+   glTranslatef(0.0, shoot, 0.0);
    glCallList(dl_left_engine);
    glCallList(dl_right_engine);
+   glPopMatrix();
 
    glPopMatrix();
 

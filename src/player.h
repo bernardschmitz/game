@@ -12,6 +12,7 @@ class Player {
 
       float z_rotation;
       int thrusting;
+      int shooting;
 
       GLuint dl_cockpit;
       GLuint dl_left_wing;
