@@ -1,5 +1,5 @@
 
-# $Id: makefile.win,v 1.1 2003-08-02 17:52:31 bernard Exp $
+# $Id: makefile.win,v 1.2 2003-08-02 19:44:04 bernard Exp $
 
 
 ifdef OPTIMIZE
