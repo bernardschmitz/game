@@ -1,5 +1,5 @@
 
-// $Id: actor.h,v 1.10 2003-08-15 20:38:54 bernard Exp $
+// $Id: actor.h,v 1.11 2003-08-18 00:32:46 bernard Exp $
 
 #ifndef __ACTOR_H__
 #define __ACTOR_H__
@@ -84,10 +84,6 @@ class Actor {
 
       virtual void render() =0;  // draws actor
 
-      // called when an actor hits another.
-      // sets the collision flag
-      //virtual void Collision(Actor *pact) { pact=pact; fFlags |= ACT_HIT; }
-
       friend class ActorManager;
 };
 
@@ -124,6 +120,8 @@ class ActorManager {
 
 
       ActorList get_actor_type_list(int t); 
+
+      void check_collision(float dt);
 };
 
 

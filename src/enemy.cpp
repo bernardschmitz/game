@@ -987,9 +987,9 @@ void Enemy::action(float dt) {
 
              hit++;
           
-             std::cout << "me p " << position << " him p " << other->getPosition() << 
-                  "me v " << velocity << " him v " << other->getVelocity() <<
-                  "dir " << dist << " dist " << d << " steer " << steering << std::endl;
+             //std::cout << "me p " << position << " him p " << other->getPosition() << 
+             //     "me v " << velocity << " him v " << other->getVelocity() <<
+             //     "dir " << dist << " dist " << d << " steer " << steering << std::endl;
 /*
              pain.z -= (1.0f/255.0f);
 

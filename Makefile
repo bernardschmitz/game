@@ -1,5 +1,5 @@
 
-# $Id: Makefile,v 1.21 2003-08-15 20:38:13 bernard Exp $
+# $Id: Makefile,v 1.22 2003-08-18 00:32:46 bernard Exp $
 
 
 ifdef OPTIMIZE
@@ -783,51 +783,8 @@ src/actor.o: ../cross-tools/include/c++/3.2.3/limits
 src/actor.o: ../cross-tools/include/c++/3.2.3/i386-mingw32msvc/bits/cpu_limits.h
 src/actor.o: ../cross-tools/include/c++/3.2.3/typeinfo
 src/actor.o: ../cross-tools/include/c++/3.2.3/istream
-src/actor.o: ../cross-tools/include/c++/3.2.3/bits/istream.tcc src/actor.h
-src/actor.o: src/main.h ../cross-tools/include/SDL/SDL.h
-src/actor.o: ../cross-tools/include/SDL/SDL_main.h
-src/actor.o: ../cross-tools/include/SDL/SDL_types.h
-src/actor.o: ../cross-tools/include/SDL/begin_code.h
-src/actor.o: ../cross-tools/include/SDL/close_code.h
-src/actor.o: ../cross-tools/include/SDL/SDL_getenv.h
-src/actor.o: ../cross-tools/include/SDL/SDL_error.h
-src/actor.o: ../cross-tools/include/SDL/SDL_rwops.h
-src/actor.o: ../cross-tools/include/SDL/SDL_timer.h
-src/actor.o: ../cross-tools/include/SDL/SDL_audio.h
-src/actor.o: ../cross-tools/include/SDL/SDL_byteorder.h
-src/actor.o: ../cross-tools/include/SDL/SDL_cdrom.h
-src/actor.o: ../cross-tools/include/SDL/SDL_joystick.h
-src/actor.o: ../cross-tools/include/SDL/SDL_events.h
-src/actor.o: ../cross-tools/include/SDL/SDL_active.h
-src/actor.o: ../cross-tools/include/SDL/SDL_keyboard.h
-src/actor.o: ../cross-tools/include/SDL/SDL_keysym.h
-src/actor.o: ../cross-tools/include/SDL/SDL_mouse.h
-src/actor.o: ../cross-tools/include/SDL/SDL_video.h
-src/actor.o: ../cross-tools/include/SDL/SDL_mutex.h
-src/actor.o: ../cross-tools/include/SDL/SDL_quit.h
-src/actor.o: ../cross-tools/include/SDL/SDL_version.h
-src/actor.o: ../cross-tools/include/SDL/SDL_opengl.h
-src/actor.o: ../cross-tools/i386-mingw32msvc/include/windows.h
-src/actor.o: ../cross-tools/i386-mingw32msvc/include/windef.h
-src/actor.o: ../cross-tools/i386-mingw32msvc/include/winnt.h
-src/actor.o: ../cross-tools/i386-mingw32msvc/include/winerror.h
-src/actor.o: ../cross-tools/i386-mingw32msvc/include/basetsd.h
-src/actor.o: ../cross-tools/i386-mingw32msvc/include/pshpack4.h
-src/actor.o: ../cross-tools/i386-mingw32msvc/include/poppack.h
-src/actor.o: ../cross-tools/i386-mingw32msvc/include/wincon.h
-src/actor.o: ../cross-tools/i386-mingw32msvc/include/winbase.h
-src/actor.o: ../cross-tools/i386-mingw32msvc/include/wingdi.h
-src/actor.o: ../cross-tools/i386-mingw32msvc/include/winuser.h
-src/actor.o: ../cross-tools/i386-mingw32msvc/include/winnls.h
-src/actor.o: ../cross-tools/i386-mingw32msvc/include/winver.h
-src/actor.o: ../cross-tools/i386-mingw32msvc/include/winnetwk.h
-src/actor.o: ../cross-tools/i386-mingw32msvc/include/winreg.h
-src/actor.o: ../cross-tools/i386-mingw32msvc/include/winsvc.h
-src/actor.o: ../cross-tools/i386-mingw32msvc/include/GL/gl.h
-src/actor.o: ../cross-tools/i386-mingw32msvc/include/GL/glu.h
-src/actor.o: ../cross-tools/include/SDL/SDL_image.h
-src/actor.o: ../cross-tools/include/SDL/SDL.h src/vector.h src/quaternion.h
-src/actor.o: ../cross-tools/include/c++/3.2.3/vector
+src/actor.o: ../cross-tools/include/c++/3.2.3/bits/istream.tcc src/vector.h
+src/actor.o: src/actor.h ../cross-tools/include/c++/3.2.3/vector
 src/actor.o: ../cross-tools/include/c++/3.2.3/bits/stl_vector.h
 src/actor.o: ../cross-tools/include/c++/3.2.3/bits/stl_bvector.h
 src/particle.o: src/particle.h src/main.h

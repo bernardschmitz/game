@@ -249,6 +249,7 @@ static void draw(void) {
    static int frames = 0;
    static float fps = 10.0;
    static int last = 0;
+   static float avg_delta = 0.0f;
 
    int now = SDL_GetTicks();
 
@@ -263,6 +264,8 @@ static void draw(void) {
 
 
    delta = now - last;
+
+   avg_delta = (avg_delta*3 + delta) / 4.0;
 
    last = now;
 
@@ -316,7 +319,7 @@ static void draw(void) {
 
 
    char fs[100];
-   sprintf(fs, "fps %3d", (int)fps);
+   sprintf(fs, "ms %7.3f fps %3d", avg_delta, (int)fps);
    glColor4f(1.0, 1.0, 1.0, 1.0);
    TextManager::getInstance()->draw(800-strlen(fs)*16, 600-16, fs);
 
@@ -332,7 +335,7 @@ static void draw(void) {
 
    if(now - out >= 1000) {
       char fs[100];
-      sprintf(fs, "fps %f", fps);
+      sprintf(fs, "ms %f fps %f", avg_delta, fps);
       out = now;
       glColor4f(1.0, 1.0, 1.0, 1.0);
       printf("%s\n", fs);
