@@ -648,6 +648,8 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
    int frames = 0;
    int last = 0;
 
+   float avg_render = 0.0;
+
    while ( ! done ) {
 
       int now = SDL_GetTicks();
@@ -668,14 +670,18 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
 
       done = input->quit;
 
+      int now_d = SDL_GetTicks();
+
       draw(delta);
 
       char fs[1000];
-      sprintf(fs, "ms %7.3f fps %3d", avg_delta, (int)fps);
+      sprintf(fs, "r %6.2f ms %6.2f fps %3d", avg_render, avg_delta, (int)fps);
       glColor4f(1.0, 1.0, 1.0, 1.0);
       TextManager::getInstance()->draw(800-strlen(fs)*16, 600-16, fs);
 
       SDL_GL_SwapBuffers();
+
+      int render_time = SDL_GetTicks() - now_d;
 
       frames++;
 
@@ -683,11 +689,13 @@ printf("attempting %dx%dx32 %s\n", w, h, fs==0?"windowed":"fullscreen");
 
       fps = (1000.0/delta + fps*5)/6;
 
+      avg_render = (avg_render*5 + render_time) / 6.0;
+
       static int out = 0;
 
       if(now - out >= 4000) {
          out = now;
-         printf("t %d ms %f fps %f\n", timer, avg_delta, fps);
+         printf("r %f ms %f fps %f\n", avg_render, avg_delta, fps);
       }
 
 /*
