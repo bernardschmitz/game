@@ -1,4 +1,12 @@
 
+modularize more...
+
+fade the background alpha based on distance from origin.  not the grid.  fade different levels at different rates.
+perhaps spawn an indesructable enemy there...
+or maybe have the enemy killable but very tough...
+loose points and life as you go further from the origin.
+
+
 
 have console interpret \n and split string...
 
@@ -34,4 +42,4 @@ polygon counter...
 export from blender in a format for glDrawElements.
 
 
-$Id: todo.txt,v 1.17 2003-08-07 02:53:44 bernard Exp $
+$Id: todo.txt,v 1.18 2003-08-15 20:38:13 bernard Exp $

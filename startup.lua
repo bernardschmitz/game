@@ -1,7 +1,7 @@
 
 -- This is the main startup code
 --
--- $Id: startup.lua,v 1.3 2003-08-07 02:51:33 bernard Exp $
+-- $Id: startup.lua,v 1.4 2003-08-15 20:38:13 bernard Exp $
 
 copyright = "Sword of Cydonia (c) Bernard Schmitz 2003";
 
@@ -21,5 +21,5 @@ print(copyright)
 
 
 -- add some enemies
-rand_enemy(4)
+rand_enemy(2)
 
