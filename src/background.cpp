@@ -478,8 +478,8 @@ void Background::render() {
 
    s = s/ 2;
 
-   sx = floor((d)/s)*s;
-   sy = floor((d*0.75)/s)*s;
+   sx = s+floor((d)/s)*s;
+   sy = s+floor((d*0.75)/s)*s;
 
    //printf("1 z %f d %f sx %f sy %f\n", z, d, sx, sy);
 

@@ -1,5 +1,5 @@
 
-// $Id: actor.h,v 1.11 2003-08-18 00:32:46 bernard Exp $
+// $Id: actor.h,v 1.12 2003-08-20 18:57:19 bernard Exp $
 
 #ifndef __ACTOR_H__
 #define __ACTOR_H__
@@ -23,10 +23,13 @@
 #define ACT_COLLISION      0x01
 #define ACT_REMOVE         0x02
 
+
 class Actor {
    protected:
 
       vector3 position;
+      vector3 prev_position;
+      vector3 delta_position;
       vector3 velocity;
       vector3 acceleration;
       vector3 force;
@@ -55,7 +58,12 @@ class Actor {
 
       static int id_seq;       
 
-      float bound_radius;
+      float radius;
+
+      float hit_time;
+      vector3 hit_position;
+      vector3 hit_normal;
+      Actor *hit_actor;
 
    public:
       Actor(int type, vector3 pos=vector3(0.0f, 0.0f, 0.0f), vector3 vel=vector3(0.0f, 0.0f, 0.0f),  
@@ -77,6 +85,7 @@ class Actor {
       vector3 getRightAxis() { return right_axis; }
       vector3 getUpAxis() { return up_axis; }
 
+      float getRadius() { return radius; }
 
       virtual void update(float dt);  // update, calls action, move etc...
 
@@ -84,8 +93,18 @@ class Actor {
 
       virtual void render() =0;  // draws actor
 
+
+
+      // checks for collision between this actor and p.
+      // sets the ACT_COLLISON flag and the various hit_* variables.
+      bool collide(Actor *p, float dt);
+
+
+
       friend class ActorManager;
 };
+
+
 
 
 typedef std::vector<Actor *> ActorList;
@@ -102,6 +121,8 @@ class ActorManager {
 
       static ActorManager *instance;
 
+      void collide(float dt);
+
       ActorManager() { }
       // TODO
       ~ActorManager() { std::cout << "ActorManager destructor probably should destroy actor_list elements!\n"; }
@@ -109,7 +130,7 @@ class ActorManager {
    public:
       static ActorManager *getInstance();
       // add a new actor
-      void insert(Actor *p) { new_actor_list.push_back(p); }
+      void insert(Actor *p);
 
 //      void remove(Actor *p);
 
@@ -122,6 +143,7 @@ class ActorManager {
       ActorList get_actor_type_list(int t); 
 
       void check_collision(float dt);
+
 };
 
 

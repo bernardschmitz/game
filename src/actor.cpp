@@ -1,5 +1,5 @@
 
-// $Id: actor.cpp,v 1.10 2003-08-15 20:38:54 bernard Exp $
+// $Id: actor.cpp,v 1.11 2003-08-20 18:57:19 bernard Exp $
 
 #include <iostream>
 
@@ -29,12 +29,16 @@ Actor::Actor(int type, vector3 p, vector3 v, float m, float ms, float br, float 
    position = p;
    velocity = v;
 
-   acceleration.set(0.0f,0.0f,0.0f);
+   prev_position = position - v;
+
+//   acceleration.set(0.0f,0.0f,0.0f);
    force.set(0.0f,0.0f,0.0f);
 
    speed = velocity.length();
 
    mass = m;
+
+   radius = br;
 
    max_speed = ms;
 
@@ -56,6 +60,64 @@ Actor::Actor(int type, vector3 p, vector3 v, float m, float ms, float br, float 
 }
 
 
+bool sphere_collision(const vector3& Ap, vector3& Av, const float Ar, const vector3& Bp, vector3& Bv, const float Br) {
+
+   vector3 move = Av - Bv;
+
+   vector3 C = Bp - Ap;
+
+   float dist = C.length();
+   float sum_radii = Ar + Br;
+
+   //std::cout << "\n\tmove " << move << " move.length() " << move.length() << " C " << C << " dist " << dist << " sum_radii " << sum_radii << std::endl;
+
+   if(move.length() < dist - sum_radii)
+      return false;
+
+   vector3 N = !move;
+
+   float D = N * C;
+
+   //std::cout << "\tN " << N << " D " << D << std::endl;
+   if(D <= 0.0f)
+      return false;
+
+   float F = (dist * dist) - (D * D);
+
+   float sum_radii_squared = sum_radii * sum_radii;
+
+   //std::cout << "\tF " << F << " sum_radii_squared " << sum_radii_squared << std::endl;
+   if(F >= sum_radii_squared)
+      return false;
+
+   float T = sum_radii_squared - F;
+
+   //std::cout << "\tT " << T << std::endl;
+   if(T < 0.0f)
+      return false;
+
+   float distance = D - sqrt(T);
+
+   float mag = move.length();
+
+   //std::cout << "\tdistance " << distance << " mag " << mag << std::endl;
+   if(mag < distance)
+      return false;
+
+   //move = N*distance;
+
+
+   float t = fabs(distance) / (mag+0.000001);
+
+   Av *= t;
+   Bv *= t;
+
+   //std::cout << "\tt " << t << std::endl;
+
+   return true;
+}
+
+
 void Actor::update(float dt) {
 
    //printf("update with %f\n", dt);
@@ -63,6 +125,14 @@ void Actor::update(float dt) {
    delay -= dt;
 
    action(dt);
+
+/*
+   if(flags & ACT_COLLISION) {
+      flags &= ~ACT_COLLISION;
+      position = hit_position;
+      velocity = vector3(0,0,0);
+   }
+*/
 
    if(force.lengthSquared() > max_force*max_force)
       force = (!force) * max_force;
@@ -78,7 +148,12 @@ void Actor::update(float dt) {
    if(velocity.lengthSquared() < tiny)
       velocity.set(0.0, 0.0, 0.0);
 
-   position += velocity * dt;
+
+   prev_position = position;
+
+//   position += velocity * dt;
+
+   delta_position = velocity * dt;
 
    //std::cout << actor_type << " " << actor_id << " " << position << " " << velocity << " " << velocity.length() << " " << force << " " << force.length() << std::endl;
 
@@ -91,6 +166,11 @@ void Actor::update(float dt) {
       right_axis = forward_axis % up_axis;
       up_axis = forward_axis % right_axis;
    }
+}
+
+void ActorManager::insert(Actor *p) { 
+
+   new_actor_list.push_back(p); 
 }
 
 
@@ -112,15 +192,60 @@ ActorList ActorManager::get_actor_type_list(int type) {
 
 void ActorManager::insert_new_actors() { 
 
-
+   // insert new actors to main list
    ActorList::iterator k = new_actor_list.begin();
 
    while(k != new_actor_list.end()) {
+      // insert the new actor
       master_actor_list.push_back((*k));
+      // remove it from the new list and get the next one
       k = new_actor_list.erase(k);
    }
 
    assert(new_actor_list.empty());
+}
+
+
+
+
+// checks for collisions against all actors
+
+void ActorManager::collide(float dt) {
+
+   for(int i=0; i<master_actor_list.size()-1; i++) {
+
+      vector3 Ap = master_actor_list[i]->position;
+      vector3& Am = master_actor_list[i]->delta_position;
+      float Ar = master_actor_list[i]->radius;
+
+      for(int j=i+1; j<master_actor_list.size(); j++) {
+
+         vector3 Bp = master_actor_list[j]->position;
+         vector3& Bm = master_actor_list[j]->delta_position;
+         float Br = master_actor_list[j]->radius;
+
+         //std::cout << " check " << i << " against " << j;
+         if(sphere_collision(Ap, Am, Ar, Bp, Bm, Br)) {
+            // calc collision response
+
+            vector3& Av = master_actor_list[i]->velocity;
+            vector3& Bv = master_actor_list[j]->velocity;
+
+            float sum_inv_mass = 1.0f/master_actor_list[i]->mass + 1.0f/master_actor_list[j]->mass;
+
+            vector3 rv = Av - Bv;
+            vector3 cn = !((Ap+Am) - (Bp+Bm));
+            
+            float k = ( -(1.0f+0.5f) * (rv * cn) )  /  ( (cn*cn) * sum_inv_mass );
+ 
+            Av += ((k * cn) / master_actor_list[i]->mass) ;// / dt;
+            Bv -= ((k * cn) / master_actor_list[j]->mass) ;// / dt;
+
+            //std::cout << " HIT! " ;
+         }
+         //std::cout << std::endl;
+      }
+   }
 }
 
 
@@ -144,20 +269,35 @@ void ActorManager::update(float dt) {
    while(k != master_actor_list.end()) {
       //printf("calling update for %p %d %d\n", (void *)(*k), (*k)->actor_type, (*k)->actor_id);
       (*k)->update(dt);
-      k++;
+      ++k;
    }
+
+   collide(dt);
+
+   // set new position after checking for collisions
+   k = master_actor_list.begin();
+   while(k != master_actor_list.end()) {
+      (*k)->position += (*k)->delta_position;
+      // TODO adjust velocities for collision here too
+      ++k;
+   }
+
+
 
    // remove old actors
 
    k = master_actor_list.begin();
    while(k != master_actor_list.end()) {
-      if((*k)->flags & ACT_REMOVE)
+      if((*k)->flags & ACT_REMOVE) {
          // TODO fix leak here, need to delete the actor itself...  or perhaps flag it for reuse?
          k = master_actor_list.erase(k);
+      }
       else
-         k++;
+         ++k;
    }
 
+   // relax positions of all actors and flag collisions
+   //relax(dt);
 }
 
 

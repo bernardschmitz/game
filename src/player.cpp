@@ -698,6 +698,18 @@ void Player::render() {
    glPushMatrix();
 
    glTranslatef(position.x, position.y, position.z);
+
+   glColor4f(1.0, 1.0, 1.0, 1.0);
+   glBegin(GL_LINE_LOOP);
+    for(int i=0; i<12; i++) {
+       float x = radius*cos(i/12.0*2.0*M_PI);
+       float y = radius*sin(i/12.0*2.0*M_PI);
+       glVertex3f(x, y, 0.0);
+    }
+   glEnd();
+
+
+
    glRotatef(-90.0, 0.0, 0.0, 1.0);
    glRotatef(z_rotation, 0.0, 0.0, 1.0);
 
@@ -726,6 +738,7 @@ void Player::render() {
 
    glPopMatrix();
 
+/*
    // blocks
    for(float y = -30.0; y<=30.0; y+=10.0) {
       for(float x = -30.0; x<=30.0; x+=10.0) {
@@ -743,7 +756,7 @@ void Player::render() {
          glPopMatrix();
       }
    }
-
+*/
 
 /*
    TextManager *tm = TextManager::getInstance();

@@ -30,7 +30,9 @@ Enemy::Enemy(vector3 p) : Actor(ACT_ENEMY, p) {
    velocity.y = uniform_random_float(-1.0f, 1.0f);
    velocity.z = 0.0f;
 
-   velocity = (!velocity) * max_speed/10;
+   velocity = (!velocity) * max_speed/100;
+
+//   velocity = vector3(0,0,0);
 
    rot.set(0.0, 0.0, 0.0, 1.0);
 
@@ -929,13 +931,88 @@ Enemy::NearestApproachPositions (Enemy *other, float time) {
 
 
 
+void Enemy::action(float dt) {
+
+/*
+   flags = 0;
+   if(collide(player, dt)) {
+      std::cout << position << " " << hit_position << " " << hit_normal << " " << hit_time << " " << std::endl;
+   }
+*/
+   float size = 25.0;
+
+   if(position.x < -size) {
+      position.x = -size;
+      velocity.x = -velocity.x;
+   }
+   if(position.x > size) {
+      position.x = size;
+      velocity.x = -velocity.x;
+   }
+
+   if(position.y < -size) {
+      position.y = -size;
+      velocity.y = -velocity.y;
+   }
+   if(position.y > size) {
+      position.y = size;
+      velocity.y = -velocity.y;
+   }
 
 
 
+}
 
 
 
+void Enemy::render() {
 
+
+   float green[] = { 0.5, 0.8, 1.0, 1.0 };
+   float red[] = { 0.9, 0.3, 0.4, 1.0 };
+   float white[] = { 1.0, 1.0, 1.0, 1.0 };
+
+
+   glDisable(GL_LIGHTING);
+
+   if(flags & ACT_COLLISION) {
+      glPushMatrix();
+      glTranslatef(hit_position.x, hit_position.y, hit_position.z);
+      glBegin(GL_LINES);
+       glColor4f(0.0, 1.0, 1.0, 1.0);
+       glVertex3f(0.0, 0.0, 0.0);
+       glVertex3f(hit_normal.x, hit_normal.y, hit_normal.z);
+      glEnd();
+
+      glColor4f(1.0, 1.0, 0.0, 1.0);
+      glBegin(GL_LINE_LOOP);
+       for(int i=0; i<12; i++) {
+          float x = radius*cos(i/12.0*2.0*M_PI);
+          float y = radius*sin(i/12.0*2.0*M_PI);
+          glVertex3f(x, y, 0.0);
+       }
+      glEnd();
+
+      glPopMatrix();
+   }
+
+   glPushMatrix();
+   glTranslatef(position.x, position.y, position.z);
+   glColor4f(pain.x, pain.y, pain.z, 1.0);
+   glBegin(GL_TRIANGLE_FAN);
+    for(int i=0; i<12; i++) {
+       float x = radius*cos(i/12.0*2.0*M_PI);
+       float y = radius*sin(i/12.0*2.0*M_PI);
+       glVertex3f(x, y, 0.0);
+    }
+   glEnd();
+
+  glPopMatrix();
+
+   glEnable(GL_LIGHTING);
+}
+
+#if 0
 
 void Enemy::action(float dt) {
 
@@ -1195,6 +1272,9 @@ float accel = 0;
 }
 
 
+
+
+
 void Enemy::render() {
 
 
@@ -1278,3 +1358,4 @@ void Enemy::render() {
 */
 }
 
+#endif
