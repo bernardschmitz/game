@@ -1,5 +1,7 @@
 
-$Id: todo.txt,v 1.8 2003-08-03 01:38:56 bernard Exp $
+$Id: todo.txt,v 1.9 2003-08-03 01:56:10 bernard Exp $
+
+make a path class
 
 have weapon and bomb class
 
@@ -31,4 +33,4 @@ polygon counter...
 
 export from blender in a format for glDrawElements.
 
-goon
+
