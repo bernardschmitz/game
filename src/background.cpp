@@ -13,7 +13,7 @@ Background::Background() {
                             { 0.0, 0.0, 0.5, 0.0   },
                             { 0.0, 0.5, 0.0, 0.1   },
                             { 0.5, 0.0, 0.0, 0.0   },
-                            { 0.5, 0.5, 0.5, 0.1   },
+                            { 0.0, 0.0, 0.5, 0.1   },
                             { 0.5, 0.5, 0.0, 0.0   },
                             { 0.0, 0.0, 0.0, 0.1  }  };
 
@@ -175,6 +175,7 @@ void Background::render(sgVec3 center, int flags) {
    z = f+zs;
    for(int i=0; i<p; i++) {
       dd = fabs(z);
+      float offset = 0.0;
       for(float y=cy-dd; y<cy+dd+s; y+=s) {
          for(float x=cx-dd; x<cx+dd+s; x+=s) {
 

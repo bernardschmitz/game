@@ -11,6 +11,7 @@ class Player {
       sgVec3 velocity;
 
       float z_rotation;
+      int thrusting;
 
       GLuint shape;
 
@@ -24,6 +25,9 @@ class Player {
       int action();
       int render();
 };
+
+
+extern Player *player;
 
 #endif
 

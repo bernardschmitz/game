@@ -13,6 +13,7 @@
 #include "player.h"
 #include "input.h"
 #include "settings.h"
+#include "enemy.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265
@@ -22,8 +23,8 @@
 #define WIDTH 800
 #define HEIGHT 600
 
-static Background bg;
-static Player player;
+static Background *bg;
+static Enemy *enemy;
 
 static GLint T0 = 0;
 static GLint Frames = 0;
@@ -85,7 +86,7 @@ static void draw(void) {
    glLoadIdentity();
 
    sgVec3 pos;
-   player.getPosition(pos);
+   player->getPosition(pos);
 
    if(follow)
       glTranslatef(-pos[0], -pos[1], 0.0);
@@ -95,13 +96,15 @@ static void draw(void) {
 
    GLint st = SDL_GetTicks();
 
-   bg.render(pos, flags);
+   bg->render(pos, flags);
 
    GLint bg_time = SDL_GetTicks() - st;
 
    st = SDL_GetTicks();
 
-   player.render();
+   enemy->render();
+
+   player->render();
 
    GLint player_time = SDL_GetTicks() - st;
 
@@ -135,7 +138,8 @@ idle(void)
 
    input.process();
 
-   player.action();
+   player->action();
+   enemy->action();
 }
 
 /* new window size or exposure */
@@ -199,9 +203,13 @@ init(int argc, char *argv[])
   glEnable(GL_NORMALIZE);
 
 
-  bg = Background();
+  bg = new Background();
 
-  player = Player();
+   sgVec3 p =  { -10.0, 20.0, -10.0 };
+  
+   enemy = new Enemy(p);
+
+  player = new Player();
 
 
    box = glGenLists(1);
