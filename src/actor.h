@@ -1,11 +1,12 @@
 
-// $Id: actor.h,v 1.13 2003-08-21 18:47:15 bernard Exp $
+// $Id: actor.h,v 1.14 2003-08-22 18:19:31 bernard Exp $
 
 #ifndef __ACTOR_H__
 #define __ACTOR_H__
 
 #include <iostream>
 #include <vector>
+#include <string>
 
 #include "vector.h"
 
@@ -48,8 +49,9 @@ class Actor {
 
       float max_speed;
 
-      int actor_id;             // unique actor id
-      int actor_type;           // type
+      int id;             // unique actor id
+      int type;           // type
+      std::string name;
 
       float delay;                // delay counter
 
@@ -67,16 +69,17 @@ class Actor {
       Actor *hit_actor;
 
    public:
-      Actor(int type, vector3 pos=vector3(0.0f, 0.0f, 0.0f), vector3 vel=vector3(0.0f, 0.0f, 0.0f),  
-            float m=1.0f, float ms=1.0f, float br=1.0f, 
-            float mtf=1.0f, float msf=1.0f, float mbf=1.0f, 
-            vector3 dir=vector3(0.0f, 1.0f, 0.0f), vector3 up=vector3(0.0f, 0.0f, 1.0f));
+      Actor(int t, std::string s="Actor", const vector3& pos=vector3(0.0f, 0.0f, 0.0f), const vector3& vel=vector3(0.0f, 0.0f, 0.0f),  
+            float m=1.0f, float ms=10.0f, float r=1.0f, 
+            float mtf=100.0f, float msf=1.0f, float mbf=1.0f,
+            const vector3& dir=vector3(0.0f, 1.0f, 0.0f), const vector3& up=vector3(0.0f, 0.0f, 1.0f));
 
       virtual ~Actor() { }
 
 
-      int getType() { return actor_type; }
-      int getId() { return actor_id; }
+      int getType() { return type; }
+      int getId() { return id; }
+      std::string getName() { return name; }
 
       vector3 getPosition() { return position; }
       vector3 getVelocity() { return velocity; }

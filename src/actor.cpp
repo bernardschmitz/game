@@ -1,7 +1,8 @@
 
-// $Id: actor.cpp,v 1.13 2003-08-21 18:47:15 bernard Exp $
+// $Id: actor.cpp,v 1.14 2003-08-22 18:19:31 bernard Exp $
 
 #include <iostream>
+#include <sstream>
 
 #include "vector.h"
 #include "actor.h"
@@ -21,10 +22,14 @@ ActorManager *ActorManager::getInstance() {
 }
 
 
-Actor::Actor(int type, vector3 p, vector3 v, float m, float ms, float br, float mtf, float msf, float mbf, vector3 d, vector3 u) {
+Actor::Actor(int t, std::string s, const vector3& p, const vector3& v, float m, float ms, float r, float mtf, float msf, float mbf, const vector3& d, const vector3& u) {
 
-   actor_id = id_seq++;
-   actor_type = type;
+   id = id_seq++;
+   type = t;
+
+   std::stringstream ss;
+   ss << s << id;
+   name = ss.str();
 
    position = p;
    velocity = v;
@@ -38,7 +43,7 @@ Actor::Actor(int type, vector3 p, vector3 v, float m, float ms, float br, float 
 
    mass = m;
 
-   radius = br;
+   radius = r;
 
    max_speed = ms;
 
@@ -60,78 +65,60 @@ Actor::Actor(int type, vector3 p, vector3 v, float m, float ms, float br, float 
 }
 
 
-bool sphere_collision(const vector3& Ap, vector3& Av, const float Ar, const vector3& Bp, vector3& Bv, const float Br) {
+inline bool sphere_collision(const vector3& Ap, const vector3& Av, const float Ar, const vector3& Bp, const vector3& Bv, const float Br) {
 
-   vector3 move = Av - Bv;
+   const vector3 move = Av - Bv;
 
-   vector3 C = Bp - Ap;
+   const vector3 C = Bp - Ap;
 
-   float dist = C.length();
-   float sum_radii = Ar + Br;
+   const float dist_squared = C.lengthSquared();
+   const float sum_radii = Ar + Br;
+   const float sum_radii_squared = sum_radii * sum_radii;
 
-   //std::cout << "\n\tmove " << move << " move.length() " << move.length() << " C " << C << " dist " << dist << " sum_radii " << sum_radii << std::endl;
+   const float move_len_squared = move.lengthSquared();
 
-   if(move.length() < dist - sum_radii)
+   if(move_len_squared < dist_squared - sum_radii_squared)
       return false;
 
-   vector3 N = !move;
+   const float move_len = sqrt(move_len_squared);
 
-   float D = N * C;
+   const vector3 N = (move_len>0.0f)? move/move_len : move;
 
-   //std::cout << "\tN " << N << " D " << D << std::endl;
+   const float D = N * C;
+
    if(D <= 0.0f)
       return false;
 
-   float F = (dist * dist) - (D * D);
+   const float F = dist_squared - (D * D);
 
-   float sum_radii_squared = sum_radii * sum_radii;
-
-   //std::cout << "\tF " << F << " sum_radii_squared " << sum_radii_squared << std::endl;
    if(F >= sum_radii_squared)
       return false;
 
-   float T = sum_radii_squared - F;
+   const float T = sum_radii_squared - F;
 
-   //std::cout << "\tT " << T << std::endl;
    if(T < 0.0f)
       return false;
 
-   float distance = D - sqrt(T);
+   const float distance = D - sqrt(T);
 
-   float mag = move.length();
-
-   //std::cout << "\tdistance " << distance << " mag " << mag << std::endl;
-   if(mag < distance)
+   if(move_len < distance)
       return false;
 
-   //move = N*distance;
-
-
-   float t = 0.0f;
-
-//   if(mag < 0.001f)
-//      mag = 0.001f;
-
-   if(mag > 0.0f)
-      t = distance / mag;
-      //t = fabs(distance) / mag;
-
-//   if(t < -1.0)
-//      t = -1.0;
-//
-//   if(t > 1.0)
-//      t = 1.0;
-
-//   if(fabs(t) < 0.01f)
-//      t = 0.0f;
-
 /*
-   Av *= t;
-   Bv *= t;
+   vector3 new_move = !move * distance;
+
+   t = 0.0;
+
+   if(move.length() < 0.001f)
+      t = 0.0;
+   else
+      t = new_move.length() / move.length();
+
+   if(t >= 0.0 && t <= 1.0) {
+      Av *= t;
+      Bv *= t;
+   }
 */
-
-//   std::cout << "\tt " << t << std::endl;
-
    return true;
 }
 
@@ -186,7 +173,7 @@ ActorList ActorManager::get_actor_type_list(int type) {
    ActorList::iterator k = master_actor_list.begin();
 
    while(k != master_actor_list.end()) {
-      if((*k)->actor_type == type)
+      if((*k)->type == type)
          al.push_back((*k));
       k++;
    }
@@ -246,16 +233,25 @@ void ActorManager::collide(float dt) {
       vector3 Ap = master_actor_list[i]->position;
       float Ar = master_actor_list[i]->radius;
 
+//      int coll = 0;
+
       for(int j=i+1; j<master_actor_list.size(); ++j) {
       
-         if(master_actor_list[i]->collision_flags & master_actor_list[j]->actor_type) {
+         if(master_actor_list[i]->collision_flags & master_actor_list[j]->type) {
 
             vector3& Bdp = master_actor_list[j]->delta_position;
             vector3 Bp = master_actor_list[j]->position;
             float Br = master_actor_list[j]->radius;
    
             //std::cout << " check " << i << " against " << j;
-   
+
+/*
+            if( (Ap+Adp)*(Ap+Adp) + (Bp+Bdp)*(Bp+Bdp) < Ar*Ar+Br*Br ) {
+               Adp = vector3(0,0,0);
+               Bdp = vector3(0,0,0);
+            }
+*/
+
             if(sphere_collision(Ap, Adp, Ar, Bp, Bdp, Br)) {
                // calc collision response
    
@@ -266,17 +262,15 @@ void ActorManager::collide(float dt) {
                master_actor_list[j]->flags |= ACT_COLLISION;
                master_actor_list[j]->hit_actor = master_actor_list[i];
                master_actor_list[j]->hit_position = Bdp;
+
+//               coll++;
    
-   //            if(master_actor_list[i]->actor_type == ACT_PLAYER) {
-   /*
-                  std::cout << "check " << i << " against " << j << " HIT! " << std::endl;
-                  std::cout << "\tAp " << Ap << " Adp " << Adp << std::endl;
-                  std::cout << "\tBp " << Bp << " Bdp " << Bdp << std::endl;
-   */
-   //            }
             }
          }
       }
+
+ //     if(coll > 1) 
+ //        std::cout << master_actor_list[i]->name << " hit " << coll << " times.\n";
    }
 }
 
@@ -357,7 +351,6 @@ void ActorManager::update(float dt) {
 
       (*k)->speed = (*k)->velocity.length();
 
-      // TODO adjust velocities for collision here too
       ++k;
    }
 

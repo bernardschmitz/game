@@ -13,12 +13,14 @@
 Player *player = NULL;
 
 
-Player::Player() : Actor(ACT_PLAYER, vector3(0.0, 0.0, -10.0)) {
+Player::Player() : Actor(ACT_PLAYER, "Player", vector3(0.0, 0.0, -10.0)) {
 
    dot = TextureManager::getInstance()->load("white_spot.png");
 
    position.set(0.0f, 0.0f, -10.0f);
    velocity.set(0.0f, 0.0f, 0.0f);
+
+   radius = 0.5;
 
    z_rotation = 0.0;
 

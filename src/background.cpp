@@ -6,7 +6,7 @@
 #include "player.h"
 #include "texture.h"
 
-Background::Background() : Actor(ACT_BACKGROUND) {
+Background::Background() : Actor(ACT_BACKGROUND, "Background") {
 
 
    // default

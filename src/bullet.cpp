@@ -11,7 +11,7 @@
 
 
 
-Bullet::Bullet(vector3 p, vector3 v, vector3 f, float l) : Actor(ACT_BULLET, p, v, 10.0, 60.0) { 
+Bullet::Bullet(vector3 p, vector3 v, vector3 f, float l) : Actor(ACT_BULLET, "Bullet", p, v, 10.0, 60.0) { 
 
    delay = l;
 

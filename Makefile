@@ -1,5 +1,5 @@
 
-# $Id: Makefile,v 1.22 2003-08-18 00:32:46 bernard Exp $
+# $Id: Makefile,v 1.23 2003-08-22 18:19:31 bernard Exp $
 
 
 ifdef OPTIMIZE
@@ -16,8 +16,10 @@ else
       LF=-g
    endif
 endif
+
+# -Werror
   
-CPPFLAGS = $(CPPF) -Wall -DHAVE_OPENGL -DWIN32 `sdl-config --cflags`
+CPPFLAGS = $(CPPF) -Wall -Winline -DHAVE_OPENGL -DWIN32 `sdl-config --cflags`
 LFLAGS = $(LF) -lSDL_image `sdl-config --libs` -lopengl32 -lglu32 -ljpeg -lpng -lz -lm -llua -llualib
 
 CC=g++
@@ -783,7 +785,9 @@ src/actor.o: ../cross-tools/include/c++/3.2.3/limits
 src/actor.o: ../cross-tools/include/c++/3.2.3/i386-mingw32msvc/bits/cpu_limits.h
 src/actor.o: ../cross-tools/include/c++/3.2.3/typeinfo
 src/actor.o: ../cross-tools/include/c++/3.2.3/istream
-src/actor.o: ../cross-tools/include/c++/3.2.3/bits/istream.tcc src/vector.h
+src/actor.o: ../cross-tools/include/c++/3.2.3/bits/istream.tcc
+src/actor.o: ../cross-tools/include/c++/3.2.3/sstream
+src/actor.o: ../cross-tools/include/c++/3.2.3/bits/sstream.tcc src/vector.h
 src/actor.o: src/actor.h ../cross-tools/include/c++/3.2.3/vector
 src/actor.o: ../cross-tools/include/c++/3.2.3/bits/stl_vector.h
 src/actor.o: ../cross-tools/include/c++/3.2.3/bits/stl_bvector.h

@@ -34,7 +34,7 @@ truct ParticleDesc {
 */
 
 ParticleSystem::ParticleSystem(const vector3& vp, const vector3& vv, const ParticleDesc& pd) : 
-   Actor(ACT_PARTICLE, vp, vv) {
+   Actor(ACT_PARTICLE, "Particle", vp, vv) {
 
    desc = pd;
 

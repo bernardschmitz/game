@@ -11,7 +11,7 @@
 
 
 
-Enemy::Enemy(vector3 p) : Actor(ACT_ENEMY, p) { 
+Enemy::Enemy(vector3 p) : Actor(ACT_ENEMY, "Enemy", p) { 
 
    //can turn once a frame
    angular_vel.set(0.0, 0.0, degToRad(90.0/50.0));
@@ -22,9 +22,9 @@ Enemy::Enemy(vector3 p) : Actor(ACT_ENEMY, p) {
 
    mass = 10.0 + uniform_random_float(-4.0, 10.0);
 
-   //radius = 0.5 + uniform_random_float(-0.25, .75);
+   radius = 0.1 + uniform_random_float(0.1, .9);
    radius = 1.0;
-//   mass = 1.0;
+   mass = 1.0 * radius;
 
    collision_flags = ACT_ENEMY | ACT_BULLET | ACT_PLAYER;
 
