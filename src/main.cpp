@@ -17,6 +17,7 @@
 #include "enemy.h"
 #include "particle.h"
 #include "random.h"
+#include "interpolate.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265
@@ -101,7 +102,6 @@ static void draw(void) {
    sgVec3 vel;
    player->getVelocity(vel);
 
-
    float mag = -15.0*sgLengthVec3(vel);
 
    if(follow)
@@ -123,6 +123,40 @@ static void draw(void) {
    player->render();
 
    alParticles.render();
+
+
+   sgVec3 A, B, C, D;
+
+   sgCopyVec3(A, pos);
+   //sgSetVec3(A, -5.0, 0.0, -8.0);
+   sgSetVec3(B,  1.0, -2.0, -8.0);
+   sgSetVec3(C,  2.0, 2.0, -8.0);
+   sgSetVec3(D,  -2.0, 3.0, -8.0);
+
+   glBegin(GL_LINE_STRIP);
+        glVertex3f(A[0], A[1], A[2]);
+        glVertex3f(B[0], B[1], B[2]);
+        glVertex3f(C[0], C[1], C[2]);
+        glVertex3f(D[0], D[1], D[2]);
+   glEnd();
+
+   glBegin(GL_LINE_STRIP);
+     for(int i=0; i<=10; i++) {
+        sgVec3 p;
+        quadratic_interpolate(p, A, B, C, i/10.0);
+        glVertex3f(p[0], p[1], p[2]);
+     }
+   glEnd();
+
+   glBegin(GL_LINE_STRIP);
+     for(int i=0; i<=10; i++) {
+        sgVec3 p;
+        cubic_interpolate(p, A, B, C, D, i/10.0);
+        glVertex3f(p[0], p[1], p[2]);
+     }
+   glEnd();
+
+
 
    GLint player_time = SDL_GetTicks() - st;
 
@@ -424,36 +458,20 @@ int main(int argc, char *argv[])
 
 
 /*
-   float min = 100.0;
-   float max = -100.0;
-   float sum = 0.0;
-   for(int i=0; i<10000; i++) {
-      float k = random_float(-11.0, 11.0);
-      sum += k;
-      if(k > max)
-         max = k;
-      if(k < min)
-         min = k;
-   }
-   printf("\navg = %f min = %f max = %f\n", sum/10000.0, min, max);
+  sgVec3 A, B, C, D;
+
+  sgSetVec3(A, 0.0, 0.0, 0.0);
+  sgSetVec3(B, 1.0, 0.0, 0.0);
+  sgSetVec3(C, 2.0, 2.0, 0.0);
+  sgSetVec3(D, -1.0, -1.0, 0.0);
+
+  sgVec3 p[100];
+ 
+  bezier_curve(p, 4, A, B, C, D); 
+
+  for(int i=0; i<=2*2*2*2; i++)
+     printf("%d : %f %f %f\n", i, p[i][0], p[i][1], p[i][2]);
+
 */
-
-   int min = 100;
-   int max = -100;
-   int sum = 0;
-   for(int i=0; i<10000; i++) {
-      int k = random_int(-10, 10);
-      sum += k;
-      if(k > max)
-         max = k;
-      if(k < min)
-         min = k;
-   }
-   printf("\navg = %d min = %d max = %d\n", sum/10000, min, max);
-
-
-
-
-
   return 0;             /* ANSI C requires main to return int. */
 }

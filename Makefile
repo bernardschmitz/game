@@ -1,5 +1,5 @@
 
-# $Id: Makefile,v 1.9 2003-07-23 16:40:04 bernard Exp $
+# $Id: Makefile,v 1.10 2003-07-24 06:05:01 bernard Exp $
 
 CC=g++
 
@@ -14,11 +14,11 @@ LFLAGS = -lSDL_image `sdl-config --libs` -lopengl32 -lglu32 -ljpeg -lpng -lz -lm
 HEADERFILES =
 
 OBJS = src/main.o  src/background.o src/player.o src/input.o src/settings.o \
-       src/enemy.o src/actor.o src/particle.o src/random.o \
+       src/enemy.o src/actor.o src/particle.o src/random.o src/interpolate.o \
        src/sg/sg.o src/sg/sgIsect.o src/sg/sgPerlinNoise.o src/sg/sgd.o src/sg/sgdIsect.o
 
 SRCS = src/main.cpp  src/background.cpp src/player.cpp src/input.cpp  src/settings.cpp  \
-       src/enemy.cpp src/actor.cpp src/particle.cpp src/random.cpp \
+       src/enemy.cpp src/actor.cpp src/particle.cpp src/random.cpp src/interpolate.cpp \
        src/sg/sg.cpp src/sg/sgIsect.cpp src/sg/sgPerlinNoise.cpp src/sg/sgd.cpp src/sg/sgdIsect.cpp
 
 all : main.exe
@@ -436,6 +436,23 @@ src/particle.o: ../cross-tools/i386-mingw32msvc/include/float.h
 src/particle.o: ../cross-tools/lib/gcc-lib/i386-mingw32msvc/3.2.3/include/float.h
 src/particle.o: ../cross-tools/i386-mingw32msvc/include/assert.h src/actor.h
 src/particle.o: src/random.h
+src/random.o: src/random.h ../cross-tools/i386-mingw32msvc/include/stdlib.h
+src/random.o: ../cross-tools/i386-mingw32msvc/include/_mingw.h
+src/random.o: ../cross-tools/i386-mingw32msvc/include/stddef.h
+src/random.o: ../cross-tools/lib/gcc-lib/i386-mingw32msvc/3.2.3/include/stddef.h
+src/random.o: ../cross-tools/i386-mingw32msvc/include/math.h
+src/interpolate.o: src/interpolate.h src/sg/sg.h
+src/interpolate.o: ../cross-tools/i386-mingw32msvc/include/math.h
+src/interpolate.o: ../cross-tools/i386-mingw32msvc/include/_mingw.h
+src/interpolate.o: ../cross-tools/i386-mingw32msvc/include/float.h
+src/interpolate.o: ../cross-tools/lib/gcc-lib/i386-mingw32msvc/3.2.3/include/float.h
+src/interpolate.o: ../cross-tools/i386-mingw32msvc/include/assert.h
+src/interpolate.o: ../cross-tools/i386-mingw32msvc/include/stdio.h
+src/interpolate.o: ../cross-tools/i386-mingw32msvc/include/stddef.h
+src/interpolate.o: ../cross-tools/lib/gcc-lib/i386-mingw32msvc/3.2.3/include/stddef.h
+src/interpolate.o: ../cross-tools/i386-mingw32msvc/include/stdarg.h
+src/interpolate.o: ../cross-tools/lib/gcc-lib/i386-mingw32msvc/3.2.3/include/stdarg.h
+src/interpolate.o: ../cross-tools/i386-mingw32msvc/include/stdlib.h
 src/sg/sg.o: src/sg/sg.h ../cross-tools/i386-mingw32msvc/include/math.h
 src/sg/sg.o: ../cross-tools/i386-mingw32msvc/include/_mingw.h
 src/sg/sg.o: ../cross-tools/i386-mingw32msvc/include/float.h

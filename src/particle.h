@@ -13,6 +13,28 @@ struct Particle {
    int max_energy;
 };
 
+struct ParticleDesc {
+   int n;                        // total number
+   sgVec3 pos, vel;              // position and velocity of actor
+
+   sgVec3 gen_pos;               // position of generated particles relative to actor pos
+//   sgVec3 
+   // dir and vel of parts
+   // uniform or gaussian rand?
+   // pos of generated parts
+   // color, change due to vel?  alpha change due to vel
+   // size, change due to vel?
+   // generation speed, time, amount etc... gen automatically or not?
+   // list of extra accels
+   // list of avoid points, lines, planes, spheres etc...
+   // list of attract points, lines, planes, spheres etc...
+   // dt
+   // what to do when particle dies?  
+   // what to do when all particles are dead?
+   // move mode eg follow, flock, repell etc...
+   // inverse square for attraction or not?
+   // use vel and pos from actor or not?
+};
 
 class ParticleSystem : public Actor {
 
@@ -27,7 +49,8 @@ class ParticleSystem : public Actor {
       ParticleSystem();
       virtual ~ParticleSystem();
 
-      void init();
+      //virtual void init(int n, sgVec3 pos, sgVec3 vel, GLuint tex);
+      virtual void init();
 
       virtual void action();
       virtual void render();

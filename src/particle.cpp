@@ -35,10 +35,10 @@ ParticleSystem::ParticleSystem() : Actor() {
             tex[x][y][2]=0;   // Outside of the dot, it's transparent.
             tex[x][y][3]=0;   // Outside of the dot, it's transparent.
 
-            tex[x][y][0]= 240 - (240 * t) / hole_size + rand()%15;
-            tex[x][y][1]= 240 - (240 * t) / hole_size + rand()%15;
-            //tex[x][y][2]= 240 - (240 * t) / hole_size + rand()%15;
-            tex[x][y][3]= 240 - (240 * t) / hole_size + rand()%15;
+            tex[x][y][0]= 240 - (240 * t) / hole_size + uniform_random_int(0, 15);
+            tex[x][y][1]= 240 - (240 * t) / hole_size + uniform_random_int(0, 15);
+         //   tex[x][y][2]= 240 - (240 * t) / hole_size + uniform_random_int(0, 15);
+            tex[x][y][3]= 240 - (240 * t) / hole_size + uniform_random_int(0, 15);
          }
          else {
             tex[x][y][0]=0;   // Outside of the dot, it's transparent.
@@ -90,32 +90,37 @@ void ParticleSystem::init() {
    alive = n;
 
    for(int i=0; i<n; i++) {
-      p[i].pos[0] = random_float(-0.01, 0.01); 
-      p[i].pos[1] = random_float(-0.01, 0.01); 
+      p[i].pos[0] = uniform_random_float(-0.01, 0.01); 
+      p[i].pos[1] = uniform_random_float(-0.01, 0.01); 
       p[i].pos[2] = -10.0;
       sgCopyVec3(p[i].oldPos, p[i].pos);
-      p[i].vel[0] = random_float(-1.0, 1.0); 
-      p[i].vel[1] = random_float(-1.0, 1.0); 
-      p[i].vel[2] = random_float(-1.0, 1.0); 
+      p[i].vel[0] = uniform_random_float(-1.0, 1.0); 
+      p[i].vel[1] = uniform_random_float(-1.0, 1.0); 
+      p[i].vel[2] = uniform_random_float(-1.0, 1.0); 
       //p[i].vel[2] = 0.0;
-      sgNormalizeVec3(p[i].vel);
-      sgScaleVec3(p[i].vel, random_float(0.01, 0.15));
 
-      p[i].color[0] = random_float(0.5, 1.0); 
-      p[i].color[1] = random_float(0.5, 1.0); 
-      p[i].color[2] = random_float(0.5, 1.0); 
+      sgNormalizeVec3(p[i].vel);
+      //sgScaleVec3(p[i].vel, uniform_random_float(0.01, 0.15));
+      sgScaleVec3(p[i].vel, 0.15*gaussian_random_float(0.0, 2.0));
+
+      p[i].color[0] = uniform_random_float(0.5, 1.0); 
+      p[i].color[1] = uniform_random_float(0.5, 1.0); 
+      p[i].color[2] = uniform_random_float(0.5, 1.0); 
       p[i].color[3] = 1.0;
 
-      p[i].size = random_float(0.02, 0.2);
-      p[i].max_energy = p[i].energy = random_int(25, 50);
+      p[i].size = uniform_random_float(0.02, 0.2);
+      p[i].max_energy = p[i].energy = uniform_random_int(10, 50);
    }
 
    for(int i=0; i<250; i++) {
-      p[i].size = random_float(0.1, 0.3);
-      sgScaleVec3(p[i].vel, random_float(1.5, 2.5));
-      p[i].max_energy = p[i].energy = random_int(45, 75);
-   }
+      p[i].size = uniform_random_float(0.1, 0.3);
 
+      sgNormalizeVec3(p[i].vel);
+      //sgScaleVec3(p[i].vel, uniform_random_float(1.5, 2.5));
+      sgScaleVec3(p[i].vel, 0.15*gaussian_random_float(0.0, 1.0));
+
+      p[i].max_energy = p[i].energy = uniform_random_int(45, 75);
+   }
 
    sgVec3 u;
    sgSetVec3(u, 0.0, 0.0, 0.0);
@@ -158,19 +163,19 @@ void ParticleSystem::action() {
          p[i].energy = 0;
          alive++;
 /*
-      p[i].pos[0] = random_float(-0.01, 0.01); 
-      p[i].pos[1] = random_float(-0.01, 0.01); 
+      p[i].pos[0] = uniform_random_float(-0.01, 0.01); 
+      p[i].pos[1] = uniform_random_float(-0.01, 0.01); 
       p[i].pos[2] = -10.0;
       sgCopyVec3(p[i].oldPos, p[i].pos);
-      p[i].vel[0] = random_float(-1.0, 1.0); 
-      p[i].vel[1] = random_float(-1.0, 1.0); 
+      p[i].vel[0] = uniform_random_float(-1.0, 1.0); 
+      p[i].vel[1] = uniform_random_float(-1.0, 1.0); 
       p[i].vel[2] = 0.0;
       sgNormalizeVec3(p[i].vel);
-      sgScaleVec3(p[i].vel, random_float(0.01, 0.5));
+      sgScaleVec3(p[i].vel, uniform_random_float(0.01, 0.5));
 
-      p[i].color[0] = random_float(0.5, 1.0); 
-      p[i].color[1] = random_float(0.5, 1.0); 
-      p[i].color[2] = random_float(0.5, 1.0); 
+      p[i].color[0] = uniform_random_float(0.5, 1.0); 
+      p[i].color[1] = uniform_random_float(0.5, 1.0); 
+      p[i].color[2] = uniform_random_float(0.5, 1.0); 
       p[i].color[3] = 1.0;
 
       p[i].size = 0.25;
