@@ -1,5 +1,5 @@
 
-# $Id: Makefile,v 1.8 2003-07-23 07:41:25 bernard Exp $
+# $Id: Makefile,v 1.9 2003-07-23 16:40:04 bernard Exp $
 
 CC=g++
 
@@ -14,11 +14,11 @@ LFLAGS = -lSDL_image `sdl-config --libs` -lopengl32 -lglu32 -ljpeg -lpng -lz -lm
 HEADERFILES =
 
 OBJS = src/main.o  src/background.o src/player.o src/input.o src/settings.o \
-       src/enemy.o src/actor.o src/particle.o \
+       src/enemy.o src/actor.o src/particle.o src/random.o \
        src/sg/sg.o src/sg/sgIsect.o src/sg/sgPerlinNoise.o src/sg/sgd.o src/sg/sgdIsect.o
 
 SRCS = src/main.cpp  src/background.cpp src/player.cpp src/input.cpp  src/settings.cpp  \
-       src/enemy.cpp src/actor.cpp src/particle.cpp \
+       src/enemy.cpp src/actor.cpp src/particle.cpp src/random.cpp \
        src/sg/sg.cpp src/sg/sgIsect.cpp src/sg/sgPerlinNoise.cpp src/sg/sgd.cpp src/sg/sgdIsect.cpp
 
 all : main.exe
