@@ -14,6 +14,8 @@
 #include <stdio.h>
 #include <string.h>
 
+typedef unsigned char byte;
+
 #include "SDL.h"
 #include "SDL_opengl.h"
 #include "SDL_image.h"
@@ -25,7 +27,9 @@
 #include "actor.h"
 
 // TODO remove
-extern GLuint blurry_spot;
+//extern GLuint blurry_spot;
+
+
 
 #endif
 

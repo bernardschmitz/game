@@ -20,6 +20,8 @@
 #include "particle.h"
 #include "random.h"
 #include "interpolate.h"
+#include "image.h"
+#include "texture.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265
@@ -400,6 +402,12 @@ init(int argc, char *argv[])
    // We start with GL_MODULATE mode.
    glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
    //glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
+
+
+   blurry_spot = texture_manager.load("red_yellow_spot.png");
+//   blurry_spot = texture_manager.load("purple_star.png");
+
+ //  printf("blurry %d %d\n", texture_manager.width(blurry_spot), texture_manager.height(blurry_spot));
 
 
 

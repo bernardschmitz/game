@@ -7,10 +7,13 @@
 #include "particle.h"
 #include "random.h"
 #include "bullet.h"
+#include "texture.h"
 
 Player *player = NULL;
 
 Player::Player() : Actor(ACT_PLAYER, vector3(0.0, 0.0, -10.0), vector3(0.0, 0.0, 0.0), vector3(0.0, 0.0, 1.0) ) {
+
+   dot = texture_manager.load("purple_star.png");
 
    position.set(0.0f, 0.0f, -10.0f);
    velocity.set(0.0f, 0.0f, 0.0f);
@@ -730,6 +733,7 @@ void Player::render() {
 
 // under the ship...
 
+    texture_manager.bind(dot);
     glEnable(GL_TEXTURE_2D);
     glDisable(GL_LIGHTING);
     glShadeModel(GL_FLAT);

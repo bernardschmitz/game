@@ -3,6 +3,7 @@
 #include "bullet.h"
 #include "player.h"
 #include "random.h"
+#include "texture.h"
 
 #define MOVING      0
 #define TRACKING    1
@@ -21,6 +22,10 @@ Bullet::Bullet(vector3 p, vector3 v, int e) : Actor(ACT_BULLET, p, v, vector3(0.
          ang[i] = uniform_random_float(0.0, 2.0*M_PI);
          dis[i] = uniform_random_float(1.5, 4.5);
    }
+
+   tex = texture_manager.load("bullet.png");
+   tex2 = texture_manager.load("red_yellow_spot.png");
+
 }
 
 Bullet::~Bullet() {
@@ -131,7 +136,8 @@ void Bullet::render() {
 
    glDisable(GL_LIGHTING);
 
-   static float pink[] = { 0.75, 0.75, 0.75, 0.75 };
+   //static float pink[] = { 0.75, 0.75, 0.75, 0.75 };
+   static float pink[] = { 1.0, 1.0, 1.0, 1.0 };
    glColor4fv(pink);
 
 /*
@@ -162,6 +168,8 @@ void Bullet::render() {
     glEnd();
 */
 
+   //glBindTexture(GL_TEXTURE_2D, tex);
+   texture_manager.bind(tex);
    glEnable(GL_TEXTURE_2D);
 
    glEnable(GL_BLEND);
@@ -205,13 +213,13 @@ void Bullet::render() {
 
          p3 = position + up + dir;
 
-               glTexCoord2f(0.0, 0.0);
-               glVertex3f(p0.x, p0.y, p0.z);
                glTexCoord2f(0.0, 1.0);
-               glVertex3f(p1.x, p1.y, p1.z);
+               glVertex3f(p0.x, p0.y, p0.z);
                glTexCoord2f(1.0, 1.0);
-               glVertex3f(p2.x, p2.y, p2.z);
+               glVertex3f(p1.x, p1.y, p1.z);
                glTexCoord2f(1.0, 0.0);
+               glVertex3f(p2.x, p2.y, p2.z);
+               glTexCoord2f(0.0, 0.0);
                glVertex3f(p3.x, p3.y, p3.z);
 
    glEnd();
@@ -230,6 +238,7 @@ void Bullet::render() {
 
    if(squid) {
 
+   texture_manager.bind(tex2);
    glBegin(GL_QUADS);
   for(int j=0; j<3; j++) {
 
@@ -251,7 +260,7 @@ void Bullet::render() {
      if(dCD > mm)
         mm = dCD;
 
-     int step = 30 + mm*120/400;
+     int step = 30 + mm*100/400;
  
      for(int i=0; i<=step; i++) {
         p.cubic_interpolate(A, B, C, D, i/(float)step);
@@ -284,8 +293,7 @@ void Bullet::render() {
 
          p3 = p + up + dir;
      
-//         glColor4f(0.75, 0.75, 0.75, 0.25);
-         glColor4f(0.5, 0.5, 0.5, 0.25);
+         glColor4f(0.75, 0.75, 0.75, 0.5);
 
                glTexCoord2f(0.0, 0.0);
                glVertex3f(p0.x, p0.y, p0.z);

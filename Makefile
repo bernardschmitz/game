@@ -1,5 +1,5 @@
 
-# $Id: Makefile,v 1.13 2003-07-31 19:05:24 bernard Exp $
+# $Id: Makefile,v 1.14 2003-08-02 17:25:19 bernard Exp $
 
 
 ifdef OPTIMIZE
@@ -28,12 +28,12 @@ HEADERFILES =
 
 OBJS = src/main.o  src/background.o src/player.o src/input.o src/settings.o \
        src/enemy.o src/actor.o src/particle.o src/random.o src/interpolate.o \
-       src/bullet.o
+       src/bullet.o src/texture.o src/image.o
 #       src/sg/sg.o src/sg/sgIsect.o src/sg/sgPerlinNoise.o src/sg/sgd.o src/sg/sgdIsect.o
 
 SRCS = src/main.cpp  src/background.cpp src/player.cpp src/input.cpp  src/settings.cpp  \
        src/enemy.cpp src/actor.cpp src/particle.cpp src/random.cpp src/interpolate.cpp \
-       src/bullet.cpp
+       src/bullet.cpp src/texture.cpp src/image.cpp
 #       src/sg/sg.cpp src/sg/sgIsect.cpp src/sg/sgPerlinNoise.cpp src/sg/sgd.cpp src/sg/sgdIsect.cpp
 
 all : main.exe

@@ -17,7 +17,7 @@ class Player : public Actor {
       GLuint dl_right_wing;
       GLuint dl_left_engine;
       GLuint dl_right_engine;
-
+      int dot;
    public:
 
       Player();

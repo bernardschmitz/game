@@ -4,6 +4,8 @@
 
 #include "main.h"
 
+// need a factory
+
 class Bullet : public Actor {
 
    private:
@@ -14,6 +16,9 @@ class Bullet : public Actor {
 
       vector3 pts[12];
       float ang[4], dis[4];
+
+      int tex;
+      int tex2;
 
    public:
       Bullet(vector3 p, vector3 v, int e=20);

@@ -4,6 +4,11 @@
 #include "random.h"
 
 
+// TODO render ideas
+// trangle, point at oldpos, base at pos
+// as above with fuzzy blob at pos
+
+
 /*
 truct ParticleDesc {
    int n;                                         // total number
