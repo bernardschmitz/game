@@ -76,7 +76,7 @@ Background::Background() {
    for(int i=0; i<8; i++) {
       for(int j=0; j<32; j++) {
          sgLerpVec4(palette[i*32+j], map[i], map[(i+1)&0x7], j/32.0);
-         printf("%d : %f %f %f\n", i*32+j, palette[i*32+j][0], palette[i*32+j][1], palette[i*32+j][2]);
+         //printf("%d : %f %f %f\n", i*32+j, palette[i*32+j][0], palette[i*32+j][1], palette[i*32+j][2]);
       }
    }
 

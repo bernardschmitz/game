@@ -19,14 +19,15 @@
 #define M_PI 3.14159265
 #endif
 
-/*
 #define FS 0
 #define WIDTH 800
 #define HEIGHT 600
-*/
+
+/*
 #define FS 1
-#define WIDTH 640
-#define HEIGHT 480
+#define WIDTH 800
+#define HEIGHT 600
+*/
 
 static Background *bg;
 static Enemy *enemy;
@@ -131,7 +132,7 @@ static void draw(void) {
 
 
    // pause a little...
-   int ww = 1000/50 - (SDL_GetTicks() - st0);
+   int ww = 1000/48 - (SDL_GetTicks() - st0);
 
    if(ww > 1)
       SDL_Delay(ww);

@@ -1,5 +1,5 @@
 
-# $Id: Makefile,v 1.5 2003-07-21 22:28:55 bernard Exp $
+# $Id: Makefile,v 1.6 2003-07-22 16:48:53 bernard Exp $
 
 CC=g++
 
@@ -9,6 +9,7 @@ LD=$(CC)
 CPPFLAGS = -g -ansi -pedantic -Wall -DHAVE_OPENGL -DWIN32 `sdl-config --cflags` 
 #CPPFLAGS = -O3 -ansi -pedantic -Wall -DHAVE_OPENGL -DWIN32 `sdl-config --cflags` 
 LFLAGS = `sdl-config --libs` -lopengl32 -lglu32 -lSDL_image -ljpeg -lpng -lz -lm
+#LFLAGS = -pg `sdl-config --libs` -lopengl32 -lglu32 -lSDL_image -ljpeg -lpng -lz -lm
 
 HEADERFILES =
 
@@ -36,7 +37,7 @@ depend :
 		-I../cross-tools/include/SDL \
       -DWIN32 -DHAVE_OPENGL -Dmain=SDL_main  ${SRCS}
 
-view_obj.exe: src/view_obj.o src/object.c
+view_obj.exe: src/view_obj.o src/view_obj.cpp src/object.c
 	$(LD) -o $@ src/view_obj.o ${LFLAGS}
 
 

@@ -12,6 +12,8 @@ class Enemy : public Actor {
 
       sgQuat src, dst;
 
+      GLuint dl_enemy;
+
    public:
       Enemy(sgVec3 p);
       ~Enemy();
