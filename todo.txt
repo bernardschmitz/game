@@ -1,5 +1,5 @@
 
-$Id: todo.txt,v 1.5 2003-08-03 01:10:16 bernard Exp $
+$Id: todo.txt,v 1.6 2003-08-03 01:21:29 bernard Exp $
 
 have weapon and bomb class
 
@@ -31,4 +31,4 @@ polygon counter...
 
 export from blender in a format for glDrawElements.
 
-
+blah
