@@ -1,5 +1,7 @@
 
 
+have console interpret \n and split string...
+
 colors in console
 wrap long lines in console
 page up and down in console
@@ -32,4 +34,4 @@ polygon counter...
 export from blender in a format for glDrawElements.
 
 
-$Id: todo.txt,v 1.16 2003-08-07 01:41:18 bernard Exp $
+$Id: todo.txt,v 1.17 2003-08-07 02:53:44 bernard Exp $
